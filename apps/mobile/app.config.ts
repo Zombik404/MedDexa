@@ -47,6 +47,22 @@ const config: ExpoConfig = {
     'expo-image',
     'expo-web-browser',
     [
+      'expo-camera',
+      {
+        cameraPermission: 'MedDexa uses the camera only to read the barcode or the text on a medicine box. Photos are not stored.',
+        microphonePermission: false,
+        recordAudioAndroid: false,
+      },
+    ],
+    [
+      'expo-image-picker',
+      {
+        photosPermission: 'MedDexa reads the text on a photo of a medicine box you choose, to find that medicine. Photos are not stored.',
+        cameraPermission: 'MedDexa uses the camera only to read the barcode or the text on a medicine box. Photos are not stored.',
+        microphonePermission: false,
+      },
+    ],
+    [
       'expo-location',
       {
         locationWhenInUsePermission:

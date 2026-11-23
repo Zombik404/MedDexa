@@ -15,6 +15,8 @@ export interface MedicineFormValue {
   countryCode: string | null;
   status: string;
   verification: string;
+  imageUrl?: string | null;
+  imageCredit?: string | null;
 }
 
 const ROUTES = ['ORAL', 'CUTANEOUS', 'TRANSDERMAL', 'INTRAVENOUS', 'INTRAMUSCULAR', 'SUBCUTANEOUS', 'OCULAR', 'NASAL', 'RECTAL', 'INHALATION', 'SUBLINGUAL'];
@@ -32,6 +34,10 @@ export function MedicineForm({ initial, onSubmit, submitLabel }: { initial: Medi
       className="card"
       onSubmit={async (e) => {
         e.preventDefault();
+        if (v.imageUrl && !v.imageCredit) {
+          setError('A photo needs the credit its source requires.');
+          return;
+        }
         setBusy(true);
         setError(null);
         try {
@@ -75,6 +81,12 @@ export function MedicineForm({ initial, onSubmit, submitLabel }: { initial: Medi
           <select value={v.prescription} onChange={(e) => set({ prescription: e.target.value })}>
             {['RX', 'OTC', 'PHARMACY_ONLY', 'UNKNOWN'].map((r) => <option key={r}>{r}</option>)}
           </select>
+        </Field>
+        <Field label="Official photo URL (registry only)">
+          <input className="input" type="url" placeholder="https://…" value={v.imageUrl ?? ''} onChange={(e) => set({ imageUrl: nul(e.target.value) })} />
+        </Field>
+        <Field label="Photo credit (required with a photo)">
+          <input className="input" placeholder="e.g. AEMPS · CIMA" value={v.imageCredit ?? ''} onChange={(e) => set({ imageCredit: nul(e.target.value) })} />
         </Field>
         <Field label="Primary market"><input className="input" value={v.countryCode ?? ''} maxLength={2} onChange={(e) => set({ countryCode: nul(e.target.value.toUpperCase()) })} /></Field>
         <Field label="Status">

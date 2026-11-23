@@ -1,0 +1,30 @@
+# Barcode lookup by typed code (works on simulators without a camera), then the product page:
+# picture first, active ingredients below it, compare as the primary action.
+# Demo GTIN 2000000000114 = "Ibudex 400 mg film-coated tablets" (restricted-circulation prefix 20).
+appId: app.meddexa
+---
+- launchApp
+- tapOn:
+    id: "home-scan"
+- tapOn:
+    text: "Type the code instead"
+    optional: true
+- tapOn:
+    id: "scan-code-input"
+- inputText: "2000000000114"
+- tapOn:
+    id: "scan-find"
+- assertVisible:
+    id: "medicine-image"
+- assertVisible:
+    text: "Active ingredients"
+- assertVisible:
+    id: "ingredient-0"
+- tapOn:
+    id: "detail-compare"
+- assertVisible:
+    text: "In comparison"
+- tapOn:
+    id: "ingredient-0"
+- assertVisible:
+    id: "search-results"

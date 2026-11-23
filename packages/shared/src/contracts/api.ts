@@ -1,3 +1,4 @@
+import type { CodeSystem, ParsedScan } from '../barcode';
 import type {
   ComparisonResult,
   CompositionClass,
@@ -60,7 +61,10 @@ export interface MedicineSummary {
   prescription: PrescriptionStatus;
   packageSize: { quantity: number; unit: string } | null;
   ingredients: IngredientView[];
+  /** Official product photo (packaging) when a source publishes one; otherwise null. */
   imageUrl: string | null;
+  /** Attribution required by the photo's source, e.g. "AEMPS · CIMA". */
+  imageCredit: string | null;
   rating: { average: number; count: number } | null;
   /** Lowest verified price in the requested currency, when any exists. */
   lowestPrice: (Money & { converted: boolean; countryCode: string }) | null;
@@ -99,6 +103,8 @@ export interface SafetySectionView {
 export interface MedicineDetail extends MedicineSummary {
   synonyms: { name: string; language: string | null; countryCode: string | null }[];
   barcodes: string[];
+  /** Pack identifiers from official sources (GTIN, national codes). */
+  codes: { system: CodeSystem; code: string; countryCode: string | null }[];
   registrations: RegistrationView[];
   documents: DocumentView[];
   safety: SafetySectionView[];
@@ -294,4 +300,33 @@ export interface ApiErrorBody {
   message: string;
   code?: string;
   details?: unknown;
+}
+
+export interface CategoryView {
+  slug: string;
+  icon: string;
+  count: number;
+}
+
+export interface IngredientHit {
+  id: string;
+  name: string;
+  /** Matching translated/alternative name, when the query hit a synonym. */
+  synonym: string | null;
+  medicineCount: number;
+}
+
+export interface ScanLookupResponse {
+  scan: ParsedScan;
+  matches: MedicineSummary[];
+  /** True when the match was fetched live from an official registry for this scan. */
+  fetchedFromOfficialSource: boolean;
+}
+
+export interface PhotoSearchResponse {
+  /** Text lines recognised on the photo (not stored). */
+  recognizedText: string[];
+  /** Product-name terms that were searched. */
+  terms: string[];
+  matches: MedicineSummary[];
 }

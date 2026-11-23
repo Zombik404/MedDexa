@@ -28,9 +28,16 @@
     "hoursUnknown": "Openingstijden onbekend",
     "km": "{{value}} km",
     "m": "{{value}} m",
-    "notAdvice": "Alleen ter informatie — geen medisch advies. Vraag altijd uw apotheker of arts voordat u uw medicatie wijzigt."
+    "notAdvice": "Alleen ter informatie — geen medisch advies. Vraag altijd uw apotheker of arts voordat u uw medicatie wijzigt.",
+    "share": "Delen"
   },
-  "tabs": { "home": "Home", "search": "Zoeken", "compare": "Vergelijken", "pharmacies": "Apotheken", "profile": "Profiel" },
+  "tabs": {
+    "home": "Home",
+    "search": "Zoeken",
+    "compare": "Vergelijken",
+    "pharmacies": "Apotheken",
+    "profile": "Profiel"
+  },
   "errors": {
     "title": "Er ging iets mis",
     "body": "Dit kon nu niet worden geladen.",
@@ -57,7 +64,7 @@
     "morning": "Goedemorgen",
     "afternoon": "Goedemiddag",
     "evening": "Goedenavond",
-    "searchPlaceholder": "Zoek geneesmiddelen, werkzame stoffen…",
+    "searchPlaceholder": "Geneesmiddel of werkzame stof",
     "locating": "Locatie bepalen…",
     "locationOff": "Locatie uit",
     "enableLocation": "Locatie inschakelen",
@@ -77,11 +84,14 @@
     "scNearby": "Nu open",
     "scHistory": "Geschiedenis",
     "scFavorites": "Favorieten",
-    "scPrices": "Prijzen"
+    "scPrices": "Prijzen",
+    "title": "Wat zoek je?",
+    "searchHint": "Typ een naam, scan de barcode of maak een foto van de doos.",
+    "openMap": "Kaart openen"
   },
   "search": {
     "title": "Zoeken",
-    "placeholder": "Naam, werkzame stof, merk, barcode…",
+    "placeholder": "Naam of werkzame stof",
     "recent": "Recente zoekopdrachten",
     "popular": "Populair",
     "suggestions": "Suggesties",
@@ -94,8 +104,13 @@
     "noResultsBody": "Probeer een andere spelling, de naam van de werkzame stof of minder filters.",
     "clearFilters": "Filters wissen",
     "startTitle": "Vind elk geneesmiddel",
-    "startBody": "Zoek op naam, werkzame stof, fabrikant, sterkte, ATC-code, barcode of registratienummer.",
-    "type": { "medicine": "Geneesmiddel", "ingredient": "Werkzame stof", "manufacturer": "Fabrikant", "atc": "ATC-klasse" },
+    "startBody": "Of typ hierboven een geneesmiddel of werkzame stof.",
+    "type": {
+      "medicine": "Geneesmiddel",
+      "ingredient": "Werkzame stof",
+      "manufacturer": "Fabrikant",
+      "atc": "ATC-klasse"
+    },
     "f": {
       "ingredients": "Werkzame stoffen",
       "ingredientsHint": "Gescheiden door komma's, bijv. paracetamol, cafeïne",
@@ -113,9 +128,26 @@
       "hasPrice": "Alleen met actuele prijs",
       "any": "Alle"
     },
-    "s": { "relevance": "Relevantie", "name": "Naam", "price_asc": "Prijs: laag naar hoog", "price_desc": "Prijs: hoog naar laag", "rating": "Beoordeling" }
+    "s": {
+      "relevance": "Relevantie",
+      "name": "Naam",
+      "price_asc": "Prijs: laag naar hoog",
+      "price_desc": "Prijs: hoog naar laag",
+      "rating": "Beoordeling"
+    },
+    "searchFor": "Zoeken naar ‘{{q}}’",
+    "ingredientsGroup": "Werkzame stoffen",
+    "medicinesGroup": "Geneesmiddelen",
+    "ingredientChip": "Werkzame stof",
+    "productCount_one": "{{count}} product",
+    "productCount_other": "{{count}} producten"
   },
-  "rx": { "RX": "Receptplichtig", "OTC": "Zonder recept", "PHARMACY_ONLY": "Alleen bij apotheek", "UNKNOWN": "Status onbekend" },
+  "rx": {
+    "RX": "Receptplichtig",
+    "OTC": "Zonder recept",
+    "PHARMACY_ONLY": "Alleen bij apotheek",
+    "UNKNOWN": "Status onbekend"
+  },
   "release": {
     "IMMEDIATE": "Directe afgifte",
     "MODIFIED": "Gereguleerde afgifte",
@@ -151,8 +183,19 @@
     "registrations": "Registraties per land",
     "registrationsNote": "Namen en status kunnen per land verschillen. Elke registratie verwijst naar het register van de nationale autoriteit.",
     "documents": "Officiële documenten",
-    "doc": { "SMPC": "Samenvatting van de productkenmerken", "PIL": "Bijsluiter", "EPAR": "Europees openbaar beoordelingsrapport", "LABEL": "Etikettering", "OTHER": "Document" },
-    "safety": { "WARNINGS": "Waarschuwingen", "CONTRAINDICATIONS": "Contra-indicaties", "SIDE_EFFECTS": "Bijwerkingen", "DOSAGE": "Dosering" },
+    "doc": {
+      "SMPC": "Samenvatting van de productkenmerken",
+      "PIL": "Bijsluiter",
+      "EPAR": "Europees openbaar beoordelingsrapport",
+      "LABEL": "Etikettering",
+      "OTHER": "Document"
+    },
+    "safety": {
+      "WARNINGS": "Waarschuwingen",
+      "CONTRAINDICATIONS": "Contra-indicaties",
+      "SIDE_EFFECTS": "Bijwerkingen",
+      "DOSAGE": "Dosering"
+    },
     "officialInfo": "Officiële productinformatie",
     "officialNote": "Overgenomen uit officiële documentatie, nooit gegenereerd. Lees de bijsluiter van uw exacte product.",
     "prices": "Prijzen in Europa",
@@ -164,7 +207,17 @@
     "noPrice": "Geen actuele prijs",
     "barcodes": "Barcodes",
     "demoNotice": "Dit zijn fictieve demogegevens voor ontwikkeling.",
-    "noDocuments": "Nog geen officiële documenten gekoppeld."
+    "noDocuments": "Nog geen officiële documenten gekoppeld.",
+    "photoOf": "Foto van {{name}}",
+    "noPhoto": "Geen officiële foto",
+    "photoCredit": "Foto: {{source}}",
+    "noPhotoNote": "Geen officiële foto beschikbaar — illustratie van de toedieningsvorm",
+    "ingredientHint": "Toont alle geneesmiddelen met deze stof",
+    "amountUnknown": "hoeveelheid niet vermeld",
+    "findPharmacy": "Apotheken in de buurt",
+    "save": "Bewaren",
+    "saved": "Bewaard",
+    "sameComposition": "Dezelfde werkzame stoffen"
   },
   "composition": {
     "SAME_ACTIVE_INGREDIENT": "Zelfde werkzame stof",
@@ -203,7 +256,12 @@
     "DIFFERENT_PACKAGE_SIZE": "Andere verpakking: {{ref}} vs {{other}}",
     "DIFFERENT_COUNTRY": "Geregistreerd in verschillende landen"
   },
-  "severity": { "critical": "Kritiek", "major": "Belangrijk", "minor": "Klein", "info": "Info" },
+  "severity": {
+    "critical": "Kritiek",
+    "major": "Belangrijk",
+    "minor": "Klein",
+    "info": "Info"
+  },
   "cell": {
     "REFERENCE": "Referentie",
     "SAME": "Gelijk",
@@ -242,7 +300,17 @@
     "critical_other": "{{count}} kritieke verschillen",
     "major_one": "{{count}} belangrijk verschil",
     "major_other": "{{count}} belangrijke verschillen",
-    "attr": { "brand": "Merk", "manufacturer": "Fabrikant", "country": "Land", "atcCode": "ATC-code", "form": "Vorm", "route": "Toediening", "release": "Afgifte", "prescription": "Aflevering", "packageSize": "Verpakking" }
+    "attr": {
+      "brand": "Merk",
+      "manufacturer": "Fabrikant",
+      "country": "Land",
+      "atcCode": "ATC-code",
+      "form": "Vorm",
+      "route": "Toediening",
+      "release": "Afgifte",
+      "prescription": "Aflevering",
+      "packageSize": "Verpakking"
+    }
   },
   "prices": {
     "title": "Prijsvergelijking",
@@ -259,9 +327,18 @@
     "fallbackRates": "Ontwikkelkoersen — niet live.",
     "nationalList": "Nationale prijslijst",
     "history": "Prijsgeschiedenis",
-    "type": { "RETAIL": "Apotheekprijs", "MAX_RETAIL": "Maximale verkoopprijs", "REIMBURSEMENT_REFERENCE": "Gereguleerde prijs" }
+    "type": {
+      "RETAIL": "Apotheekprijs",
+      "MAX_RETAIL": "Maximale verkoopprijs",
+      "REIMBURSEMENT_REFERENCE": "Gereguleerde prijs"
+    }
   },
-  "availability": { "IN_STOCK": "Op voorraad", "LIMITED": "Beperkt", "OUT_OF_STOCK": "Niet op voorraad", "UNKNOWN": "Beschikbaarheid onbekend" },
+  "availability": {
+    "IN_STOCK": "Op voorraad",
+    "LIMITED": "Beperkt",
+    "OUT_OF_STOCK": "Niet op voorraad",
+    "UNKNOWN": "Beschikbaarheid onbekend"
+  },
   "pharmacies": {
     "title": "Apotheken",
     "placeholder": "Stad, adres, postcode of naam",
@@ -292,7 +369,15 @@
     "mapWeb": "De interactieve kaart is beschikbaar in de mobiele app.",
     "coverage": "De dekking van apotheken verschilt per land en komt uit officiële registers en erkende aanbieders."
   },
-  "days": ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"],
+  "days": [
+    "Maandag",
+    "Dinsdag",
+    "Woensdag",
+    "Donderdag",
+    "Vrijdag",
+    "Zaterdag",
+    "Zondag"
+  ],
   "reviews": {
     "title": "Beoordelingen",
     "write": "Beoordeling schrijven",
@@ -316,8 +401,17 @@
     "signIn": "Log in om een beoordeling te schrijven",
     "count_one": "{{count}} beoordeling",
     "count_other": "{{count}} beoordelingen",
-    "reason": { "SPAM": "Spam", "ABUSIVE": "Beledigend", "MEDICAL_MISINFORMATION": "Medische desinformatie", "PERSONAL_DATA": "Persoonsgegevens", "OFF_TOPIC": "Niet relevant", "OTHER": "Overig" },
-    "errors": { "tooShort": "Schrijf minstens 20 tekens." }
+    "reason": {
+      "SPAM": "Spam",
+      "ABUSIVE": "Beledigend",
+      "MEDICAL_MISINFORMATION": "Medische desinformatie",
+      "PERSONAL_DATA": "Persoonsgegevens",
+      "OFF_TOPIC": "Niet relevant",
+      "OTHER": "Overig"
+    },
+    "errors": {
+      "tooShort": "Schrijf minstens 20 tekens."
+    }
   },
   "auth": {
     "signInTitle": "Welkom terug",
@@ -362,7 +456,11 @@
     "currency": "Valuta",
     "currencyNote": "Prijzen in andere valuta worden als schatting getoond.",
     "appearance": "Weergave",
-    "theme": { "system": "Systeem", "light": "Licht", "dark": "Donker" },
+    "theme": {
+      "system": "Systeem",
+      "light": "Licht",
+      "dark": "Donker"
+    },
     "notifications": "Meldingen",
     "notifyPrices": "Prijswijzigingen van favorieten",
     "notifyProducts": "Updates van productinformatie",
@@ -378,5 +476,54 @@
     "disclaimer": "Medische disclaimer",
     "version": "Versie {{version}}",
     "empty": "Hier staat nog niets."
+  },
+  "category": {
+    "pain": "Pijnstillers",
+    "cold": "Verkoudheid en hoest",
+    "allergy": "Allergie",
+    "digestion": "Maag en spijsvertering",
+    "skin": "Huid",
+    "vitamins": "Vitaminen en mineralen",
+    "heart": "Hart en bloeddruk",
+    "sleep": "Slaap en rust",
+    "eyes-ears": "Ogen en oren",
+    "antibiotics": "Antibiotica",
+    "diabetes": "Diabetes",
+    "womens-health": "Vrouwengezondheid"
+  },
+  "scan": {
+    "title": "Barcode scannen",
+    "subtitle": "Richt de camera op de barcode van de doos",
+    "torch": "Zaklamp",
+    "searching": "Zoeken…",
+    "aim": "Richt de camera op de barcode of de vierkante code op de doos",
+    "typeCode": "Code intypen",
+    "severalTitle": "Meerdere producten passen bij deze code",
+    "again": "Opnieuw scannen",
+    "notFoundTitle": "Deze code kennen we nog niet",
+    "notFoundBody": "Hij staat niet in de officiële databanken die we gebruiken. Probeer een foto van de doos of zoek op naam.",
+    "searchByName": "Zoeken op naam",
+    "permission": "Sta cameratoegang toe om barcodes te scannen. Er wordt niets opgenomen of bewaard.",
+    "allowCamera": "Camera toestaan",
+    "manualHint": "Voer de cijfers onder de barcode (EAN, 13 cijfers) of de nationale code van de doos in.",
+    "codeLabel": "Code van de doos",
+    "find": "Zoeken",
+    "useCamera": "Camera gebruiken"
+  },
+  "photo": {
+    "title": "Foto van de doos",
+    "subtitle": "We lezen naam en sterkte van de verpakking",
+    "yourPhoto": "Je foto",
+    "reading": "Tekst op de doos lezen…",
+    "tip": "Fotografeer de voorkant van de doos zodat naam en sterkte goed leesbaar zijn.",
+    "severalTitle": "Is het een van deze?",
+    "notFoundTitle": "We konden dit geneesmiddel niet herkennen",
+    "notFoundBody": "Probeer opnieuw bij goed licht met de naam scherp, of zoek op naam.",
+    "searchWord": "Zoeken naar ‘{{word}}’",
+    "cameraDenied": "Cameratoegang staat uit. Zet hem aan in Instellingen of kies een foto uit de galerij.",
+    "retake": "Nieuwe foto",
+    "takePhoto": "Foto maken",
+    "fromGallery": "Kiezen uit galerij",
+    "privacy": "De foto wordt alleen gebruikt om de tekst te lezen en wordt niet bewaard."
   }
 }

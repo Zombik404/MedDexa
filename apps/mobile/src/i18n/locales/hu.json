@@ -28,9 +28,16 @@
     "hoursUnknown": "Nyitvatartás ismeretlen",
     "km": "{{value}} km",
     "m": "{{value}} m",
-    "notAdvice": "Csak tájékoztatás — nem orvosi tanács. Gyógyszerváltás előtt mindig kérdezze meg gyógyszerészét vagy orvosát."
+    "notAdvice": "Csak tájékoztatás — nem orvosi tanács. Gyógyszerváltás előtt mindig kérdezze meg gyógyszerészét vagy orvosát.",
+    "share": "Megosztás"
   },
-  "tabs": { "home": "Kezdőlap", "search": "Keresés", "compare": "Összevetés", "pharmacies": "Patikák", "profile": "Profil" },
+  "tabs": {
+    "home": "Kezdőlap",
+    "search": "Keresés",
+    "compare": "Összevetés",
+    "pharmacies": "Patikák",
+    "profile": "Profil"
+  },
   "errors": {
     "title": "Hiba történt",
     "body": "Ezt most nem sikerült betölteni.",
@@ -57,7 +64,7 @@
     "morning": "Jó reggelt",
     "afternoon": "Jó napot",
     "evening": "Jó estét",
-    "searchPlaceholder": "Gyógyszerek, hatóanyagok keresése…",
+    "searchPlaceholder": "Gyógyszer vagy hatóanyag",
     "locating": "Helymeghatározás…",
     "locationOff": "Helymeghatározás ki",
     "enableLocation": "Helymeghatározás bekapcsolása",
@@ -77,11 +84,14 @@
     "scNearby": "Most nyitva",
     "scHistory": "Előzmények",
     "scFavorites": "Kedvencek",
-    "scPrices": "Árak"
+    "scPrices": "Árak",
+    "title": "Mit keresel?",
+    "searchHint": "Írd be a nevét, olvasd be a vonalkódot, vagy fotózd le a dobozt.",
+    "openMap": "Térkép megnyitása"
   },
   "search": {
     "title": "Keresés",
-    "placeholder": "Név, hatóanyag, márka, vonalkód…",
+    "placeholder": "Név vagy hatóanyag",
     "recent": "Legutóbbi keresések",
     "popular": "Népszerű",
     "suggestions": "Javaslatok",
@@ -94,8 +104,13 @@
     "noResultsBody": "Próbáljon más írásmódot, a hatóanyag nevét, vagy kevesebb szűrőt.",
     "clearFilters": "Szűrők törlése",
     "startTitle": "Bármely gyógyszer megtalálása",
-    "startBody": "Keressen név, hatóanyag, gyártó, hatáserősség, ATC-kód, vonalkód vagy forgalombahozatali szám alapján.",
-    "type": { "medicine": "Gyógyszer", "ingredient": "Hatóanyag", "manufacturer": "Gyártó", "atc": "ATC-osztály" },
+    "startBody": "Vagy írd be fent a gyógyszer nevét vagy a hatóanyagot.",
+    "type": {
+      "medicine": "Gyógyszer",
+      "ingredient": "Hatóanyag",
+      "manufacturer": "Gyártó",
+      "atc": "ATC-osztály"
+    },
     "f": {
       "ingredients": "Hatóanyagok",
       "ingredientsHint": "Vesszővel elválasztva, pl. paracetamol, koffein",
@@ -113,9 +128,26 @@
       "hasPrice": "Csak aktuális árral",
       "any": "Bármely"
     },
-    "s": { "relevance": "Relevancia", "name": "Név", "price_asc": "Ár: növekvő", "price_desc": "Ár: csökkenő", "rating": "Értékelés" }
+    "s": {
+      "relevance": "Relevancia",
+      "name": "Név",
+      "price_asc": "Ár: növekvő",
+      "price_desc": "Ár: csökkenő",
+      "rating": "Értékelés"
+    },
+    "searchFor": "„{{q}}” keresése",
+    "ingredientsGroup": "Hatóanyagok",
+    "medicinesGroup": "Gyógyszerek",
+    "ingredientChip": "Hatóanyag",
+    "productCount_one": "{{count}} termék",
+    "productCount_other": "{{count}} termék"
   },
-  "rx": { "RX": "Vényköteles", "OTC": "Vény nélkül kapható", "PHARMACY_ONLY": "Csak patikában", "UNKNOWN": "Ismeretlen besorolás" },
+  "rx": {
+    "RX": "Vényköteles",
+    "OTC": "Vény nélkül kapható",
+    "PHARMACY_ONLY": "Csak patikában",
+    "UNKNOWN": "Ismeretlen besorolás"
+  },
   "release": {
     "IMMEDIATE": "Azonnali hatóanyag-leadás",
     "MODIFIED": "Módosított hatóanyag-leadás",
@@ -151,8 +183,19 @@
     "registrations": "Engedélyek országonként",
     "registrationsNote": "A nevek és az engedélyek állapota országonként eltérhet. Minden engedély a nemzeti hatóság nyilvántartására hivatkozik.",
     "documents": "Hivatalos dokumentumok",
-    "doc": { "SMPC": "Alkalmazási előírás", "PIL": "Betegtájékoztató", "EPAR": "Európai nyilvános értékelő jelentés", "LABEL": "Címke", "OTHER": "Dokumentum" },
-    "safety": { "WARNINGS": "Figyelmeztetések", "CONTRAINDICATIONS": "Ellenjavallatok", "SIDE_EFFECTS": "Mellékhatások", "DOSAGE": "Adagolás" },
+    "doc": {
+      "SMPC": "Alkalmazási előírás",
+      "PIL": "Betegtájékoztató",
+      "EPAR": "Európai nyilvános értékelő jelentés",
+      "LABEL": "Címke",
+      "OTHER": "Dokumentum"
+    },
+    "safety": {
+      "WARNINGS": "Figyelmeztetések",
+      "CONTRAINDICATIONS": "Ellenjavallatok",
+      "SIDE_EFFECTS": "Mellékhatások",
+      "DOSAGE": "Adagolás"
+    },
     "officialInfo": "Hivatalos termékinformáció",
     "officialNote": "Hivatalos dokumentációból származik, sosem generált szöveg. Olvassa el a pontosan Ön által használt termék betegtájékoztatóját.",
     "prices": "Árak Európa-szerte",
@@ -164,7 +207,17 @@
     "noPrice": "Nincs aktuális ár",
     "barcodes": "Vonalkódok",
     "demoNotice": "Ez fejlesztés során használt, kitalált demó adat.",
-    "noDocuments": "Még nincs hivatalos dokumentum csatolva."
+    "noDocuments": "Még nincs hivatalos dokumentum csatolva.",
+    "photoOf": "{{name}} fotója",
+    "noPhoto": "Nincs hivatalos fotó",
+    "photoCredit": "Fotó: {{source}}",
+    "noPhotoNote": "Nincs hivatalos fotó — a gyógyszerforma illusztrációja",
+    "ingredientHint": "Az összes gyógyszer ezzel a hatóanyaggal",
+    "amountUnknown": "mennyiség nincs megadva",
+    "findPharmacy": "Közeli patikák",
+    "save": "Mentés",
+    "saved": "Elmentve",
+    "sameComposition": "Azonos hatóanyagok"
   },
   "composition": {
     "SAME_ACTIVE_INGREDIENT": "Azonos hatóanyag",
@@ -203,7 +256,12 @@
     "DIFFERENT_PACKAGE_SIZE": "Eltérő kiszerelés: {{ref}} vs. {{other}}",
     "DIFFERENT_COUNTRY": "Különböző országokban engedélyezve"
   },
-  "severity": { "critical": "Kritikus", "major": "Lényeges", "minor": "Kisebb", "info": "Infó" },
+  "severity": {
+    "critical": "Kritikus",
+    "major": "Lényeges",
+    "minor": "Kisebb",
+    "info": "Infó"
+  },
   "cell": {
     "REFERENCE": "Referencia",
     "SAME": "Azonos",
@@ -242,7 +300,17 @@
     "critical_other": "{{count}} kritikus eltérés",
     "major_one": "{{count}} lényeges eltérés",
     "major_other": "{{count}} lényeges eltérés",
-    "attr": { "brand": "Márka", "manufacturer": "Gyártó", "country": "Ország", "atcCode": "ATC-kód", "form": "Forma", "route": "Alkalmazás", "release": "Hatóanyag-leadás", "prescription": "Rendelhetőség", "packageSize": "Kiszerelés" }
+    "attr": {
+      "brand": "Márka",
+      "manufacturer": "Gyártó",
+      "country": "Ország",
+      "atcCode": "ATC-kód",
+      "form": "Forma",
+      "route": "Alkalmazás",
+      "release": "Hatóanyag-leadás",
+      "prescription": "Rendelhetőség",
+      "packageSize": "Kiszerelés"
+    }
   },
   "prices": {
     "title": "Ár-összehasonlítás",
@@ -259,9 +327,18 @@
     "fallbackRates": "Fejlesztői árfolyamok — nem élő adat.",
     "nationalList": "Nemzeti árlista",
     "history": "Ártörténet",
-    "type": { "RETAIL": "Patikai ár", "MAX_RETAIL": "Legmagasabb fogyasztói ár", "REIMBURSEMENT_REFERENCE": "Hatósági ár" }
+    "type": {
+      "RETAIL": "Patikai ár",
+      "MAX_RETAIL": "Legmagasabb fogyasztói ár",
+      "REIMBURSEMENT_REFERENCE": "Hatósági ár"
+    }
   },
-  "availability": { "IN_STOCK": "Készleten", "LIMITED": "Korlátozottan", "OUT_OF_STOCK": "Nincs készleten", "UNKNOWN": "Készlet ismeretlen" },
+  "availability": {
+    "IN_STOCK": "Készleten",
+    "LIMITED": "Korlátozottan",
+    "OUT_OF_STOCK": "Nincs készleten",
+    "UNKNOWN": "Készlet ismeretlen"
+  },
   "pharmacies": {
     "title": "Patikák",
     "placeholder": "Város, cím, irányítószám vagy név",
@@ -292,7 +369,15 @@
     "mapWeb": "Az interaktív térkép a mobilalkalmazásban érhető el.",
     "coverage": "A patikák lefedettsége országonként eltér; az adatok hivatalos nyilvántartásokból és engedélyezett szolgáltatóktól származnak."
   },
-  "days": ["Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat", "Vasárnap"],
+  "days": [
+    "Hétfő",
+    "Kedd",
+    "Szerda",
+    "Csütörtök",
+    "Péntek",
+    "Szombat",
+    "Vasárnap"
+  ],
   "reviews": {
     "title": "Értékelések",
     "write": "Értékelés írása",
@@ -316,8 +401,17 @@
     "signIn": "Jelentkezzen be az értékeléshez",
     "count_one": "{{count}} értékelés",
     "count_other": "{{count}} értékelés",
-    "reason": { "SPAM": "Spam", "ABUSIVE": "Sértő", "MEDICAL_MISINFORMATION": "Orvosi félretájékoztatás", "PERSONAL_DATA": "Személyes adat", "OFF_TOPIC": "Nem a témához tartozik", "OTHER": "Egyéb" },
-    "errors": { "tooShort": "Kérjük, írjon legalább 20 karaktert." }
+    "reason": {
+      "SPAM": "Spam",
+      "ABUSIVE": "Sértő",
+      "MEDICAL_MISINFORMATION": "Orvosi félretájékoztatás",
+      "PERSONAL_DATA": "Személyes adat",
+      "OFF_TOPIC": "Nem a témához tartozik",
+      "OTHER": "Egyéb"
+    },
+    "errors": {
+      "tooShort": "Kérjük, írjon legalább 20 karaktert."
+    }
   },
   "auth": {
     "signInTitle": "Üdvözöljük újra",
@@ -362,7 +456,11 @@
     "currency": "Pénznem",
     "currencyNote": "Más pénznemben az árak becslésként jelennek meg.",
     "appearance": "Megjelenés",
-    "theme": { "system": "Rendszer", "light": "Világos", "dark": "Sötét" },
+    "theme": {
+      "system": "Rendszer",
+      "light": "Világos",
+      "dark": "Sötét"
+    },
     "notifications": "Értesítések",
     "notifyPrices": "Árváltozások a kedvencekhez",
     "notifyProducts": "Termékinformációk frissülése",
@@ -378,5 +476,54 @@
     "disclaimer": "Orvosi jogi nyilatkozat",
     "version": "Verzió: {{version}}",
     "empty": "Itt még nincs semmi."
+  },
+  "category": {
+    "pain": "Fájdalomcsillapítók",
+    "cold": "Megfázás és köhögés",
+    "allergy": "Allergia",
+    "digestion": "Gyomor és emésztés",
+    "skin": "Bőr",
+    "vitamins": "Vitaminok és ásványi anyagok",
+    "heart": "Szív és vérnyomás",
+    "sleep": "Alvás és nyugtatók",
+    "eyes-ears": "Szem és fül",
+    "antibiotics": "Antibiotikumok",
+    "diabetes": "Cukorbetegség",
+    "womens-health": "Női egészség"
+  },
+  "scan": {
+    "title": "Vonalkód beolvasása",
+    "subtitle": "Irányítsd a kamerát a doboz vonalkódjára",
+    "torch": "Zseblámpa",
+    "searching": "Keresés…",
+    "aim": "Irányítsd a kamerát a vonalkódra vagy a négyzetes kódra a dobozon",
+    "typeCode": "Kód beírása kézzel",
+    "severalTitle": "Több termék tartozik ehhez a kódhoz",
+    "again": "Újra beolvasom",
+    "notFoundTitle": "Ezt a kódot még nem ismerjük",
+    "notFoundBody": "Nem szerepel az általunk használt hivatalos adatbázisokban. Próbáld a doboz fotójával vagy név szerinti kereséssel.",
+    "searchByName": "Keresés név szerint",
+    "permission": "Engedélyezd a kamerát a vonalkódok beolvasásához. Semmit nem rögzítünk és nem tárolunk.",
+    "allowCamera": "Kamera engedélyezése",
+    "manualHint": "Írd be a vonalkód alatti számot (EAN, 13 számjegy) vagy a dobozon lévő nemzeti kódot.",
+    "codeLabel": "Kód a dobozról",
+    "find": "Keresés",
+    "useCamera": "Kamera használata"
+  },
+  "photo": {
+    "title": "Fotó a dobozról",
+    "subtitle": "A csomagolásról olvassuk le a nevet és a hatáserősséget",
+    "yourPhoto": "A fotód",
+    "reading": "Olvassuk a dobozon lévő szöveget…",
+    "tip": "A doboz elejét fotózd le úgy, hogy a név és a hatáserősség jól látszódjon.",
+    "severalTitle": "Ezek egyike?",
+    "notFoundTitle": "Nem sikerült felismerni a gyógyszert",
+    "notFoundBody": "Próbáld újra jó fényben, élesen a névvel, vagy keress név szerint.",
+    "searchWord": "„{{word}}” keresése",
+    "cameraDenied": "A kamera-hozzáférés ki van kapcsolva. Kapcsold be a Beállításokban, vagy válassz fotót a galériából.",
+    "retake": "Új fotó",
+    "takePhoto": "Fotó készítése",
+    "fromGallery": "Választás a galériából",
+    "privacy": "A fotót csak a szöveg felismerésére használjuk, nem tároljuk."
   }
 }

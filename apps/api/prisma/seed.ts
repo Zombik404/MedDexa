@@ -10,7 +10,7 @@ import 'dotenv/config';
 import { PrismaClient, type Prisma } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import bcrypt from 'bcryptjs';
-import { normalizeText } from '@meddexa/shared';
+import { gs1CheckDigit, normalizeText } from '@meddexa/shared';
 import { ATC, COUNTRIES, CURRENCIES, DATA_SOURCES, FORMS, LANGUAGES, SERVICES } from './reference-data';
 import { refreshSearchText } from '../src/medicines/search-text';
 
@@ -89,6 +89,14 @@ const INGREDIENTS: { key: string; name: string; moiety?: string; synonyms: [stri
   { key: 'omeprazole', name: 'omeprazole', synonyms: [['omeprazol', 'es']] },
   { key: 'pseudoephedrine', name: 'pseudoephedrine', synonyms: [] },
   { key: 'pseudoephedrine-hcl', name: 'pseudoephedrine hydrochloride', moiety: 'pseudoephedrine', synonyms: [] },
+  { key: 'ambroxol', name: 'ambroxol', synonyms: [['Ambroxol', 'de']] },
+  { key: 'ambroxol-hcl', name: 'ambroxol hydrochloride', moiety: 'ambroxol', synonyms: [['ambroxol-hidroklorid', 'hu']] },
+  { key: 'colecalciferol', name: 'colecalciferol', synonyms: [['vitamin D3', 'en'], ['kolekalciferol', 'hu'], ['cholecalciferol', 'en']] },
+  { key: 'hydrocortisone', name: 'hydrocortisone', synonyms: [['hidrokortizon', 'hu'], ['Hydrocortison', 'de']] },
+  { key: 'hydrocortisone-acetate', name: 'hydrocortisone acetate', moiety: 'hydrocortisone', synonyms: [] },
+  { key: 'amlodipine', name: 'amlodipine', synonyms: [['amlodipin', 'hu']] },
+  { key: 'amlodipine-besilate', name: 'amlodipine besilate', moiety: 'amlodipine', synonyms: [['amlodipin-bezilát', 'hu']] },
+  { key: 'hypromellose', name: 'hypromellose', synonyms: [['hipromellóz', 'hu']] },
 ];
 
 const MANUFACTURERS = ['Dexalis Pharma (demo)', 'Nordvale Laboratories (demo)', 'Helvion Generics (demo)', 'Aurelis Health (demo)'];
@@ -117,7 +125,7 @@ const MEDICINES: DemoMedicine[] = [
     key: 'ibudex-200', name: 'Ibudex 200 mg film-coated tablets', brand: 'Ibudex', manufacturer: 0, atc: 'M01AE01',
     form: 'FILM_COATED_TABLET', route: 'ORAL', release: 'IMMEDIATE', rx: 'OTC', country: 'HU',
     ingredients: [{ ing: 'ibuprofen', amount: 200, unit: 'mg' }],
-    packs: [{ qty: 20, unit: 'tablet', barcode: '5990000000017' }, { qty: 50, unit: 'tablet', barcode: '5990000000024' }],
+    packs: [{ qty: 20, unit: 'tablet' }, { qty: 50, unit: 'tablet' }],
     registrations: [
       { country: 'HU', localName: 'Ibudex 200 mg filmtabletta', number: 'OGYI-T-DEMO-0001' },
       { country: 'AT', localName: 'Ibudex 200 mg Filmtabletten', number: 'DEMO-AT-10001' },
@@ -128,7 +136,7 @@ const MEDICINES: DemoMedicine[] = [
     key: 'ibudex-400', name: 'Ibudex 400 mg film-coated tablets', brand: 'Ibudex', manufacturer: 0, atc: 'M01AE01',
     form: 'FILM_COATED_TABLET', route: 'ORAL', release: 'IMMEDIATE', rx: 'OTC', country: 'HU',
     ingredients: [{ ing: 'ibuprofen', amount: 400, unit: 'mg' }],
-    packs: [{ qty: 20, unit: 'tablet', barcode: '5990000000031' }],
+    packs: [{ qty: 20, unit: 'tablet' }],
     registrations: [{ country: 'HU', localName: 'Ibudex 400 mg filmtabletta', number: 'OGYI-T-DEMO-0002' }],
     eur: 4.6,
   },
@@ -136,7 +144,7 @@ const MEDICINES: DemoMedicine[] = [
     key: 'profenil-400', name: 'Profenil 400 mg tablets', brand: 'Profenil', manufacturer: 1, atc: 'M01AE01',
     form: 'TABLET', route: 'ORAL', release: 'IMMEDIATE', rx: 'PHARMACY_ONLY', country: 'DE',
     ingredients: [{ ing: 'ibuprofen', amount: 400, unit: 'mg' }],
-    packs: [{ qty: 20, unit: 'tablet', barcode: '4000000000013' }, { qty: 50, unit: 'tablet' }],
+    packs: [{ qty: 20, unit: 'tablet' }, { qty: 50, unit: 'tablet' }],
     registrations: [
       { country: 'DE', localName: 'Profenil 400 mg Tabletten', number: 'DEMO-DE-20001' },
       { country: 'AT', localName: 'Profenil 400 mg Tabletten', number: 'DEMO-AT-20001' },
@@ -148,7 +156,7 @@ const MEDICINES: DemoMedicine[] = [
     key: 'ibudex-junior', name: 'Ibudex Junior 100 mg/5 ml oral suspension', brand: 'Ibudex Junior', manufacturer: 0,
     atc: 'M01AE01', form: 'ORAL_SUSPENSION', route: 'ORAL', release: 'IMMEDIATE', rx: 'OTC', country: 'HU',
     ingredients: [{ ing: 'ibuprofen', amount: 100, unit: 'mg', per: 5, perUnit: 'ml' }],
-    packs: [{ qty: 100, unit: 'ml', barcode: '5990000000048' }],
+    packs: [{ qty: 100, unit: 'ml' }],
     registrations: [{ country: 'HU', localName: 'Ibudex Junior 100 mg/5 ml belsőleges szuszpenzió', number: 'OGYI-T-DEMO-0003' }],
     eur: 4.9,
   },
@@ -181,7 +189,7 @@ const MEDICINES: DemoMedicine[] = [
     key: 'paradex-500', name: 'Paradex 500 mg tablets', brand: 'Paradex', manufacturer: 1, atc: 'N02BE01',
     form: 'TABLET', route: 'ORAL', release: 'IMMEDIATE', rx: 'OTC', country: 'HU',
     ingredients: [{ ing: 'paracetamol', amount: 500, unit: 'mg' }],
-    packs: [{ qty: 20, unit: 'tablet', barcode: '5990000000055' }, { qty: 30, unit: 'tablet' }],
+    packs: [{ qty: 20, unit: 'tablet' }, { qty: 30, unit: 'tablet' }],
     registrations: [
       { country: 'HU', localName: 'Paradex 500 mg tabletta', number: 'OGYI-T-DEMO-0004' },
       { country: 'DE', localName: 'Paradex 500 mg Tabletten', number: 'DEMO-DE-20002' },
@@ -292,6 +300,46 @@ const MEDICINES: DemoMedicine[] = [
     packs: [{ qty: 14, unit: 'capsule' }, { qty: 28, unit: 'capsule' }],
     registrations: [{ country: 'BE', localName: 'Omedex 20 mg maagsapresistente capsules', number: 'DEMO-BE-10004' }],
     eur: 6.9,
+  },
+  {
+    key: 'ambrodex', name: 'Ambrodex 30 mg tablets', brand: 'Ambrodex', manufacturer: 1, atc: 'R05CB06',
+    form: 'TABLET', route: 'ORAL', release: 'IMMEDIATE', rx: 'OTC', country: 'HU',
+    ingredients: [{ ing: 'ambroxol-hcl', amount: 30, unit: 'mg' }],
+    packs: [{ qty: 20, unit: 'tablet' }],
+    registrations: [{ country: 'HU', localName: 'Ambrodex 30 mg tabletta', number: 'OGYI-T-DEMO-0010' }],
+    eur: 3.4,
+  },
+  {
+    key: 'vitadex-d3', name: 'Vitadex D3 1000 IU tablets', brand: 'Vitadex D3', manufacturer: 3, atc: 'A11CC05',
+    form: 'TABLET', route: 'ORAL', release: 'IMMEDIATE', rx: 'OTC', country: 'HU',
+    ingredients: [{ ing: 'colecalciferol', amount: 1000, unit: 'IU' }],
+    packs: [{ qty: 60, unit: 'tablet' }],
+    registrations: [{ country: 'HU', localName: 'Vitadex D3 1000 NE tabletta', number: 'OGYI-T-DEMO-0011' }],
+    eur: 5.9,
+  },
+  {
+    key: 'hydrodex', name: 'Hydrodex 1% cream', brand: 'Hydrodex', manufacturer: 2, atc: 'D07AA02',
+    form: 'CREAM', route: 'CUTANEOUS', release: 'IMMEDIATE', rx: 'PHARMACY_ONLY', country: 'DE',
+    ingredients: [{ ing: 'hydrocortisone-acetate', amount: 10, unit: 'mg', per: 1, perUnit: 'g' }],
+    packs: [{ qty: 15, unit: 'g' }],
+    registrations: [{ country: 'DE', localName: 'Hydrodex 1 % Creme', number: 'DEMO-DE-50001' }],
+    eur: 6.2,
+  },
+  {
+    key: 'amlodex-5', name: 'Amlodex 5 mg tablets', brand: 'Amlodex', manufacturer: 0, atc: 'C08CA01',
+    form: 'TABLET', route: 'ORAL', release: 'IMMEDIATE', rx: 'RX', country: 'PL',
+    ingredients: [{ ing: 'amlodipine-besilate', amount: 5, unit: 'mg', basis: 'MOIETY' }],
+    packs: [{ qty: 30, unit: 'tablet' }],
+    registrations: [{ country: 'PL', localName: 'Amlodex 5 mg tabletki', number: 'DEMO-PL-60001' }],
+    eur: 3.1,
+  },
+  {
+    key: 'lubridex', name: 'Lubridex 3 mg/ml eye drops', brand: 'Lubridex', manufacturer: 3, atc: 'S01XA20',
+    form: 'EYE_DROPS', route: 'OCULAR', release: 'IMMEDIATE', rx: 'OTC', country: 'AT',
+    ingredients: [{ ing: 'hypromellose', amount: 3, unit: 'mg', per: 1, perUnit: 'ml' }],
+    packs: [{ qty: 10, unit: 'ml' }],
+    registrations: [{ country: 'AT', localName: 'Lubridex 3 mg/ml Augentropfen', number: 'DEMO-AT-70001' }],
+    eur: 7.5,
   },
   {
     // Deliberate duplicate of ibudex-200 imported from another demo feed, to exercise
@@ -448,7 +496,7 @@ async function seedDemo() {
   const countryCurrency = new Map(COUNTRIES.map((c) => [c.code, c.currencyCode]));
   const medicineIds = new Map<string, string>();
 
-  for (const d of MEDICINES) {
+  for (const [di, d] of MEDICINES.entries()) {
     const m = await prisma.medicine.upsert({
       where: { sourceId_sourceReference: { sourceId: 'demo', sourceReference: d.key } },
       update: {},
@@ -543,15 +591,22 @@ async function seedDemo() {
     const existingPackages = await prisma.medicinePackage.count({ where: { medicineId: m.id } });
     if (existingPackages === 0) {
       for (const [pi, pack] of d.packs.entries()) {
+        // GS1 prefix 20 is reserved for restricted circulation, so demo barcodes can never
+        // collide with a real product's GTIN.
+        const body = `20${String(di * 10 + pi + 1).padStart(10, '0')}`;
+        const gtin13 = `${body}${gs1CheckDigit(body)}`;
         const pkg = await prisma.medicinePackage.create({
           data: {
             medicineId: m.id,
             quantity: pack.qty,
             unit: pack.unit,
-            barcode: pack.barcode,
+            barcode: gtin13,
             isDefault: pi === 0,
             description: `${pack.qty} ${pack.unit}`,
           },
+        });
+        await prisma.productCode.create({
+          data: { medicineId: m.id, packageId: pkg.id, system: 'GTIN', code: gtin13.padStart(14, '0'), countryCode: d.country, sourceId: 'demo' },
         });
         const packFactor = pack.qty / d.packs[0]!.qty;
         const markets = new Set([d.country, ...d.registrations.map((r) => r.country)]);

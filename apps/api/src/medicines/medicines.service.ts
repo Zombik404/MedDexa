@@ -2,7 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import {
+  MEDICINE_CATEGORIES,
   comparePair,
+  type CategoryView,
   type MedicineDetail,
   type MedicineSearchQuery,
   type MedicineSummary,
@@ -83,6 +85,7 @@ export class MedicinesService {
         registrations: { include: { source: true }, orderBy: { countryCode: 'asc' } },
         documents: { include: { source: true } },
         safety: { include: { source: true } },
+        codes: { orderBy: [{ system: 'asc' }, { code: 'asc' }] },
       },
     });
     if (!m) throw new NotFoundException({ message: 'Medicine not found', code: 'MEDICINE_NOT_FOUND' });
@@ -99,6 +102,7 @@ export class MedicinesService {
       ...summary!,
       synonyms: m.synonyms.map((s) => ({ name: s.name, language: s.language, countryCode: s.countryCode })),
       barcodes: m.packages.map((p) => p.barcode).filter((b): b is string => !!b),
+      codes: m.codes.map((c) => ({ system: c.system, code: c.code, countryCode: c.countryCode })),
       registrations: m.registrations.map((r) => ({
         id: r.id,
         countryCode: r.countryCode,
@@ -197,15 +201,18 @@ export class MedicinesService {
     return rows.map((r) => r.query!).filter(Boolean);
   }
 
-  async categories() {
-    const rows = await this.prisma.$queryRaw<{ code: string; name: string; count: bigint }[]>(Prisma.sql`
-      SELECT a.code, a.name, count(m.id) AS count
-      FROM atc_classes a
-      LEFT JOIN medicines m ON left(m."atcCode", 1) = a.code AND m.status = 'ACTIVE' AND m."duplicateOfId" IS NULL
-        ${this.config.get('ALLOW_DEMO_DATA', { infer: true }) ? Prisma.empty : Prisma.sql`AND m."isDemo" = false`}
-      WHERE a.level = 1
-      GROUP BY a.code, a.name
-      ORDER BY count DESC, a.code`);
-    return rows.map((r) => ({ code: r.code, name: r.name, count: Number(r.count) }));
+  /** Everyday categories (ATC-based) with product counts; empty categories are omitted. */
+  async categories(): Promise<CategoryView[]> {
+    const demo = this.config.get('ALLOW_DEMO_DATA', { infer: true }) ? Prisma.empty : Prisma.sql`AND m."isDemo" = false`;
+    const out: CategoryView[] = [];
+    for (const c of MEDICINE_CATEGORIES) {
+      const [row] = await this.prisma.$queryRaw<{ count: bigint }[]>(Prisma.sql`
+        SELECT count(*) AS count FROM medicines m
+        WHERE m.status = 'ACTIVE' AND m."duplicateOfId" IS NULL ${demo}
+          AND m."atcCode" LIKE ANY (${c.atcPrefixes.map((p) => `${p}%`)}::text[])`);
+      const count = Number(row?.count ?? 0);
+      if (count > 0) out.push({ slug: c.slug, icon: c.icon, count });
+    }
+    return out;
   }
 }

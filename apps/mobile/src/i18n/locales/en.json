@@ -28,7 +28,8 @@
     "hoursUnknown": "Hours unknown",
     "km": "{{value}} km",
     "m": "{{value}} m",
-    "notAdvice": "Information only — not medical advice. Always ask a pharmacist or doctor before changing medication."
+    "notAdvice": "Information only — not medical advice. Always ask a pharmacist or doctor before changing medication.",
+    "share": "Share"
   },
   "tabs": {
     "home": "Home",
@@ -63,7 +64,7 @@
     "morning": "Good morning",
     "afternoon": "Good afternoon",
     "evening": "Good evening",
-    "searchPlaceholder": "Search medicines, ingredients…",
+    "searchPlaceholder": "Medicine or active ingredient",
     "locating": "Finding your location…",
     "locationOff": "Location off",
     "enableLocation": "Enable location",
@@ -83,11 +84,14 @@
     "scNearby": "Open now",
     "scHistory": "History",
     "scFavorites": "Favourites",
-    "scPrices": "Prices"
+    "scPrices": "Prices",
+    "title": "What are you looking for?",
+    "searchHint": "Type a name, scan the barcode or take a photo of the box.",
+    "openMap": "Open map"
   },
   "search": {
     "title": "Search",
-    "placeholder": "Name, ingredient, brand, barcode…",
+    "placeholder": "Name or active ingredient",
     "recent": "Recent searches",
     "popular": "Popular",
     "suggestions": "Suggestions",
@@ -100,7 +104,7 @@
     "noResultsBody": "Try another spelling, the active ingredient name, or fewer filters.",
     "clearFilters": "Clear filters",
     "startTitle": "Find any medicine",
-    "startBody": "Search by name, active ingredient, manufacturer, strength, ATC code, barcode or registration number.",
+    "startBody": "Or type a medicine name or an active ingredient above.",
     "type": {
       "medicine": "Medicine",
       "ingredient": "Active ingredient",
@@ -130,7 +134,13 @@
       "price_asc": "Price: low to high",
       "price_desc": "Price: high to low",
       "rating": "Rating"
-    }
+    },
+    "searchFor": "Search for “{{q}}”",
+    "ingredientsGroup": "Active ingredients",
+    "medicinesGroup": "Medicines",
+    "ingredientChip": "Ingredient",
+    "productCount_one": "{{count}} product",
+    "productCount_other": "{{count}} products"
   },
   "rx": {
     "RX": "Prescription only",
@@ -197,7 +207,17 @@
     "noPrice": "No current price",
     "barcodes": "Barcodes",
     "demoNotice": "This is fictional demonstration data used during development.",
-    "noDocuments": "No official documents linked yet."
+    "noDocuments": "No official documents linked yet.",
+    "photoOf": "Photo of {{name}}",
+    "noPhoto": "No official photo",
+    "photoCredit": "Photo: {{source}}",
+    "noPhotoNote": "No official photo available — illustration of the dosage form",
+    "ingredientHint": "Shows all medicines with this ingredient",
+    "amountUnknown": "amount not stated",
+    "findPharmacy": "Pharmacies nearby",
+    "save": "Save",
+    "saved": "Saved",
+    "sameComposition": "Same active ingredients"
   },
   "composition": {
     "SAME_ACTIVE_INGREDIENT": "Same active ingredient",
@@ -349,7 +369,15 @@
     "mapWeb": "The interactive map is available in the mobile app.",
     "coverage": "Pharmacy coverage varies by country and comes from official registries and authorised providers."
   },
-  "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+  "days": [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
+  ],
   "reviews": {
     "title": "Reviews",
     "write": "Write a review",
@@ -448,5 +476,54 @@
     "disclaimer": "Medical disclaimer",
     "version": "Version {{version}}",
     "empty": "Nothing here yet."
+  },
+  "category": {
+    "pain": "Pain relief",
+    "cold": "Cold & cough",
+    "allergy": "Allergy",
+    "digestion": "Stomach & digestion",
+    "skin": "Skin",
+    "vitamins": "Vitamins & minerals",
+    "heart": "Heart & blood pressure",
+    "sleep": "Sleep & calm",
+    "eyes-ears": "Eyes & ears",
+    "antibiotics": "Antibiotics",
+    "diabetes": "Diabetes",
+    "womens-health": "Women's health"
+  },
+  "scan": {
+    "title": "Scan barcode",
+    "subtitle": "Point the camera at the barcode on the box",
+    "torch": "Torch",
+    "searching": "Looking it up…",
+    "aim": "Point the camera at the barcode or the square code on the box",
+    "typeCode": "Type the code instead",
+    "severalTitle": "Several products match this code",
+    "again": "Scan again",
+    "notFoundTitle": "We don't know this code yet",
+    "notFoundBody": "It isn't in the official databases we use. Try a photo of the box or search by name.",
+    "searchByName": "Search by name",
+    "permission": "Allow camera access to scan barcodes. Nothing is recorded or stored.",
+    "allowCamera": "Allow camera",
+    "manualHint": "Enter the number under the barcode (EAN, 13 digits) or the national code printed on the box.",
+    "codeLabel": "Code from the box",
+    "find": "Find",
+    "useCamera": "Use the camera"
+  },
+  "photo": {
+    "title": "Photo of the box",
+    "subtitle": "We read the name and strength from the packaging",
+    "yourPhoto": "Your photo",
+    "reading": "Reading the text on the box…",
+    "tip": "Photograph the front of the box so the name and strength are clearly visible.",
+    "severalTitle": "Is it one of these?",
+    "notFoundTitle": "We couldn't recognise this medicine",
+    "notFoundBody": "Try again in good light with the name in focus, or search by name.",
+    "searchWord": "Search for “{{word}}”",
+    "cameraDenied": "Camera access is off. Turn it on in Settings or choose a photo from the gallery.",
+    "retake": "Take another photo",
+    "takePhoto": "Take a photo",
+    "fromGallery": "Choose from gallery",
+    "privacy": "The photo is only used to read the text and is not stored."
   }
 }

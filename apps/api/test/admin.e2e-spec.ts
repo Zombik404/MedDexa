@@ -38,6 +38,19 @@ describe('Administration', () => {
     expect(logs.body.map((l: { action: string }) => l.action)).toEqual(expect.arrayContaining(['medicine.create', 'medicine.ingredients']));
   });
 
+  it('adds pack codes (validating GTINs) that barcode search then finds', async () => {
+    const list = await request(app.getHttpServer()).get('/v1/medicines/search').query({ q: 'lordex' }).expect(200);
+    const id = list.body.items[0].id as string;
+    await request(app.getHttpServer()).post(`/v1/admin/medicines/${id}/codes`).set(auth(admin)).send({ system: 'GTIN', code: '4006381333932' }).expect(400);
+    const created = await request(app.getHttpServer()).post(`/v1/admin/medicines/${id}/codes`).set(auth(admin)).send({ system: 'GTIN', code: '4006381333931' }).expect(201);
+    expect(created.body.code).toBe('04006381333931');
+    const scan = await request(app.getHttpServer()).get('/v1/medicines/scan').query({ code: '4006381333931' }).expect(200);
+    expect(scan.body.matches[0].id).toBe(id);
+    await request(app.getHttpServer()).delete(`/v1/admin/codes/${created.body.id}`).set(auth(admin)).expect(204);
+    const after = await request(app.getHttpServer()).get('/v1/medicines/scan').query({ code: '4006381333931' }).expect(200);
+    expect(after.body.matches).toEqual([]);
+  });
+
   it('detects duplicate medicine records', async () => {
     const res = await request(app.getHttpServer()).get('/v1/admin/medicines/duplicates').set(auth(admin)).expect(200);
     expect(res.body.some((p: { aName: string; bName: string }) => [p.aName, p.bName].includes('IBUDEX 200MG FILMTABL.'))).toBe(true);
@@ -89,7 +102,9 @@ describe('Administration', () => {
     const coverage = await request(app.getHttpServer()).get('/v1/admin/integrations/coverage').set(auth(admin)).expect(200);
     const hu = coverage.body.find((c: { code: string }) => c.code === 'HU');
     expect(hu.realMedicines).toBe(0);
-    expect(hu.planned).toMatch(/NEAK/);
+    // Hungary now has an official adapter (NEAK PUPHA); markets without one stay "planned".
+    expect(hu.planned).toBeNull();
+    expect(coverage.body.find((c: { code: string }) => c.code === 'CZ').planned).toMatch(/SÚKL/);
   });
 
   it('returns analytics without personal identifiers', async () => {

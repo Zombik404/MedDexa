@@ -28,9 +28,16 @@
     "hoursUnknown": "Horario desconocido",
     "km": "{{value}} km",
     "m": "{{value}} m",
-    "notAdvice": "Solo información, no consejo médico. Consulte siempre a un farmacéutico o médico antes de cambiar un tratamiento."
+    "notAdvice": "Solo información, no consejo médico. Consulte siempre a un farmacéutico o médico antes de cambiar un tratamiento.",
+    "share": "Compartir"
   },
-  "tabs": { "home": "Inicio", "search": "Buscar", "compare": "Comparar", "pharmacies": "Farmacias", "profile": "Perfil" },
+  "tabs": {
+    "home": "Inicio",
+    "search": "Buscar",
+    "compare": "Comparar",
+    "pharmacies": "Farmacias",
+    "profile": "Perfil"
+  },
   "errors": {
     "title": "Algo salió mal",
     "body": "No hemos podido cargar esto ahora.",
@@ -57,7 +64,7 @@
     "morning": "Buenos días",
     "afternoon": "Buenas tardes",
     "evening": "Buenas noches",
-    "searchPlaceholder": "Buscar medicamentos, principios activos…",
+    "searchPlaceholder": "Medicamento o principio activo",
     "locating": "Obteniendo ubicación…",
     "locationOff": "Ubicación desactivada",
     "enableLocation": "Activar ubicación",
@@ -77,11 +84,14 @@
     "scNearby": "Abiertas",
     "scHistory": "Historial",
     "scFavorites": "Favoritos",
-    "scPrices": "Precios"
+    "scPrices": "Precios",
+    "title": "¿Qué buscas?",
+    "searchHint": "Escribe un nombre, escanea el código de barras o haz una foto de la caja.",
+    "openMap": "Abrir mapa"
   },
   "search": {
     "title": "Buscar",
-    "placeholder": "Nombre, principio activo, marca, código…",
+    "placeholder": "Nombre o principio activo",
     "recent": "Búsquedas recientes",
     "popular": "Populares",
     "suggestions": "Sugerencias",
@@ -94,8 +104,13 @@
     "noResultsBody": "Pruebe otra ortografía, el nombre del principio activo o menos filtros.",
     "clearFilters": "Borrar filtros",
     "startTitle": "Encuentre cualquier medicamento",
-    "startBody": "Busque por nombre, principio activo, fabricante, dosis, código ATC, código de barras o número de registro.",
-    "type": { "medicine": "Medicamento", "ingredient": "Principio activo", "manufacturer": "Fabricante", "atc": "Clase ATC" },
+    "startBody": "O escribe arriba el nombre de un medicamento o un principio activo.",
+    "type": {
+      "medicine": "Medicamento",
+      "ingredient": "Principio activo",
+      "manufacturer": "Fabricante",
+      "atc": "Clase ATC"
+    },
     "f": {
       "ingredients": "Principios activos",
       "ingredientsHint": "Separados por comas, p. ej. paracetamol, cafeína",
@@ -113,9 +128,26 @@
       "hasPrice": "Solo con precio actual",
       "any": "Cualquiera"
     },
-    "s": { "relevance": "Relevancia", "name": "Nombre", "price_asc": "Precio: de menor a mayor", "price_desc": "Precio: de mayor a menor", "rating": "Valoración" }
+    "s": {
+      "relevance": "Relevancia",
+      "name": "Nombre",
+      "price_asc": "Precio: de menor a mayor",
+      "price_desc": "Precio: de mayor a menor",
+      "rating": "Valoración"
+    },
+    "searchFor": "Buscar «{{q}}»",
+    "ingredientsGroup": "Principios activos",
+    "medicinesGroup": "Medicamentos",
+    "ingredientChip": "Principio activo",
+    "productCount_one": "{{count}} producto",
+    "productCount_other": "{{count}} productos"
   },
-  "rx": { "RX": "Con receta", "OTC": "Sin receta", "PHARMACY_ONLY": "Solo en farmacia", "UNKNOWN": "Estado desconocido" },
+  "rx": {
+    "RX": "Con receta",
+    "OTC": "Sin receta",
+    "PHARMACY_ONLY": "Solo en farmacia",
+    "UNKNOWN": "Estado desconocido"
+  },
   "release": {
     "IMMEDIATE": "Liberación inmediata",
     "MODIFIED": "Liberación modificada",
@@ -151,8 +183,19 @@
     "registrations": "Autorizaciones por país",
     "registrationsNote": "Los nombres y el estado pueden variar entre países. Cada autorización remite al registro de la autoridad nacional.",
     "documents": "Documentos oficiales",
-    "doc": { "SMPC": "Ficha técnica", "PIL": "Prospecto", "EPAR": "Informe europeo público de evaluación", "LABEL": "Etiquetado", "OTHER": "Documento" },
-    "safety": { "WARNINGS": "Advertencias", "CONTRAINDICATIONS": "Contraindicaciones", "SIDE_EFFECTS": "Efectos adversos", "DOSAGE": "Posología" },
+    "doc": {
+      "SMPC": "Ficha técnica",
+      "PIL": "Prospecto",
+      "EPAR": "Informe europeo público de evaluación",
+      "LABEL": "Etiquetado",
+      "OTHER": "Documento"
+    },
+    "safety": {
+      "WARNINGS": "Advertencias",
+      "CONTRAINDICATIONS": "Contraindicaciones",
+      "SIDE_EFFECTS": "Efectos adversos",
+      "DOSAGE": "Posología"
+    },
     "officialInfo": "Información oficial del producto",
     "officialNote": "Tomada de documentación oficial, nunca generada. Lea el prospecto de su producto concreto.",
     "prices": "Precios en Europa",
@@ -164,7 +207,17 @@
     "noPrice": "Sin precio actual",
     "barcodes": "Códigos de barras",
     "demoNotice": "Son datos de demostración ficticios usados durante el desarrollo.",
-    "noDocuments": "Aún no hay documentos oficiales enlazados."
+    "noDocuments": "Aún no hay documentos oficiales enlazados.",
+    "photoOf": "Foto de {{name}}",
+    "noPhoto": "Sin foto oficial",
+    "photoCredit": "Foto: {{source}}",
+    "noPhotoNote": "No hay foto oficial: ilustración de la forma farmacéutica",
+    "ingredientHint": "Muestra todos los medicamentos con este principio activo",
+    "amountUnknown": "cantidad no indicada",
+    "findPharmacy": "Farmacias cercanas",
+    "save": "Guardar",
+    "saved": "Guardado",
+    "sameComposition": "Mismos principios activos"
   },
   "composition": {
     "SAME_ACTIVE_INGREDIENT": "Mismo principio activo",
@@ -203,7 +256,12 @@
     "DIFFERENT_PACKAGE_SIZE": "Envase distinto: {{ref}} frente a {{other}}",
     "DIFFERENT_COUNTRY": "Autorizados en países distintos"
   },
-  "severity": { "critical": "Crítica", "major": "Importante", "minor": "Menor", "info": "Info" },
+  "severity": {
+    "critical": "Crítica",
+    "major": "Importante",
+    "minor": "Menor",
+    "info": "Info"
+  },
   "cell": {
     "REFERENCE": "Referencia",
     "SAME": "Igual",
@@ -242,7 +300,17 @@
     "critical_other": "{{count}} diferencias críticas",
     "major_one": "{{count}} diferencia importante",
     "major_other": "{{count}} diferencias importantes",
-    "attr": { "brand": "Marca", "manufacturer": "Fabricante", "country": "País", "atcCode": "Código ATC", "form": "Forma", "route": "Vía", "release": "Liberación", "prescription": "Dispensación", "packageSize": "Envase" }
+    "attr": {
+      "brand": "Marca",
+      "manufacturer": "Fabricante",
+      "country": "País",
+      "atcCode": "Código ATC",
+      "form": "Forma",
+      "route": "Vía",
+      "release": "Liberación",
+      "prescription": "Dispensación",
+      "packageSize": "Envase"
+    }
   },
   "prices": {
     "title": "Comparación de precios",
@@ -259,9 +327,18 @@
     "fallbackRates": "Tipos de desarrollo, no en tiempo real.",
     "nationalList": "Lista nacional de precios",
     "history": "Historial de precios",
-    "type": { "RETAIL": "Precio en farmacia", "MAX_RETAIL": "Precio máximo de venta", "REIMBURSEMENT_REFERENCE": "Precio regulado" }
+    "type": {
+      "RETAIL": "Precio en farmacia",
+      "MAX_RETAIL": "Precio máximo de venta",
+      "REIMBURSEMENT_REFERENCE": "Precio regulado"
+    }
   },
-  "availability": { "IN_STOCK": "Disponible", "LIMITED": "Limitado", "OUT_OF_STOCK": "Agotado", "UNKNOWN": "Disponibilidad desconocida" },
+  "availability": {
+    "IN_STOCK": "Disponible",
+    "LIMITED": "Limitado",
+    "OUT_OF_STOCK": "Agotado",
+    "UNKNOWN": "Disponibilidad desconocida"
+  },
   "pharmacies": {
     "title": "Farmacias",
     "placeholder": "Ciudad, dirección, código postal o nombre",
@@ -292,7 +369,15 @@
     "mapWeb": "El mapa interactivo está disponible en la aplicación móvil.",
     "coverage": "La cobertura de farmacias varía según el país y procede de registros oficiales y proveedores autorizados."
   },
-  "days": ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"],
+  "days": [
+    "Lunes",
+    "Martes",
+    "Miércoles",
+    "Jueves",
+    "Viernes",
+    "Sábado",
+    "Domingo"
+  ],
   "reviews": {
     "title": "Opiniones",
     "write": "Escribir una opinión",
@@ -316,8 +401,17 @@
     "signIn": "Inicie sesión para opinar",
     "count_one": "{{count}} opinión",
     "count_other": "{{count}} opiniones",
-    "reason": { "SPAM": "Spam", "ABUSIVE": "Ofensivo", "MEDICAL_MISINFORMATION": "Desinformación médica", "PERSONAL_DATA": "Datos personales", "OFF_TOPIC": "Fuera de tema", "OTHER": "Otro" },
-    "errors": { "tooShort": "Escriba al menos 20 caracteres." }
+    "reason": {
+      "SPAM": "Spam",
+      "ABUSIVE": "Ofensivo",
+      "MEDICAL_MISINFORMATION": "Desinformación médica",
+      "PERSONAL_DATA": "Datos personales",
+      "OFF_TOPIC": "Fuera de tema",
+      "OTHER": "Otro"
+    },
+    "errors": {
+      "tooShort": "Escriba al menos 20 caracteres."
+    }
   },
   "auth": {
     "signInTitle": "Bienvenido de nuevo",
@@ -362,7 +456,11 @@
     "currency": "Moneda",
     "currencyNote": "Los precios en otras monedas se muestran como estimaciones.",
     "appearance": "Apariencia",
-    "theme": { "system": "Sistema", "light": "Claro", "dark": "Oscuro" },
+    "theme": {
+      "system": "Sistema",
+      "light": "Claro",
+      "dark": "Oscuro"
+    },
     "notifications": "Notificaciones",
     "notifyPrices": "Cambios de precio de favoritos",
     "notifyProducts": "Actualizaciones de información de producto",
@@ -378,5 +476,54 @@
     "disclaimer": "Aviso médico",
     "version": "Versión {{version}}",
     "empty": "Aún no hay nada aquí."
+  },
+  "category": {
+    "pain": "Analgésicos",
+    "cold": "Resfriado y tos",
+    "allergy": "Alergia",
+    "digestion": "Estómago y digestión",
+    "skin": "Piel",
+    "vitamins": "Vitaminas y minerales",
+    "heart": "Corazón y tensión",
+    "sleep": "Sueño y ansiedad",
+    "eyes-ears": "Ojos y oídos",
+    "antibiotics": "Antibióticos",
+    "diabetes": "Diabetes",
+    "womens-health": "Salud de la mujer"
+  },
+  "scan": {
+    "title": "Escanear código de barras",
+    "subtitle": "Apunta la cámara al código de barras de la caja",
+    "torch": "Linterna",
+    "searching": "Buscando…",
+    "aim": "Apunta la cámara al código de barras o al código cuadrado de la caja",
+    "typeCode": "Escribir el código",
+    "severalTitle": "Varios productos coinciden con este código",
+    "again": "Escanear de nuevo",
+    "notFoundTitle": "Aún no conocemos este código",
+    "notFoundBody": "No figura en las bases oficiales que usamos. Prueba con una foto de la caja o busca por nombre.",
+    "searchByName": "Buscar por nombre",
+    "permission": "Permite el acceso a la cámara para escanear códigos. No se graba ni se guarda nada.",
+    "allowCamera": "Permitir cámara",
+    "manualHint": "Introduce los números bajo el código de barras (EAN, 13 dígitos) o el código nacional (CN) de la caja.",
+    "codeLabel": "Código de la caja",
+    "find": "Buscar",
+    "useCamera": "Usar la cámara"
+  },
+  "photo": {
+    "title": "Foto de la caja",
+    "subtitle": "Leemos el nombre y la dosis del envase",
+    "yourPhoto": "Tu foto",
+    "reading": "Leyendo el texto de la caja…",
+    "tip": "Fotografía la parte frontal de la caja para que se vean bien el nombre y la dosis.",
+    "severalTitle": "¿Es alguno de estos?",
+    "notFoundTitle": "No hemos podido reconocer este medicamento",
+    "notFoundBody": "Inténtalo de nuevo con buena luz y el nombre enfocado, o busca por nombre.",
+    "searchWord": "Buscar «{{word}}»",
+    "cameraDenied": "El acceso a la cámara está desactivado. Actívalo en Ajustes o elige una foto de la galería.",
+    "retake": "Hacer otra foto",
+    "takePhoto": "Hacer una foto",
+    "fromGallery": "Elegir de la galería",
+    "privacy": "La foto solo se usa para leer el texto y no se guarda."
   }
 }

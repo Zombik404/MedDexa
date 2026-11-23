@@ -29,7 +29,12 @@ interface Detail {
   packages: { id: string; quantity: string; unit: string; barcode: string | null; isDefault: boolean; description: string | null }[];
   registrations: { id: string; countryCode: string; authority: string; registrationNumber: string | null; localName: string; status: string; verification: string }[];
   synonyms: { id: string; name: string; language: string | null; countryCode: string | null; kind: string }[];
+  imageUrl: string | null;
+  imageCredit: string | null;
+  codes: { id: string; system: string; code: string; countryCode: string | null; sourceId: string | null }[];
 }
+
+const CODE_SYSTEMS = ['GTIN', 'CN_ES', 'CIP13', 'CIP7', 'PZN', 'TTT_HU', 'AIM_PT', 'OTHER'];
 
 interface IngredientRow { ingredientId: string; name: string; amount: string; unit: string; perAmount: string; perUnit: string; basis: 'SUBSTANCE' | 'MOIETY' }
 
@@ -118,6 +123,7 @@ export default function MedicineDetailPage() {
   const q = useApi<Detail>(`/admin/medicines/${id}`);
   const [pack, setPack] = useState({ quantity: '', unit: 'tablet', barcode: '' });
   const [reg, setReg] = useState({ countryCode: '', authority: '', registrationNumber: '', localName: '', status: 'AUTHORISED' });
+  const [code, setCode] = useState({ system: 'GTIN', code: '', countryCode: '' });
   const [syn, setSyn] = useState({ name: '', language: '', countryCode: '', kind: 'LOCAL_NAME' });
   const [err, setErr] = useState<string | null>(null);
   if (q.loading && !q.data) return <Loading what="medicine" />;
@@ -145,10 +151,50 @@ export default function MedicineDetailPage() {
         <MedicineForm
           key={m.id + m.name}
           submitLabel="Save details"
-          initial={{ name: m.name, brand: m.brand, manufacturerId: m.manufacturerId, atcCode: m.atcCode, formCode: m.formCode, route: m.route, release: m.release, prescription: m.prescription, countryCode: m.countryCode, status: m.status, verification: m.verification }}
+          initial={{ name: m.name, brand: m.brand, manufacturerId: m.manufacturerId, atcCode: m.atcCode, formCode: m.formCode, route: m.route, release: m.release, prescription: m.prescription, countryCode: m.countryCode, status: m.status, verification: m.verification, imageUrl: m.imageUrl, imageCredit: m.imageCredit }}
           onSubmit={async (v) => run(() => api(`/admin/medicines/${m.id}`, { method: 'PATCH', body: v }))}
         />
         <IngredientsEditor key={JSON.stringify(m.ingredients)} medicine={m} onSaved={q.reload} />
+
+        <div className="grid grid-2">
+          <div className="card">
+            <h2>Picture shown in the app</h2>
+            {m.imageUrl ? (
+              <div>
+                {/* eslint-disable-next-line @next/next/no-img-element -- external registry photo, shown as-is */}
+                <img src={m.imageUrl} alt={m.name} style={{ maxWidth: '100%', maxHeight: 200, objectFit: 'contain', background: '#fff', borderRadius: 12, border: '1px solid var(--border)' }} />
+                <p className="muted small">Credit: {m.imageCredit ?? '— missing —'}</p>
+              </div>
+            ) : (
+              <p className="muted small">No official photo. The app shows an illustration of the dosage form. Only add photos published by an official source, with its credit.</p>
+            )}
+          </div>
+
+          <div className="card">
+            <h2>Barcodes and pack codes</h2>
+            <p className="muted small" style={{ marginBottom: 10 }}>Used by barcode and DataMatrix scanning. GTINs are validated and stored as 14 digits.</p>
+            <table className="table">
+              <tbody>
+                {m.codes.map((c) => (
+                  <tr key={c.id}>
+                    <td><Badge>{c.system}</Badge></td>
+                    <td className="mono">{c.code}</td>
+                    <td className="muted small">{c.countryCode ?? ''} {c.sourceId ? `· ${c.sourceId}` : '· manual'}</td>
+                    <td><button className="btn danger small" onClick={() => run(() => api(`/admin/codes/${c.id}`, { method: 'DELETE' }))}>Delete</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="row" style={{ marginTop: 10 }}>
+              <select value={code.system} onChange={(e) => setCode({ ...code, system: e.target.value })}>
+                {CODE_SYSTEMS.map((s) => <option key={s}>{s}</option>)}
+              </select>
+              <input className="input" style={{ width: 170 }} placeholder="Code" value={code.code} onChange={(e) => setCode({ ...code, code: e.target.value })} />
+              <input className="input" style={{ width: 60 }} placeholder="CC" maxLength={2} value={code.countryCode} onChange={(e) => setCode({ ...code, countryCode: e.target.value.toUpperCase() })} />
+              <button className="btn small" onClick={() => run(async () => { await api(`/admin/medicines/${m.id}/codes`, { method: 'POST', body: { system: code.system, code: code.code, countryCode: code.countryCode || null } }); setCode({ system: 'GTIN', code: '', countryCode: '' }); })}>Add</button>
+            </div>
+          </div>
+        </div>
 
         <div className="grid grid-2">
           <div className="card">

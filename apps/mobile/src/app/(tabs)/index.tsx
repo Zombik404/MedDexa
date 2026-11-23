@@ -1,34 +1,100 @@
+import type { PharmacySummary } from '@meddexa/shared';
 import { useRouter } from 'expo-router';
-import { ArrowRight, Clock3, Heart, History, LocateFixed, MapPin, Navigation, ShieldCheck, Tags } from 'lucide-react-native';
+import { Camera, ChevronRight, LocateFixed, MapPin, ScanBarcode, Search } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Pressable, View } from 'react-native';
-import { useCategories, useFavorites, usePharmacySearch, usePopularMedicines, usePopularSearches, useRecentlyViewed, useSignedIn } from '@/api/hooks';
-import { MedicineCard } from '@/components/medicine/MedicineCard';
-import { PharmacyCard } from '@/components/pharmacy/PharmacyCard';
+import { Pressable, View } from 'react-native';
+import { useCategories, usePharmacySearch } from '@/api/hooks';
+import { CategoryTile } from '@/components/CategoryTile';
+import { OpenBadge } from '@/components/pharmacy/PharmacyCard';
 import { Screen } from '@/components/Screen';
-import { Card, Chip, ErrorState, SearchBar, Section, Skeleton, Text, Wordmark } from '@/components/ui';
+import { Button, ErrorState, Section, Skeleton, Text, Wordmark } from '@/components/ui';
 import { useLocation } from '@/hooks/useLocation';
-import { useCompare } from '@/store/compare';
-import { useLocal } from '@/store/local';
-import { useSession } from '@/store/session';
+import { formatDistance } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
-import { palette, radius, spacing } from '@/theme/tokens';
+import { radius, shadow, spacing } from '@/theme/tokens';
 
-function greetingKey() {
-  const h = new Date().getHours();
-  return h < 12 ? 'home.morning' : h < 18 ? 'home.afternoon' : 'home.evening';
+/** Search field with the two other ways to find a medicine right inside it. */
+function HomeSearch() {
+  const { t } = useTranslation();
+  const { colors, dark } = useTheme();
+  const router = useRouter();
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: 60,
+        paddingLeft: spacing.lg,
+        paddingRight: spacing.xs,
+        borderRadius: radius.xl,
+        backgroundColor: colors.surface,
+        borderWidth: 1,
+        borderColor: colors.borderStrong,
+        ...(dark ? {} : shadow(colors, 2)),
+      }}
+    >
+      <Pressable
+        testID="home-search"
+        accessibilityRole="search"
+        accessibilityLabel={t('home.searchPlaceholder')}
+        onPress={() => router.push({ pathname: '/search', params: { focus: String(Date.now()) } })}
+        style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, height: '100%' }}
+      >
+        <Search size={22} color={colors.primary} strokeWidth={2.2} />
+        <Text variant="body" color="textTertiary" numberOfLines={1} style={{ flex: 1, fontSize: 16 }}>
+          {t('home.searchPlaceholder')}
+        </Text>
+      </Pressable>
+      {[
+        { icon: ScanBarcode, label: t('scan.title'), path: '/scan' as const, id: 'home-scan' },
+        { icon: Camera, label: t('photo.title'), path: '/photo' as const, id: 'home-photo' },
+      ].map(({ icon: Icon, label, path, id }) => (
+        <Pressable
+          key={id}
+          testID={id}
+          accessibilityRole="button"
+          accessibilityLabel={label}
+          onPress={() => router.push(path)}
+          hitSlop={4}
+          style={({ pressed }) => ({ width: 48, height: 48, borderRadius: radius.lg, alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? colors.primarySoft : 'transparent' })}
+        >
+          <Icon size={23} color={colors.text} strokeWidth={2} />
+        </Pressable>
+      ))}
+    </View>
+  );
 }
 
-function Shortcut({ icon: Icon, label, onPress, testID }: { icon: typeof Clock3; label: string; onPress: () => void; testID?: string }) {
+function NearbyRow({ pharmacy: p, last }: { pharmacy: PharmacySummary; last: boolean }) {
   const { colors } = useTheme();
+  const router = useRouter();
   return (
-    <Pressable testID={testID} accessibilityRole="button" onPress={onPress} style={({ pressed }) => ({ flex: 1, alignItems: 'center', gap: spacing.sm, opacity: pressed ? 0.7 : 1 })}>
-      <View style={{ width: 54, height: 54, borderRadius: radius.lg, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' }}>
-        <Icon size={22} color={colors.primary} strokeWidth={2} />
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${p.name}, ${p.address}`}
+      onPress={() => router.push(`/pharmacy/${p.id}`)}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.md,
+        paddingVertical: spacing.md,
+        paddingHorizontal: spacing.lg,
+        backgroundColor: pressed ? colors.surfaceAlt : colors.surface,
+        borderBottomWidth: last ? 0 : 1,
+        borderBottomColor: colors.border,
+      })}
+    >
+      <MapPin size={20} color={colors.primary} strokeWidth={2} />
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text variant="bodyStrong" numberOfLines={1}>
+          {p.name}
+        </Text>
+        <Text variant="small" color="textSecondary" numberOfLines={1}>
+          {[formatDistance(p.distanceKm), p.address].filter(Boolean).join(' · ')}
+        </Text>
       </View>
-      <Text variant="small" align="center" numberOfLines={1}>
-        {label}
-      </Text>
+      <OpenBadge open={p.openNow} />
+      <ChevronRight size={18} color={colors.textTertiary} />
     </Pressable>
   );
 }
@@ -37,223 +103,84 @@ export default function Home() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const router = useRouter();
-  const user = useSession((s) => s.user);
-  const signedIn = useSignedIn();
   const location = useLocation(true);
-  const compareCount = useCompare((s) => s.items.length);
-  const local = useLocal();
-
+  const categories = useCategories();
   const nearby = usePharmacySearch(
     { lat: location.coords?.lat, lng: location.coords?.lng, radiusKm: 10, sort: 'distance' },
     location.status === 'granted' && !!location.coords,
   );
-  const popular = usePopularMedicines();
-  const popularSearches = usePopularSearches();
-  const categories = useCategories();
-  const remoteRecent = useRecentlyViewed();
-  const remoteFavs = useFavorites();
-
-  const recentMedicines = signedIn ? (remoteRecent.data?.medicines ?? []).map((m) => ({ id: m.id, name: m.name })) : local.recentMedicines;
-  const recentPharmacies = signedIn ? (remoteRecent.data?.pharmacies ?? []).map((p) => ({ id: p.id, name: p.name })) : local.recentPharmacies;
-  const favoriteMeds = signedIn
-    ? (remoteFavs.data ?? []).filter((f) => f.medicine).map((f) => ({ id: f.medicine!.id, name: f.medicine!.name }))
-    : local.favoriteMedicines;
-
-  const firstName = user?.displayName?.split(' ')[0];
-  const nearbyItems = nearby.data?.pages[0]?.items ?? [];
+  const nearbyItems = (nearby.data?.pages[0]?.items ?? []).slice(0, 3);
 
   return (
     <Screen
-      refreshing={popular.isRefetching}
+      refreshing={nearby.isRefetching}
       onRefresh={() => {
-        void popular.refetch();
         void nearby.refetch();
+        void categories.refetch();
       }}
     >
-      {/* Header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.xl }}>
+      <View style={{ marginBottom: spacing.xl }}>
         <Wordmark size={20} />
-        <Pressable
-          testID="location-indicator"
-          accessibilityRole="button"
-          onPress={() => (location.status === 'granted' ? router.push('/pharmacies') : location.request())}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: spacing.md, height: 34, borderRadius: radius.pill, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}
-        >
-          {location.status === 'granted' ? <Navigation size={14} color={colors.primary} fill={colors.primary} /> : <LocateFixed size={14} color={colors.textSecondary} />}
-          <Text variant="small" color={location.status === 'granted' ? 'text' : 'textSecondary'} numberOfLines={1} style={{ maxWidth: 140 }}>
-            {location.status === 'granted' ? location.city ?? t('pharmacies.nearMe') : location.status === 'locating' ? t('home.locating') : t('home.locationOff')}
-          </Text>
-        </Pressable>
       </View>
 
-      <Text variant="display" style={{ marginBottom: spacing.lg }} accessibilityRole="header">
-        {t(greetingKey())}
-        {firstName ? `, ${firstName}` : ''}
+      {/* 1 — Search: by name, ingredient, barcode or photo */}
+      <Text variant="h1" accessibilityRole="header" style={{ marginBottom: spacing.md }}>
+        {t('home.title')}
+      </Text>
+      <HomeSearch />
+      <Text variant="small" color="textSecondary" style={{ marginTop: spacing.sm, marginBottom: spacing.xxl }}>
+        {t('home.searchHint')}
       </Text>
 
-      <SearchBar large placeholder={t('home.searchPlaceholder')} onPressFake={() => router.push({ pathname: '/search', params: { focus: '1' } })} />
-
-      {/* Compare shortcut */}
-      <Card tone="primary" onPress={() => router.push('/compare')} style={{ marginTop: spacing.lg, marginBottom: spacing.xxl, borderRadius: radius.xxl, backgroundColor: palette.forest800 }} testID="compare-shortcut">
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.lg }}>
-          <View style={{ flex: 1, gap: 4 }}>
-            <Text variant="h3" style={{ color: '#FFFFFF' }}>
-              {t('home.compareTitle')}
-            </Text>
-            <Text variant="small" style={{ color: 'rgba(255,255,255,0.78)' }}>
-              {compareCount ? t('home.compareCount', { count: compareCount }) : t('home.compareBody')}
-            </Text>
-          </View>
-          <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: palette.mint400, alignItems: 'center', justifyContent: 'center' }}>
-            <ArrowRight size={20} color={palette.forest900} strokeWidth={2.4} />
-          </View>
-        </View>
-      </Card>
-
-      {/* Shortcuts */}
-      <View style={{ flexDirection: 'row', marginBottom: spacing.xxl }}>
-        <Shortcut testID="sc-open-now" icon={Clock3} label={t('home.scNearby')} onPress={() => router.push({ pathname: '/pharmacies', params: { openNow: '1' } })} />
-        <Shortcut icon={Heart} label={t('home.scFavorites')} onPress={() => router.push('/profile/favorites')} />
-        <Shortcut icon={History} label={t('home.scHistory')} onPress={() => router.push('/profile/history')} />
-        <Shortcut icon={Tags} label={t('home.scPrices')} onPress={() => router.push({ pathname: '/search', params: { hasPrice: '1' } })} />
-      </View>
-
-      {/* Nearby pharmacies */}
-      <Section title={t('home.nearby')} action={t('common.seeAll')} onAction={() => router.push('/pharmacies')}>
+      {/* 2 — Nearest pharmacies */}
+      <Section title={t('home.nearby')} action={location.status === 'granted' ? t('common.seeAll') : undefined} onAction={() => router.push('/pharmacies')}>
         {location.status === 'granted' ? (
           nearby.isLoading ? (
-            <Skeleton height={120} round={radius.xl} />
+            <Skeleton height={180} round={radius.xl} />
           ) : nearby.error ? (
             <ErrorState error={nearby.error} onRetry={() => nearby.refetch()} compact />
           ) : nearbyItems.length ? (
-            <FlatList
-              horizontal
-              data={nearbyItems.slice(0, 8)}
-              keyExtractor={(p) => p.id}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ gap: spacing.md, paddingRight: spacing.xl }}
-              style={{ marginRight: -spacing.xl }}
-              renderItem={({ item }) => <PharmacyCard pharmacy={item} compact />}
-            />
+            <View style={{ borderRadius: radius.xl, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' }}>
+              {nearbyItems.map((p, i) => (
+                <NearbyRow key={p.id} pharmacy={p} last={i === nearbyItems.length - 1} />
+              ))}
+            </View>
           ) : (
             <Text color="textSecondary">{t('home.nearbyEmpty')}</Text>
           )
+        ) : location.status === 'locating' ? (
+          <Skeleton height={120} round={radius.xl} />
         ) : (
-          <Card tone="alt">
-            <View style={{ flexDirection: 'row', gap: spacing.md, alignItems: 'center' }}>
-              <MapPin size={22} color={colors.primary} />
-              <Text variant="small" color="textSecondary" style={{ flex: 1 }}>
-                {t('home.nearbyFallback')}
-              </Text>
+          <View style={{ padding: spacing.lg, borderRadius: radius.xl, backgroundColor: colors.surfaceAlt, gap: spacing.md }}>
+            <Text variant="small" color="textSecondary">
+              {t('home.nearbyFallback')}
+            </Text>
+            <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+              <Button testID="enable-location" label={t('home.enableLocation')} icon={LocateFixed} size="sm" onPress={location.request} />
+              <Button label={t('home.openMap')} variant="secondary" size="sm" onPress={() => router.push('/pharmacies')} />
             </View>
-            <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md }}>
-              <Chip label={t('home.enableLocation')} icon={LocateFixed} selected onPress={location.request} />
-              <Chip label={t('pharmacies.title')} onPress={() => router.push('/pharmacies')} />
-            </View>
-          </Card>
+          </View>
         )}
       </Section>
 
-      {popularSearches.data?.length ? (
-        <Section title={t('home.popularSearches')}>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-            {popularSearches.data.map((q) => (
-              <Chip key={q} label={q} onPress={() => router.push({ pathname: '/search', params: { q } })} />
-            ))}
-          </View>
-        </Section>
-      ) : null}
-
-      {recentMedicines.length ? (
-        <Section title={t('home.recent')}>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-            {recentMedicines.slice(0, 6).map((m) => (
-              <Chip key={m.id} label={m.name} icon={History} onPress={() => router.push(`/medicine/${m.id}`)} />
-            ))}
-          </View>
-        </Section>
-      ) : null}
-
-      {favoriteMeds.length ? (
-        <Section title={t('home.favorites')} action={t('common.seeAll')} onAction={() => router.push('/profile/favorites')}>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-            {favoriteMeds.slice(0, 6).map((m) => (
-              <Chip key={m.id} label={m.name} icon={Heart} onPress={() => router.push(`/medicine/${m.id}`)} />
-            ))}
-          </View>
-        </Section>
-      ) : null}
-
-      {recentPharmacies.length ? (
-        <Section title={t('home.recentPharmacies')}>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-            {recentPharmacies.slice(0, 4).map((p) => (
-              <Chip key={p.id} label={p.name} icon={MapPin} onPress={() => router.push(`/pharmacy/${p.id}`)} />
-            ))}
-          </View>
-        </Section>
-      ) : null}
-
-      <Section title={t('home.popularMedicines')} action={t('common.seeAll')} onAction={() => router.push('/search')}>
-        {popular.isLoading ? (
-          <Skeleton height={170} round={radius.xl} />
-        ) : popular.error ? (
-          <ErrorState error={popular.error} onRetry={() => popular.refetch()} compact />
+      {/* 3 — Categories */}
+      <Section title={t('home.categories')}>
+        {categories.isLoading ? (
+          <Skeleton height={200} round={radius.xl} />
+        ) : categories.error ? (
+          <ErrorState error={categories.error} onRetry={() => categories.refetch()} compact />
         ) : (
-          <FlatList
-            horizontal
-            data={popular.data ?? []}
-            keyExtractor={(m) => m.id}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: spacing.md, paddingRight: spacing.xl }}
-            style={{ marginRight: -spacing.xl }}
-            renderItem={({ item }) => <MedicineCard medicine={item} compact />}
-          />
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
+            {(categories.data ?? []).map((c) => (
+              <CategoryTile key={c.slug} slug={c.slug} icon={c.icon} onPress={() => router.push({ pathname: '/search', params: { category: c.slug } })} />
+            ))}
+          </View>
         )}
       </Section>
 
-      {categories.data?.some((c) => c.count > 0) ? (
-        <Section title={t('home.categories')}>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-            {categories.data
-              .filter((c) => c.count > 0)
-              .map((c) => (
-                <Pressable
-                  key={c.code}
-                  accessibilityRole="button"
-                  onPress={() => router.push({ pathname: '/search', params: { atc: c.code } })}
-                  style={({ pressed }) => ({
-                    width: '48.5%',
-                    padding: spacing.md,
-                    borderRadius: radius.lg,
-                    backgroundColor: colors.surface,
-                    borderWidth: 1,
-                    borderColor: colors.border,
-                    opacity: pressed ? 0.8 : 1,
-                    gap: 2,
-                  })}
-                >
-                  <Text variant="caption" color="primary">
-                    ATC {c.code}
-                  </Text>
-                  <Text variant="small" style={{ fontFamily: 'Manrope_700Bold' }} numberOfLines={2}>
-                    {c.name}
-                  </Text>
-                  <Text variant="small" color="textTertiary">
-                    {c.count}
-                  </Text>
-                </Pressable>
-              ))}
-          </View>
-        </Section>
-      ) : null}
-
-      <View style={{ flexDirection: 'row', gap: spacing.sm, padding: spacing.lg, borderRadius: radius.lg, backgroundColor: colors.surfaceAlt }}>
-        <ShieldCheck size={18} color={colors.textSecondary} />
-        <Text variant="small" color="textSecondary" style={{ flex: 1 }}>
-          {t('common.notAdvice')}
-        </Text>
-      </View>
+      <Text variant="small" color="textTertiary" align="center">
+        {t('common.notAdvice')}
+      </Text>
     </Screen>
   );
 }

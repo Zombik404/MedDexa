@@ -66,6 +66,7 @@ export function toMedicineSummary(
     packageSize: defaultPackage(m),
     ingredients: toIngredientViews(m),
     imageUrl: m.imageUrl,
+    imageCredit: m.imageUrl ? m.imageCredit : null,
     rating: extra.rating ?? null,
     lowestPrice: extra.lowestPrice ?? null,
     isDemo: m.isDemo,

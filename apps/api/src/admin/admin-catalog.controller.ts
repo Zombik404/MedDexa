@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Delete, Get, HttpCode, NotFoundException, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
-import { normalizeText } from '@meddexa/shared';
+import { normalizeText, toGtin14 } from '@meddexa/shared';
 import type { z } from 'zod';
 import { AuditService } from '../common/audit.service';
 import { ClientIp, CurrentUser, Roles, type RequestUser } from '../common/decorators';
@@ -10,6 +10,7 @@ import { refreshSearchText } from '../medicines/search-text';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   adminListSchema,
+  productCodeSchema,
   formSchema,
   ingredientSchema,
   ingredientsReplaceSchema,
@@ -31,6 +32,7 @@ const fullMedicine = {
   packages: { orderBy: { quantity: 'asc' } },
   registrations: { orderBy: { countryCode: 'asc' } },
   synonyms: true,
+  codes: { orderBy: [{ system: 'asc' }, { code: 'asc' }] },
   duplicateOf: { select: { id: true, name: true } },
 } satisfies Prisma.MedicineInclude;
 
@@ -158,6 +160,30 @@ export class AdminCatalogController {
     await this.audit.log({ actorId: user.id, action: 'package.delete', entityType: 'MedicinePackage', entityId: pid, before: p, ip });
   }
 
+  @Post('medicines/:id/codes')
+  async addCode(@Param('id') id: string, @Body(new ZodPipe(productCodeSchema)) body: z.infer<typeof productCodeSchema>, @CurrentUser() user: RequestUser, @ClientIp() ip: string | null) {
+    let code = body.code.replace(/\s/g, '');
+    if (body.system === 'GTIN') {
+      const gtin = toGtin14(code);
+      if (!gtin) throw new BadRequestException({ message: 'Invalid GTIN/EAN check digit', code: 'INVALID_GTIN' });
+      code = gtin;
+    }
+    const c = await this.prisma.productCode.upsert({
+      where: { system_code_medicineId: { system: body.system, code, medicineId: id } },
+      update: { packageId: body.packageId ?? null, countryCode: body.countryCode ?? null },
+      create: { medicineId: id, system: body.system, code, countryCode: body.countryCode ?? null, packageId: body.packageId ?? null },
+    });
+    await this.audit.log({ actorId: user.id, action: 'code.create', entityType: 'ProductCode', entityId: c.id, after: { ...body, code }, ip });
+    return c;
+  }
+
+  @Delete('codes/:cid')
+  @HttpCode(204)
+  async deleteCode(@Param('cid') cid: string, @CurrentUser() user: RequestUser, @ClientIp() ip: string | null) {
+    const c = await this.prisma.productCode.delete({ where: { id: cid } });
+    await this.audit.log({ actorId: user.id, action: 'code.delete', entityType: 'ProductCode', entityId: cid, before: c, ip });
+  }
+
   @Post('medicines/:id/registrations')
   async addRegistration(@Param('id') id: string, @Body(new ZodPipe(registrationSchema)) body: z.infer<typeof registrationSchema>, @CurrentUser() user: RequestUser, @ClientIp() ip: string | null) {
     const r = await this.prisma.productRegistration.create({ data: { ...body, medicineId: id, verification: 'UNVERIFIED' } });
@@ -192,6 +218,14 @@ export class AdminCatalogController {
       this.prisma.medicine.update({ where: { id }, data: { duplicateOfId: body.intoId, status: 'ARCHIVED' } }),
       this.prisma.productRegistration.updateMany({ where: { medicineId: id }, data: { medicineId: body.intoId } }),
     ]);
+    // Keep barcode lookups working: the duplicate's pack codes now point at the kept record.
+    for (const c of await this.prisma.productCode.findMany({ where: { medicineId: id } })) {
+      await this.prisma.productCode.upsert({
+        where: { system_code_medicineId: { system: c.system, code: c.code, medicineId: body.intoId } },
+        update: {},
+        create: { medicineId: body.intoId, system: c.system, code: c.code, countryCode: c.countryCode, sourceId: c.sourceId },
+      });
+    }
     await refreshSearchText(this.prisma, body.intoId);
     await this.audit.log({ actorId: user.id, action: 'medicine.merge', entityType: 'Medicine', entityId: id, after: body, ip });
     return { merged: true };

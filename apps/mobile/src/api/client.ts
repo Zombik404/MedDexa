@@ -107,3 +107,36 @@ export async function api<T>(
   }
   return json as T;
 }
+
+/**
+ * Multipart upload of a local image (photo search). On native, React Native's FormData
+ * streams the file from its URI; on web the URI is a blob/data URL that is read first.
+ */
+export async function apiUploadImage<T>(path: string, image: { uri: string; mimeType?: string | null }, query?: Query): Promise<T> {
+  const form = new FormData();
+  const type = image.mimeType ?? 'image/jpeg';
+  if (Platform.OS === 'web') {
+    const blob = await (await fetch(image.uri)).blob();
+    form.append('image', blob, 'box.jpg');
+  } else {
+    form.append('image', { uri: image.uri, name: 'box.jpg', type } as unknown as Blob);
+  }
+  const token = await accessToken();
+  let res: Response;
+  try {
+    res = await fetch(buildUrl(path, query), {
+      method: 'POST',
+      headers: { Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: form,
+    });
+  } catch {
+    throw new ApiError(0, 'NETWORK', 'Network request failed');
+  }
+  const text = await res.text();
+  const json = text ? JSON.parse(text) : undefined;
+  if (!res.ok) {
+    const body = (json ?? {}) as Partial<ApiErrorBody>;
+    throw new ApiError(res.status, body.code, body.message ?? res.statusText, body.details);
+  }
+  return json as T;
+}

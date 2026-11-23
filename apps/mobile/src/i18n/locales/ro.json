@@ -28,9 +28,16 @@
     "hoursUnknown": "Program necunoscut",
     "km": "{{value}} km",
     "m": "{{value}} m",
-    "notAdvice": "Doar informații — nu sfat medical. Întrebați întotdeauna farmacistul sau medicul înainte de a schimba tratamentul."
+    "notAdvice": "Doar informații — nu sfat medical. Întrebați întotdeauna farmacistul sau medicul înainte de a schimba tratamentul.",
+    "share": "Distribuie"
   },
-  "tabs": { "home": "Acasă", "search": "Căutare", "compare": "Compară", "pharmacies": "Farmacii", "profile": "Profil" },
+  "tabs": {
+    "home": "Acasă",
+    "search": "Căutare",
+    "compare": "Compară",
+    "pharmacies": "Farmacii",
+    "profile": "Profil"
+  },
   "errors": {
     "title": "Ceva nu a funcționat",
     "body": "Nu am putut încărca acum.",
@@ -57,7 +64,7 @@
     "morning": "Bună dimineața",
     "afternoon": "Bună ziua",
     "evening": "Bună seara",
-    "searchPlaceholder": "Căutați medicamente, substanțe…",
+    "searchPlaceholder": "Medicament sau substanță activă",
     "locating": "Se determină locația…",
     "locationOff": "Locație dezactivată",
     "enableLocation": "Activează locația",
@@ -77,11 +84,14 @@
     "scNearby": "Deschise acum",
     "scHistory": "Istoric",
     "scFavorites": "Favorite",
-    "scPrices": "Prețuri"
+    "scPrices": "Prețuri",
+    "title": "Ce cauți?",
+    "searchHint": "Scrie un nume, scanează codul de bare sau fotografiază cutia.",
+    "openMap": "Deschide harta"
   },
   "search": {
     "title": "Căutare",
-    "placeholder": "Denumire, substanță, marcă, cod de bare…",
+    "placeholder": "Nume sau substanță activă",
     "recent": "Căutări recente",
     "popular": "Populare",
     "suggestions": "Sugestii",
@@ -95,8 +105,13 @@
     "noResultsBody": "Încercați altă ortografie, denumirea substanței active sau mai puține filtre.",
     "clearFilters": "Șterge filtrele",
     "startTitle": "Găsiți orice medicament",
-    "startBody": "Căutați după denumire, substanță activă, producător, concentrație, cod ATC, cod de bare sau număr de autorizare.",
-    "type": { "medicine": "Medicament", "ingredient": "Substanță activă", "manufacturer": "Producător", "atc": "Clasă ATC" },
+    "startBody": "Sau scrie mai sus numele unui medicament sau o substanță activă.",
+    "type": {
+      "medicine": "Medicament",
+      "ingredient": "Substanță activă",
+      "manufacturer": "Producător",
+      "atc": "Clasă ATC"
+    },
     "f": {
       "ingredients": "Substanțe active",
       "ingredientsHint": "Separate prin virgulă, de ex. paracetamol, cofeină",
@@ -114,9 +129,27 @@
       "hasPrice": "Doar cu preț actual",
       "any": "Oricare"
     },
-    "s": { "relevance": "Relevanță", "name": "Denumire", "price_asc": "Preț crescător", "price_desc": "Preț descrescător", "rating": "Evaluare" }
+    "s": {
+      "relevance": "Relevanță",
+      "name": "Denumire",
+      "price_asc": "Preț crescător",
+      "price_desc": "Preț descrescător",
+      "rating": "Evaluare"
+    },
+    "searchFor": "Caută „{{q}}”",
+    "ingredientsGroup": "Substanțe active",
+    "medicinesGroup": "Medicamente",
+    "ingredientChip": "Substanță",
+    "productCount_one": "{{count}} produs",
+    "productCount_few": "{{count}} produse",
+    "productCount_other": "{{count}} de produse"
   },
-  "rx": { "RX": "Cu prescripție medicală", "OTC": "Fără prescripție", "PHARMACY_ONLY": "Doar în farmacie", "UNKNOWN": "Statut necunoscut" },
+  "rx": {
+    "RX": "Cu prescripție medicală",
+    "OTC": "Fără prescripție",
+    "PHARMACY_ONLY": "Doar în farmacie",
+    "UNKNOWN": "Statut necunoscut"
+  },
   "release": {
     "IMMEDIATE": "Eliberare imediată",
     "MODIFIED": "Eliberare modificată",
@@ -152,8 +185,19 @@
     "registrations": "Autorizații pe țări",
     "registrationsNote": "Denumirile și statutul pot diferi între țări. Fiecare autorizație trimite la registrul autorității naționale.",
     "documents": "Documente oficiale",
-    "doc": { "SMPC": "Rezumatul caracteristicilor produsului", "PIL": "Prospect", "EPAR": "Raport public european de evaluare", "LABEL": "Etichetare", "OTHER": "Document" },
-    "safety": { "WARNINGS": "Atenționări", "CONTRAINDICATIONS": "Contraindicații", "SIDE_EFFECTS": "Reacții adverse", "DOSAGE": "Doze" },
+    "doc": {
+      "SMPC": "Rezumatul caracteristicilor produsului",
+      "PIL": "Prospect",
+      "EPAR": "Raport public european de evaluare",
+      "LABEL": "Etichetare",
+      "OTHER": "Document"
+    },
+    "safety": {
+      "WARNINGS": "Atenționări",
+      "CONTRAINDICATIONS": "Contraindicații",
+      "SIDE_EFFECTS": "Reacții adverse",
+      "DOSAGE": "Doze"
+    },
     "officialInfo": "Informații oficiale despre produs",
     "officialNote": "Preluate din documentația oficială, niciodată generate. Citiți prospectul produsului exact pe care îl folosiți.",
     "prices": "Prețuri în Europa",
@@ -165,7 +209,17 @@
     "noPrice": "Fără preț actual",
     "barcodes": "Coduri de bare",
     "demoNotice": "Acestea sunt date demonstrative fictive folosite în dezvoltare.",
-    "noDocuments": "Nu există încă documente oficiale asociate."
+    "noDocuments": "Nu există încă documente oficiale asociate.",
+    "photoOf": "Fotografie {{name}}",
+    "noPhoto": "Fără fotografie oficială",
+    "photoCredit": "Foto: {{source}}",
+    "noPhotoNote": "Nu există fotografie oficială — ilustrația formei farmaceutice",
+    "ingredientHint": "Arată toate medicamentele cu această substanță",
+    "amountUnknown": "cantitate nespecificată",
+    "findPharmacy": "Farmacii în apropiere",
+    "save": "Salvează",
+    "saved": "Salvat",
+    "sameComposition": "Aceleași substanțe active"
   },
   "composition": {
     "SAME_ACTIVE_INGREDIENT": "Aceeași substanță activă",
@@ -204,7 +258,12 @@
     "DIFFERENT_PACKAGE_SIZE": "Ambalaj diferit: {{ref}} vs {{other}}",
     "DIFFERENT_COUNTRY": "Autorizate în țări diferite"
   },
-  "severity": { "critical": "Critică", "major": "Importantă", "minor": "Minoră", "info": "Info" },
+  "severity": {
+    "critical": "Critică",
+    "major": "Importantă",
+    "minor": "Minoră",
+    "info": "Info"
+  },
   "cell": {
     "REFERENCE": "Referință",
     "SAME": "Identic",
@@ -245,7 +304,17 @@
     "major_one": "{{count}} diferență importantă",
     "major_few": "{{count}} diferențe importante",
     "major_other": "{{count}} de diferențe importante",
-    "attr": { "brand": "Marcă", "manufacturer": "Producător", "country": "Țară", "atcCode": "Cod ATC", "form": "Formă", "route": "Cale", "release": "Eliberare", "prescription": "Prescripție", "packageSize": "Ambalaj" }
+    "attr": {
+      "brand": "Marcă",
+      "manufacturer": "Producător",
+      "country": "Țară",
+      "atcCode": "Cod ATC",
+      "form": "Formă",
+      "route": "Cale",
+      "release": "Eliberare",
+      "prescription": "Prescripție",
+      "packageSize": "Ambalaj"
+    }
   },
   "prices": {
     "title": "Comparație de prețuri",
@@ -262,9 +331,18 @@
     "fallbackRates": "Cursuri de dezvoltare — nu în timp real.",
     "nationalList": "Lista națională de prețuri",
     "history": "Istoric prețuri",
-    "type": { "RETAIL": "Preț în farmacie", "MAX_RETAIL": "Preț maximal de vânzare", "REIMBURSEMENT_REFERENCE": "Preț reglementat" }
+    "type": {
+      "RETAIL": "Preț în farmacie",
+      "MAX_RETAIL": "Preț maximal de vânzare",
+      "REIMBURSEMENT_REFERENCE": "Preț reglementat"
+    }
   },
-  "availability": { "IN_STOCK": "În stoc", "LIMITED": "Limitat", "OUT_OF_STOCK": "Stoc epuizat", "UNKNOWN": "Disponibilitate necunoscută" },
+  "availability": {
+    "IN_STOCK": "În stoc",
+    "LIMITED": "Limitat",
+    "OUT_OF_STOCK": "Stoc epuizat",
+    "UNKNOWN": "Disponibilitate necunoscută"
+  },
   "pharmacies": {
     "title": "Farmacii",
     "placeholder": "Oraș, adresă, cod poștal sau nume",
@@ -296,7 +374,15 @@
     "mapWeb": "Harta interactivă este disponibilă în aplicația mobilă.",
     "coverage": "Acoperirea farmaciilor diferă de la o țară la alta și provine din registre oficiale și furnizori autorizați."
   },
-  "days": ["Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă", "Duminică"],
+  "days": [
+    "Luni",
+    "Marți",
+    "Miercuri",
+    "Joi",
+    "Vineri",
+    "Sâmbătă",
+    "Duminică"
+  ],
   "reviews": {
     "title": "Recenzii",
     "write": "Scrieți o recenzie",
@@ -321,8 +407,17 @@
     "count_one": "{{count}} recenzie",
     "count_few": "{{count}} recenzii",
     "count_other": "{{count}} de recenzii",
-    "reason": { "SPAM": "Spam", "ABUSIVE": "Jignitor", "MEDICAL_MISINFORMATION": "Dezinformare medicală", "PERSONAL_DATA": "Date personale", "OFF_TOPIC": "În afara subiectului", "OTHER": "Altele" },
-    "errors": { "tooShort": "Scrieți cel puțin 20 de caractere." }
+    "reason": {
+      "SPAM": "Spam",
+      "ABUSIVE": "Jignitor",
+      "MEDICAL_MISINFORMATION": "Dezinformare medicală",
+      "PERSONAL_DATA": "Date personale",
+      "OFF_TOPIC": "În afara subiectului",
+      "OTHER": "Altele"
+    },
+    "errors": {
+      "tooShort": "Scrieți cel puțin 20 de caractere."
+    }
   },
   "auth": {
     "signInTitle": "Bine ați revenit",
@@ -367,7 +462,11 @@
     "currency": "Monedă",
     "currencyNote": "Prețurile în alte monede sunt afișate ca estimări.",
     "appearance": "Aspect",
-    "theme": { "system": "Sistem", "light": "Luminos", "dark": "Întunecat" },
+    "theme": {
+      "system": "Sistem",
+      "light": "Luminos",
+      "dark": "Întunecat"
+    },
     "notifications": "Notificări",
     "notifyPrices": "Modificări de preț la favorite",
     "notifyProducts": "Actualizări ale informațiilor despre produse",
@@ -383,5 +482,54 @@
     "disclaimer": "Avertisment medical",
     "version": "Versiunea {{version}}",
     "empty": "Nimic aici încă."
+  },
+  "category": {
+    "pain": "Analgezice",
+    "cold": "Răceală și tuse",
+    "allergy": "Alergie",
+    "digestion": "Stomac și digestie",
+    "skin": "Piele",
+    "vitamins": "Vitamine și minerale",
+    "heart": "Inimă și tensiune",
+    "sleep": "Somn și liniștire",
+    "eyes-ears": "Ochi și urechi",
+    "antibiotics": "Antibiotice",
+    "diabetes": "Diabet",
+    "womens-health": "Sănătatea femeii"
+  },
+  "scan": {
+    "title": "Scanează codul de bare",
+    "subtitle": "Îndreaptă camera spre codul de bare al cutiei",
+    "torch": "Lanternă",
+    "searching": "Căutăm…",
+    "aim": "Îndreaptă camera spre codul de bare sau codul pătrat de pe cutie",
+    "typeCode": "Introdu codul manual",
+    "severalTitle": "Mai multe produse corespund acestui cod",
+    "again": "Scanează din nou",
+    "notFoundTitle": "Nu cunoaștem încă acest cod",
+    "notFoundBody": "Nu apare în bazele oficiale pe care le folosim. Încearcă o fotografie a cutiei sau căutarea după nume.",
+    "searchByName": "Caută după nume",
+    "permission": "Permite accesul la cameră pentru a scana coduri. Nimic nu este înregistrat sau stocat.",
+    "allowCamera": "Permite camera",
+    "manualHint": "Introdu cifrele de sub codul de bare (EAN, 13 cifre) sau codul național de pe cutie.",
+    "codeLabel": "Codul de pe cutie",
+    "find": "Caută",
+    "useCamera": "Folosește camera"
+  },
+  "photo": {
+    "title": "Fotografia cutiei",
+    "subtitle": "Citim numele și concentrația de pe ambalaj",
+    "yourPhoto": "Fotografia ta",
+    "reading": "Citim textul de pe cutie…",
+    "tip": "Fotografiază partea din față a cutiei astfel încât numele și concentrația să se vadă clar.",
+    "severalTitle": "Este unul dintre acestea?",
+    "notFoundTitle": "Nu am putut recunoaște medicamentul",
+    "notFoundBody": "Încearcă din nou la lumină bună, cu numele clar, sau caută după nume.",
+    "searchWord": "Caută „{{word}}”",
+    "cameraDenied": "Accesul la cameră este dezactivat. Activează-l din Setări sau alege o fotografie din galerie.",
+    "retake": "Altă fotografie",
+    "takePhoto": "Fă o fotografie",
+    "fromGallery": "Alege din galerie",
+    "privacy": "Fotografia este folosită doar pentru a citi textul și nu este stocată."
   }
 }

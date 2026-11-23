@@ -1,16 +1,16 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { Check, ChevronDown, ChevronUp, ExternalLink, FileText, GitCompareArrows, Heart, Pill, Share2 } from 'lucide-react-native';
+import { Check, ChevronDown, ChevronUp, ExternalLink, FileText, GitCompareArrows, Heart, MapPin, Share2 } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Share, View } from 'react-native';
-import { Image } from 'expo-image';
 import { useMedicine, usePrices, useSimilar, useSignedIn } from '@/api/hooks';
 import { IngredientList } from '@/components/medicine/IngredientList';
-import { ingredientLine } from '@/components/medicine/MedicineCard';
+import { MedicineCard } from '@/components/medicine/MedicineCard';
+import { MedicineImage } from '@/components/medicine/MedicineImage';
 import { PriceList } from '@/components/medicine/PriceList';
 import { ReviewsBlock } from '@/components/Reviews';
 import { Screen } from '@/components/Screen';
-import { Badge, Button, Card, ErrorState, IconButton, ListSkeleton, ProvenanceLine, Section, Skeleton, Text, VerificationBadge } from '@/components/ui';
+import { Badge, Button, Card, ErrorState, IconButton, ListSkeleton, ProvenanceLine, Section, Skeleton, Text } from '@/components/ui';
 import { useToast } from '@/components/ui/Toast';
 import { useFavoriteToggle } from '@/hooks/useFavorites';
 import { countryName, flag, formatDate } from '@/lib/format';
@@ -31,11 +31,11 @@ function Detail({ label, value }: { label: string; value: string | null | undefi
   );
 }
 
-function Collapsible({ title, children }: { title: string; children: React.ReactNode }) {
+function Collapsible({ title, children, first }: { title: string; children: React.ReactNode; first?: boolean }) {
   const [open, setOpen] = useState(false);
   const { colors } = useTheme();
   return (
-    <View style={{ borderTopWidth: 1, borderTopColor: colors.border }}>
+    <View style={{ borderTopWidth: first ? 0 : 1, borderTopColor: colors.border }}>
       <Pressable accessibilityRole="button" accessibilityState={{ expanded: open }} onPress={() => setOpen(!open)} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.md }}>
         <Text variant="bodyStrong">{title}</Text>
         {open ? <ChevronUp size={18} color={colors.textSecondary} /> : <ChevronDown size={18} color={colors.textSecondary} />}
@@ -68,6 +68,8 @@ export default function MedicineScreen() {
   if (q.isLoading) {
     return (
       <Screen topInset={false}>
+        <Skeleton height={220} round={radius.xxl} />
+        <View style={{ height: spacing.lg }} />
         <Skeleton height={28} width="80%" />
         <View style={{ height: spacing.lg }} />
         <ListSkeleton count={3} />
@@ -77,49 +79,52 @@ export default function MedicineScreen() {
   if (q.error || !m) return <Screen topInset={false}><ErrorState error={q.error} onRetry={() => q.refetch()} /></Screen>;
 
   const isFav = fav.isMedicine(m.id);
+  const sameComposition = (similar.data ?? []).filter((x) => x.composition === 'SAME_ACTIVE_INGREDIENT' || x.composition === 'SAME_COMBINATION');
 
   return (
     <Screen topInset={false} refreshing={q.isRefetching} onRefresh={() => { void q.refetch(); void prices.refetch(); }}>
       <Stack.Screen
         options={{
-          title: m.brand ?? '',
+          title: '',
           headerRight: () => (
-            <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-              <IconButton icon={Share2} label="Share" tone="plain" size={36} onPress={() => void Share.share({ message: `${m.name} — MedDexa` })} />
-              <IconButton testID="favorite-medicine" icon={Heart} label={t('pharmacies.save')} active={isFav} tone="plain" size={36} onPress={() => fav.toggleMedicine({ id: m.id, name: m.name })} />
-            </View>
+            <IconButton icon={Share2} label={t('common.share')} tone="plain" size={36} onPress={() => void Share.share({ message: `${m.name} — MedDexa` })} />
           ),
         }}
       />
 
-      {/* Hero */}
-      <View style={{ flexDirection: 'row', gap: spacing.lg, marginBottom: spacing.lg }}>
-        <View style={{ width: 76, height: 76, borderRadius: radius.xl, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-          {m.imageUrl ? <Image source={m.imageUrl} style={{ width: 76, height: 76 }} contentFit="cover" accessibilityLabel={m.name} /> : <Pill size={34} color={colors.primary} strokeWidth={1.7} />}
-        </View>
-        <View style={{ flex: 1, gap: 4 }}>
-          <Text variant="h1" accessibilityRole="header">
-            {m.name}
-          </Text>
-          <Text variant="body" color="textSecondary">
-            {flag(m.countryCode)} {m.manufacturer ?? '—'}
-          </Text>
-        </View>
+      {/* Picture first, then what it is */}
+      <MedicineImage medicine={m} size="hero" testID="medicine-image" />
+      <View style={{ marginTop: spacing.lg, gap: 4 }}>
+        <Text variant="h1" accessibilityRole="header">
+          {m.name}
+        </Text>
+        <Text variant="body" color="textSecondary">
+          {[m.manufacturer, countryName(m.countryCode)].filter(Boolean).join(' · ')} {flag(m.countryCode)}
+        </Text>
       </View>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: spacing.md }}>
-        {m.form ? <Badge label={m.form.name} tone="primary" /> : null}
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: spacing.md }}>
         <Badge label={t(`rx.${m.prescription}`)} tone={m.prescription === 'RX' ? 'info' : 'neutral'} />
-        {m.release && m.release !== 'IMMEDIATE' ? <Badge label={t(`release.${m.release}`)} tone="warning" /> : null}
-        <VerificationBadge provenance={m.provenance} />
+        {m.form ? <Badge label={m.form.name} tone="primary" /> : null}
+        {m.release && m.release !== 'IMMEDIATE' && m.release !== 'UNKNOWN' ? <Badge label={t(`release.${m.release}`)} tone="warning" /> : null}
       </View>
       {m.isDemo ? (
-        <View style={{ padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.warningSoft, marginBottom: spacing.md }}>
+        <View style={{ padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.warningSoft, marginTop: spacing.md }}>
           <Text variant="small" color="warning">
             {t('medicine.demoNotice')}
           </Text>
         </View>
       ) : null}
 
+      {/* Active ingredients directly under the picture */}
+      <Text variant="h3" style={{ marginTop: spacing.xxl, marginBottom: spacing.md }}>
+        {t('medicine.ingredients')}
+      </Text>
+      <IngredientList
+        ingredients={m.ingredients}
+        onPressIngredient={(i) => router.push({ pathname: '/search', params: { ingredients: i.moietyName ?? i.substanceName } })}
+      />
+
+      {/* Primary action, then secondary ones */}
       <Button
         testID="detail-compare"
         label={inCompare ? t('medicine.inCompare') : t('medicine.addCompare')}
@@ -130,47 +135,62 @@ export default function MedicineScreen() {
           if (r === 'full') toast(t('compare.full'), 'info');
           if (r === 'added') toast(t('medicine.inCompare'));
         }}
-        style={{ marginBottom: spacing.xxl }}
+        style={{ marginTop: spacing.xl }}
         full
       />
-
-      <Section title={t('medicine.ingredients')}>
-        <IngredientList ingredients={m.ingredients} />
-      </Section>
-
-      <Section title={t('medicine.details')}>
-        <Card>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-            <Detail label={t('medicine.form')} value={m.form?.name} />
-            <Detail label={t('medicine.route')} value={m.route ? t(`route.${m.route}`, { defaultValue: m.route }) : null} />
-            <Detail label={t('medicine.release')} value={m.release ? t(`release.${m.release}`) : null} />
-            <Detail label={t('medicine.prescription')} value={t(`rx.${m.prescription}`)} />
-            <Detail label={t('medicine.package')} value={m.packageSize ? `${m.packageSize.quantity} ${m.packageSize.unit}` : null} />
-            <Detail label={t('medicine.atc')} value={m.atcCode} />
-            <Detail label={t('medicine.country')} value={countryName(m.countryCode)} />
-            <Detail label={t('medicine.barcodes')} value={m.barcodes.join(', ')} />
-          </View>
-          <View style={{ marginTop: spacing.sm }}>
-            <ProvenanceLine provenance={m.provenance} />
-          </View>
-        </Card>
-      </Section>
+      <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm, marginBottom: spacing.xxl }}>
+        <Button label={t('medicine.findPharmacy')} icon={MapPin} variant="secondary" size="sm" onPress={() => router.push('/pharmacies')} style={{ flex: 1 }} />
+        <Button
+          testID="favorite-medicine"
+          label={isFav ? t('medicine.saved') : t('medicine.save')}
+          icon={Heart}
+          variant={isFav ? 'soft' : 'secondary'}
+          size="sm"
+          onPress={() => fav.toggleMedicine({ id: m.id, name: m.name })}
+          style={{ flex: 1 }}
+        />
+      </View>
 
       <Section title={t('medicine.prices')}>{prices.isLoading ? <ListSkeleton count={2} /> : prices.data ? <PriceList data={prices.data} /> : <ErrorState error={prices.error} onRetry={() => prices.refetch()} compact />}</Section>
 
-      <Section title={t('medicine.officialInfo')}>
-        <Card>
-          <Text variant="small" color="textSecondary" style={{ marginBottom: spacing.sm }}>
-            {t('medicine.officialNote')}
+      {sameComposition.length ? (
+        <Section title={t('medicine.sameComposition')}>
+          <View style={{ gap: spacing.sm }}>
+            {sameComposition.slice(0, 5).map((s) => (
+              <MedicineCard key={s.medicine.id} medicine={s.medicine} />
+            ))}
+          </View>
+          <Text variant="small" color="textTertiary" style={{ marginTop: spacing.sm }}>
+            {t('compare.disclaimer')}
           </Text>
-          {m.safety.map((s) => (
-            <Collapsible key={`${s.kind}-${s.language}-${s.countryCode}`} title={`${t(`medicine.safety.${s.kind}`)}${s.countryCode ? ` · ${flag(s.countryCode)}` : ''}`}>
-              <Text variant="body">{s.content}</Text>
-              <ProvenanceLine provenance={s.provenance} />
-            </Collapsible>
-          ))}
-          <View style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingTop: spacing.md, gap: spacing.sm }}>
-            <Text variant="bodyStrong">{t('medicine.documents')}</Text>
+        </Section>
+      ) : null}
+
+      {/* Everything else stays folded away */}
+      <Card style={{ marginBottom: spacing.xxl }} padded={false}>
+        <View style={{ paddingHorizontal: spacing.lg }}>
+          <Collapsible title={t('medicine.details')} first>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+              <Detail label={t('medicine.form')} value={m.form?.name} />
+              <Detail label={t('medicine.route')} value={m.route ? t(`route.${m.route}`, { defaultValue: m.route }) : null} />
+              <Detail label={t('medicine.package')} value={m.packageSize ? `${m.packageSize.quantity} ${m.packageSize.unit}` : null} />
+              <Detail label={t('medicine.atc')} value={m.atcCode} />
+              <Detail label={t('medicine.barcodes')} value={m.codes.filter((c) => c.system === 'GTIN').map((c) => c.code.replace(/^0/, '')).join(', ') || m.barcodes.join(', ')} />
+              <Detail label={t('medicine.prescription')} value={t(`rx.${m.prescription}`)} />
+            </View>
+            <ProvenanceLine provenance={m.provenance} />
+          </Collapsible>
+          <Collapsible title={t('medicine.officialInfo')}>
+            <Text variant="small" color="textSecondary">
+              {t('medicine.officialNote')}
+            </Text>
+            {m.safety.map((s) => (
+              <View key={`${s.kind}-${s.language}-${s.countryCode}`} style={{ gap: 4 }}>
+                <Text variant="bodyStrong">{`${t(`medicine.safety.${s.kind}`)}${s.countryCode ? ` · ${flag(s.countryCode)}` : ''}`}</Text>
+                <Text variant="body">{s.content}</Text>
+                <ProvenanceLine provenance={s.provenance} />
+              </View>
+            ))}
             {m.documents.length ? (
               m.documents.map((d) => (
                 <Pressable key={d.id} accessibilityRole="link" onPress={() => void openWebsite(d.url)} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
@@ -186,56 +206,31 @@ export default function MedicineScreen() {
                 {t('medicine.noDocuments')}
               </Text>
             )}
-          </View>
-        </Card>
-      </Section>
-
-      {m.registrations.length ? (
-        <Section title={t('medicine.registrations')}>
-          <Text variant="small" color="textSecondary" style={{ marginBottom: spacing.md }}>
-            {t('medicine.registrationsNote')}
-          </Text>
-          <View style={{ gap: spacing.sm }}>
-            {m.registrations.map((r) => (
-              <View key={r.id} style={{ flexDirection: 'row', gap: spacing.md, padding: spacing.md, borderRadius: radius.lg, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}>
-                <Text style={{ fontSize: 22 }}>{flag(r.countryCode)}</Text>
-                <View style={{ flex: 1 }}>
-                  <Text variant="bodyStrong">{r.localName}</Text>
-                  <Text variant="small" color="textSecondary">
-                    {r.authority} · {r.registrationNumber ?? '—'}
-                    {r.authorisedAt ? ` · ${formatDate(r.authorisedAt)}` : ''}
-                  </Text>
+          </Collapsible>
+          {m.registrations.length ? (
+            <Collapsible title={t('medicine.registrations')}>
+              <Text variant="small" color="textSecondary">
+                {t('medicine.registrationsNote')}
+              </Text>
+              {m.registrations.map((r) => (
+                <View key={r.id} style={{ flexDirection: 'row', gap: spacing.md }}>
+                  <Text style={{ fontSize: 20 }}>{flag(r.countryCode)}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text variant="bodyStrong">{r.localName}</Text>
+                    <Text variant="small" color="textSecondary">
+                      {r.authority} · {r.registrationNumber ?? '—'}
+                      {r.authorisedAt ? ` · ${formatDate(r.authorisedAt)}` : ''}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            ))}
-          </View>
-        </Section>
-      ) : null}
-
-      {similar.data?.length ? (
-        <Section title={t('medicine.similar')}>
-          <View style={{ gap: spacing.sm }}>
-            {similar.data.slice(0, 8).map((s) => (
-              <Card key={s.medicine.id} onPress={() => router.push(`/medicine/${s.medicine.id}`)} accessibilityLabel={s.medicine.name}>
-                <Text variant="bodyStrong">{s.medicine.name}</Text>
-                <Text variant="small" color="textSecondary" numberOfLines={1}>
-                  {ingredientLine(s.medicine)}
-                </Text>
-                <View style={{ marginTop: 6 }}>
-                  <Badge label={t(`composition.${s.composition}`)} tone={s.composition === 'SIMILAR_COMPOSITION' ? 'warning' : 'primary'} />
-                </View>
-              </Card>
-            ))}
-          </View>
-          <Text variant="small" color="textTertiary" style={{ marginTop: spacing.sm }}>
-            {t('compare.disclaimer')}
-          </Text>
-        </Section>
-      ) : null}
-
-      <Section title={t('medicine.reviews')}>
-        <ReviewsBlock target="medicines" id={m.id} name={m.name} />
-      </Section>
+              ))}
+            </Collapsible>
+          ) : null}
+          <Collapsible title={t('medicine.reviews')}>
+            <ReviewsBlock target="medicines" id={m.id} name={m.name} />
+          </Collapsible>
+        </View>
+      </Card>
 
       <Text variant="small" color="textTertiary">
         {t('common.notAdvice')}

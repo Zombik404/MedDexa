@@ -27,6 +27,17 @@ datasource db {
 
 // ───────────────────────────── Enums ─────────────────────────────
 
+enum CodeSystem {
+  GTIN
+  CN_ES
+  CIP13
+  CIP7
+  PZN
+  TTT_HU
+  AIM_PT
+  OTHER
+}
+
 enum Role {
   USER
   MODERATOR
@@ -390,6 +401,8 @@ model Medicine {
   /// Market of the primary registration (null for centrally authorised products).
   countryCode     String?                  @db.Char(2)
   imageUrl        String?
+  /// Attribution required by the image's source (e.g. "AEMPS · CIMA").
+  imageCredit     String?
   status          RecordStatus             @default(ACTIVE)
   duplicateOfId   String?
   /// Denormalised, diacritic-free search document maintained by the API.
@@ -420,6 +433,7 @@ model Medicine {
   reviews        Review[]
   favorites      Favorite[]
   recentlyViewed RecentlyViewed[]
+  codes          ProductCode[]
 
   @@unique([sourceId, sourceReference])
   @@index([normalizedName])
@@ -463,10 +477,32 @@ model MedicinePackage {
 
   medicine Medicine        @relation(fields: [medicineId], references: [id], onDelete: Cascade)
   offers   PharmacyOffer[]
+  codes    ProductCode[]
 
   @@index([medicineId])
   @@index([barcode])
   @@map("medicine_packages")
+}
+
+/// A pack identifier published by an official source: GTIN (canonical 14 digits) or a
+/// national code (Spanish CN, French CIP, German PZN, Hungarian TTT …). Used for barcode search.
+model ProductCode {
+  id          String     @id @default(cuid())
+  medicineId  String
+  packageId   String?
+  system      CodeSystem
+  code        String
+  countryCode String?    @db.Char(2)
+  sourceId    String?
+  createdAt   DateTime   @default(now())
+
+  medicine Medicine         @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  package  MedicinePackage? @relation(fields: [packageId], references: [id], onDelete: SetNull)
+  source   DataSource?      @relation(fields: [sourceId], references: [id])
+
+  @@unique([system, code, medicineId])
+  @@index([code])
+  @@map("product_codes")
 }
 
 model ProductRegistration {
@@ -805,6 +841,7 @@ model DataSource {
   documents     MedicineDocument[]
   safety        SafetySection[]
   rates         ExchangeRate[]
+  productCodes  ProductCode[]
 
   @@map("data_sources")
 }

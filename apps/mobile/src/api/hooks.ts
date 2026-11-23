@@ -1,4 +1,8 @@
 import type {
+  CategoryView,
+  IngredientHit,
+  PhotoSearchResponse,
+  ScanLookupResponse,
   AuthTokens,
   CompareResponse,
   ComparisonHistoryView,
@@ -28,7 +32,7 @@ import type {
 import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { usePreferences } from '@/store/preferences';
 import { useSession } from '@/store/session';
-import { api } from './client';
+import { api, apiUploadImage } from './client';
 
 export const useCurrency = () => usePreferences((s) => s.currency);
 export const useSignedIn = () => useSession((s) => !!s.user && !!s.refreshToken);
@@ -67,7 +71,7 @@ export function usePopularSearches() {
 }
 
 export function useCategories() {
-  return useQuery({ queryKey: ['medicines', 'categories'], queryFn: () => api<{ code: string; name: string; count: number }[]>('/medicines/categories'), staleTime: 30 * 60_000 });
+  return useQuery({ queryKey: ['medicines', 'categories'], queryFn: () => api<CategoryView[]>('/medicines/categories'), staleTime: 30 * 60_000 });
 }
 
 export function useMeta() {
@@ -268,4 +272,27 @@ export function useAccountActions() {
     exportData: useMutation({ mutationFn: () => api<unknown>('/me/export', { auth: true }) }),
     deleteAccount: useMutation({ mutationFn: (password: string) => api('/me/delete', { method: 'POST', body: { password }, auth: true }) }),
   };
+}
+
+export function useIngredientSearch(q: string) {
+  return useQuery({
+    queryKey: ['ingredients', 'search', q],
+    queryFn: ({ signal }) => api<IngredientHit[]>('/ingredients/search', { query: { q }, signal }),
+    enabled: q.trim().length >= 2,
+    staleTime: 5 * 60_000,
+  });
+}
+
+/** Barcode / DataMatrix / typed pack code → products. */
+export function useScanLookup() {
+  const currency = useCurrency();
+  return useMutation({ mutationFn: (code: string) => api<ScanLookupResponse>('/medicines/scan', { query: { code, currency } }) });
+}
+
+/** Photo of a box → products (the server reads the printed text; the photo is not stored). */
+export function usePhotoSearch() {
+  const currency = useCurrency();
+  return useMutation({
+    mutationFn: (image: { uri: string; mimeType?: string | null }) => apiUploadImage<PhotoSearchResponse>('/medicines/photo', image, { currency }),
+  });
 }

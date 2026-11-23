@@ -26,6 +26,8 @@ export const medicineUpsertSchema = z.object({
   prescription: z.enum(['RX', 'OTC', 'PHARMACY_ONLY', 'UNKNOWN']).optional(),
   countryCode: z.string().length(2).toUpperCase().nullable().optional(),
   imageUrl: z.string().url().nullable().optional(),
+  /** Required attribution of the image source (licence holder). */
+  imageCredit: z.string().trim().max(120).nullable().optional(),
   status: z.enum(['ACTIVE', 'DRAFT', 'ARCHIVED']).optional(),
   verification: z.enum(['VERIFIED', 'UNVERIFIED', 'OUTDATED']).optional(),
 });
@@ -158,3 +160,10 @@ export const sourceUpdateSchema = z.object({
 });
 
 export const mergeSchema = z.object({ intoId: z.string() });
+
+export const productCodeSchema = z.object({
+  system: z.enum(['GTIN', 'CN_ES', 'CIP13', 'CIP7', 'PZN', 'TTT_HU', 'AIM_PT', 'OTHER']),
+  code: z.string().trim().min(4).max(40),
+  countryCode: z.string().length(2).toUpperCase().nullable().optional(),
+  packageId: z.string().nullable().optional(),
+});

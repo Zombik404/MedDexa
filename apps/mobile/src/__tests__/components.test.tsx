@@ -4,6 +4,8 @@ import type { ReactNode } from 'react';
 import '../i18n';
 import { AssessmentBanner } from '../components/medicine/Assessment';
 import { MedicineCard } from '../components/medicine/MedicineCard';
+import { MedicineImage } from '../components/medicine/MedicineImage';
+import { CategoryTile } from '../components/CategoryTile';
 import { ToastProvider } from '../components/ui/Toast';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useCompare } from '../store/compare';
@@ -35,6 +37,7 @@ const medicine: MedicineSummary = {
     { substanceId: 'c', substanceName: 'caffeine', moietyId: null, moietyName: null, amount: 65, unit: 'mg', perAmount: null, perUnit: null, basis: 'SUBSTANCE', display: '65 mg' },
   ],
   imageUrl: null,
+  imageCredit: null,
   rating: { average: 4.2, count: 3 },
   lowestPrice: { amount: 3.85, currency: 'EUR', converted: true, countryCode: 'HU' },
   isDemo: true,
@@ -65,5 +68,28 @@ describe('AssessmentBanner', () => {
     expect(screen.getByText('Important pharmaceutical differences')).toBeTruthy();
     expect(screen.getByText(/2 critical differences/)).toBeTruthy();
     expect(screen.getByText(/Do not swap them without professional advice/)).toBeTruthy();
+  });
+});
+
+describe('MedicineImage', () => {
+  it('shows the official photo with its credit', async () => {
+    await wrap(<MedicineImage medicine={{ ...medicine, imageUrl: 'https://cima.aemps.es/x.jpg', imageCredit: 'AEMPS · CIMA' }} size="hero" />);
+    expect(screen.getByLabelText(`Photo of ${medicine.name}`)).toBeTruthy();
+    expect(screen.getByText('Photo: AEMPS · CIMA')).toBeTruthy();
+  });
+
+  it('falls back to a labelled dosage-form illustration, never a stock photo', async () => {
+    await wrap(<MedicineImage medicine={medicine} size="hero" />);
+    expect(screen.getByLabelText('No official photo')).toBeTruthy();
+    expect(screen.getByText(/illustration of the dosage form/)).toBeTruthy();
+  });
+});
+
+describe('CategoryTile', () => {
+  it('uses the translated everyday name', async () => {
+    const onPress = jest.fn();
+    await wrap(<CategoryTile slug="pain" icon="pain" onPress={onPress} />);
+    await fireEvent.press(screen.getByLabelText('Pain relief'));
+    expect(onPress).toHaveBeenCalled();
   });
 });

@@ -1,5 +1,6 @@
 import type { DataAdapter, SyncContext, SyncResult } from '../adapter';
-import { upsertImportedMedicine, type ImportedMedicine } from '../importer';
+import { gtinFromSpanishCn } from '@meddexa/shared';
+import { upsertImportedMedicine, type ImportedMedicine, type ImportedPackage } from '../importer';
 import { mapFormCode, mapRoute, releaseFromForm } from '../normalise';
 
 /** Subset of a CIMA `medicamento` response (verified against the live API, Nov 2026). */
@@ -38,6 +39,51 @@ export function parseCimaStrength(cantidad?: string, unidad?: string) {
   return { amount, unit: u === 'microgramos' ? 'µg' : u, perAmount: null, perUnit: null };
 }
 
+const CIMA_PACK_UNITS: Record<string, string> = {
+  comprimido: 'tablet',
+  comprimidos: 'tablet',
+  capsula: 'capsule',
+  capsulas: 'capsule',
+  sobre: 'sachet',
+  sobres: 'sachet',
+  parche: 'patch',
+  parches: 'patch',
+  ampolla: 'ampoule',
+  ampollas: 'ampoule',
+  vial: 'vial',
+  viales: 'vial',
+  supositorio: 'suppository',
+  supositorios: 'suppository',
+  ml: 'ml',
+  g: 'g',
+};
+
+/** "ASPIRINA C … , 10 comprimidos" → { quantity: 10, unit: 'tablet' }. */
+export function parseCimaPresentation(nombre: string): { quantity: number; unit: string } | null {
+  const tail = (nombre.split(',').pop() ?? '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+  // "1 frasco de 200 ml" → the first count with a known unit (200 ml), not the container.
+  for (const m of tail.matchAll(/(\d+(?:[.,]\d+)?)\s*([a-z]+)/g)) {
+    const unit = CIMA_PACK_UNITS[m[2]!];
+    if (unit) return { quantity: Number(m[1]!.replace(',', '.')), unit };
+  }
+  return null;
+}
+
+export function mapCimaPresentation(p: { cn: string; nombre: string }): ImportedPackage {
+  const pack = parseCimaPresentation(p.nombre);
+  return {
+    description: p.nombre,
+    quantity: pack?.quantity ?? null,
+    unit: pack?.unit ?? null,
+    // The EAN-13 on Spanish boxes embeds the national code (847000 + CN + check digit).
+    barcode: gtinFromSpanishCn(p.cn),
+    codes: [{ system: 'CN_ES', code: p.cn, countryCode: 'ES' }],
+  };
+}
+
 export function mapCimaMedicamento(m: CimaMedicamento): ImportedMedicine {
   const formCode = mapFormCode(m.formaFarmaceutica?.nombre);
   const atc = m.atcs?.slice().sort((a, b) => b.nivel - a.nivel)[0];
@@ -52,6 +98,7 @@ export function mapCimaMedicamento(m: CimaMedicamento): ImportedMedicine {
     registrationStatus: m.estado?.susp ? 'SUSPENDED' : m.estado?.rev ? 'WITHDRAWN' : m.estado?.aut ? 'AUTHORISED' : 'UNKNOWN',
     authorisedAt: m.estado?.aut ? new Date(m.estado.aut) : null,
     atcCode: atc && atc.nivel === 5 ? atc.codigo : null,
+    atcName: atc && atc.nivel === 5 ? atc.nombre : null,
     formCode,
     route: mapRoute(m.viasAdministracion?.[0]?.nombre),
     release: releaseFromForm(formCode, m.formaFarmaceutica?.nombre),
@@ -61,7 +108,7 @@ export function mapCimaMedicamento(m: CimaMedicamento): ImportedMedicine {
       .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))
       .map((p) => ({ name: p.nombre, ...parseCimaStrength(p.cantidad, p.unidad) })),
     // CIMA presentations carry the national code but no price.
-    packages: [],
+    packages: (m.presentaciones ?? []).map(mapCimaPresentation),
     documents: (m.docs ?? [])
       .filter((d) => d.tipo === 1 || d.tipo === 2)
       .map((d) => ({
@@ -70,8 +117,25 @@ export function mapCimaMedicamento(m: CimaMedicamento): ImportedMedicine {
         language: 'es',
         url: d.url,
       })),
+    // Packaging photo published by AEMPS ("materialas"); the pill photo ("formafarmac") is the fallback.
     imageUrl: m.fotos?.find((f) => f.tipo === 'materialas')?.url ?? m.fotos?.[0]?.url ?? null,
+    imageCredit: 'AEMPS · CIMA',
   };
+}
+
+/**
+ * Fetches one product by Spanish national code (CN) — used when a scanned Spanish box is not
+ * in the catalogue yet. Returns null when CIMA does not know the code.
+ */
+export async function fetchCimaByCn(fetcher: typeof fetch, baseUrl: string, cn: string): Promise<ImportedMedicine | null> {
+  const base = baseUrl.replace(/\/?$/, '/');
+  const res = await fetcher(`${base}medicamento?cn=${encodeURIComponent(cn)}`, { signal: AbortSignal.timeout(8000) });
+  if (res.status === 204 || res.status === 404) return null;
+  if (!res.ok) throw new Error(`CIMA responded ${res.status}`);
+  const text = await res.text();
+  if (!text.trim()) return null;
+  const json = JSON.parse(text) as CimaMedicamento;
+  return json?.nregistro ? mapCimaMedicamento(json) : null;
 }
 
 /**

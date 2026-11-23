@@ -23,6 +23,8 @@ export const medicineSearchSchema = paginationSchema.extend({
   ingredients: csv.optional(),
   manufacturer: z.string().trim().max(120).optional(),
   atc: z.string().trim().toUpperCase().max(7).optional(),
+  /** Everyday category slug (see MEDICINE_CATEGORIES), resolved to ATC prefixes. */
+  category: z.string().trim().max(40).optional(),
   form: z.string().trim().max(60).optional(),
   route: z.string().trim().max(60).optional(),
   prescription: z.enum(['RX', 'OTC', 'PHARMACY_ONLY']).optional(),
@@ -145,4 +147,20 @@ export const reportReviewSchema = z.object({
 export const comparisonHistorySchema = z.object({
   medicineIds: z.array(z.string()).min(MIN_COMPARE).max(MAX_COMPARE),
   title: z.string().max(120).optional(),
+});
+
+export const scanLookupSchema = z.object({
+  code: z.string().trim().min(1).max(200),
+  currency: z.string().length(3).toUpperCase().optional(),
+});
+export type ScanLookupQuery = z.infer<typeof scanLookupSchema>;
+
+/** Text recognised on a box, for clients that run OCR on the device. */
+export const photoTextSchema = z.object({
+  lines: z.array(z.string().max(200)).min(1).max(200),
+  currency: z.string().length(3).toUpperCase().optional(),
+});
+
+export const ingredientSearchSchema = z.object({
+  q: z.string().trim().min(2).max(80),
 });

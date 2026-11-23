@@ -1,7 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
-import { normaliseQuantity, normalizeText, tokenize, type MedicineSearchQuery, type Suggestion } from '@meddexa/shared';
+import {
+  categoryBySlug,
+  normaliseQuantity,
+  normalizeText,
+  parseScannedCode,
+  tokenize,
+  type IngredientHit,
+  type MedicineSearchQuery,
+  type Suggestion,
+} from '@meddexa/shared';
 import type { Env } from '../config/env';
 import { FxService } from '../prices/fx.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -58,6 +67,12 @@ export class SearchService {
       where.push(Prisma.sql`EXISTS (SELECT 1 FROM manufacturers mf WHERE mf.id = m."manufacturerId" AND mf."normalizedName" LIKE ${'%' + normalizeText(params.manufacturer) + '%'})`);
     }
     if (params.atc) where.push(Prisma.sql`m."atcCode" LIKE ${params.atc + '%'}`);
+    if (params.category) {
+      const cat = categoryBySlug(params.category);
+      // Unknown slug: match nothing rather than everything.
+      const prefixes = cat ? cat.atcPrefixes.map((p) => `${p}%`) : ['__none__'];
+      where.push(Prisma.sql`m."atcCode" LIKE ANY (${prefixes}::text[])`);
+    }
     if (params.form) where.push(Prisma.sql`m."formCode" = ${params.form}`);
     if (params.route) where.push(Prisma.sql`m.route = ${params.route}`);
     if (params.prescription) where.push(Prisma.sql`m.prescription = ${params.prescription}::"PrescriptionStatus"`);
@@ -79,7 +94,11 @@ export class SearchService {
       where.push(Prisma.sql`EXISTS (SELECT 1 FROM medicine_packages pk WHERE pk."medicineId" = m.id AND pk.quantity = ${params.packageSize})`);
     }
     if (params.barcode) {
-      where.push(Prisma.sql`EXISTS (SELECT 1 FROM medicine_packages pk WHERE pk."medicineId" = m.id AND pk.barcode = ${params.barcode})`);
+      const scan = parseScannedCode(params.barcode);
+      const codes = scan.candidates.map((c) => c.code);
+      const raw = [params.barcode, ...(scan.gtin ? [scan.gtin, scan.gtin.replace(/^0/, '')] : [])];
+      where.push(Prisma.sql`(EXISTS (SELECT 1 FROM medicine_packages pk WHERE pk."medicineId" = m.id AND pk.barcode = ANY (${raw}::text[]))
+        OR EXISTS (SELECT 1 FROM product_codes pc WHERE pc."medicineId" = m.id AND pc.code = ANY (${codes.length ? codes : ['__none__']}::text[])))`);
     }
     if (params.registrationNumber) {
       const rn = params.registrationNumber.toUpperCase();
@@ -161,5 +180,42 @@ export class SearchService {
          FROM atc_classes a WHERE lower(a.code) LIKE ${prefix} OR lower(a.name) LIKE ${prefix} LIMIT 3)
       ORDER BY score DESC LIMIT 10`);
     return rows.map(({ score: _score, ...r }) => r);
+  }
+
+  /** Active ingredients matching a name or translated synonym, with how many products contain them. */
+  async ingredients(raw: string): Promise<IngredientHit[]> {
+    const q = normalizeText(raw);
+    if (q.length < 2) return [];
+    const demo = this.config.get('ALLOW_DEMO_DATA', { infer: true }) ? Prisma.empty : Prisma.sql`AND m."isDemo" = false`;
+    const rows = await this.prisma.$queryRaw<{ id: string; name: string; synonym: string | null; count: bigint }[]>(Prisma.sql`
+      SELECT ai.id, ai.name,
+        CASE WHEN ai."normalizedName" LIKE ${q + '%'} THEN NULL ELSE
+          (SELECT s.name FROM ingredient_synonyms s WHERE s."ingredientId" = ai.id AND s."normalizedName" LIKE ${q + '%'} LIMIT 1) END AS synonym,
+        (SELECT count(DISTINCT m.id) FROM ingredient_quantities iq
+           JOIN active_ingredients x ON x.id = iq."ingredientId"
+           JOIN medicines m ON m.id = iq."medicineId"
+          WHERE (x.id = ai.id OR x."moietyId" = ai.id) AND m.status = 'ACTIVE' AND m."duplicateOfId" IS NULL ${demo}) AS count
+      FROM active_ingredients ai
+      WHERE ai."normalizedName" LIKE ${q + '%'}
+         OR ai."normalizedName" LIKE ${'% ' + q + '%'}
+         OR EXISTS (SELECT 1 FROM ingredient_synonyms s WHERE s."ingredientId" = ai.id AND s."normalizedName" LIKE ${q + '%'})
+      ORDER BY (ai."normalizedName" LIKE ${q + '%'}) DESC, ai.name
+      LIMIT 8`);
+    return rows.filter((r) => Number(r.count) > 0).map((r) => ({ id: r.id, name: r.name, synonym: r.synonym, medicineCount: Number(r.count) }));
+  }
+
+  /** Candidate ids for words read from a box (any word may match), best text rank first. */
+  async candidatesForWords(words: string[], limit = 30): Promise<string[]> {
+    const terms = words.map((w) => w.replace(/[^\p{L}\p{N}]/gu, '')).filter((w) => w.length >= 3);
+    if (!terms.length) return [];
+    const orq = terms.map((t) => `${t}:*`).join(' | ');
+    const demo = this.config.get('ALLOW_DEMO_DATA', { infer: true }) ? Prisma.empty : Prisma.sql`AND m."isDemo" = false`;
+    const rows = await this.prisma.$queryRaw<{ id: string }[]>(Prisma.sql`
+      SELECT m.id FROM medicines m
+      WHERE m.status = 'ACTIVE' AND m."duplicateOfId" IS NULL ${demo}
+        AND m."searchVector" @@ to_tsquery('simple', ${orq})
+      ORDER BY ts_rank(m."searchVector", to_tsquery('simple', ${orq})) DESC, m.name
+      LIMIT ${limit}`);
+    return rows.map((r) => r.id);
   }
 }

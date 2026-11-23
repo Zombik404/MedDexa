@@ -22,6 +22,10 @@ export const envSchema = z.object({
   ENABLE_SCHEDULER: bool.default('true'),
   /** Expose demonstration data through the API (never in production). */
   ALLOW_DEMO_DATA: bool.default('true'),
+  /** When a scanned Spanish code is unknown, fetch it live from AEMPS CIMA (if that source is enabled). */
+  LIVE_REGISTRY_LOOKUP: bool.default('true'),
+  /** Server-side text recognition for "search by photo of the box". */
+  OCR_ENABLED: bool.default('true'),
   RATE_LIMIT_PER_MINUTE: z.coerce.number().default(120),
 });
 

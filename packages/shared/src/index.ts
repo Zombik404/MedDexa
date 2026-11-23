@@ -6,3 +6,5 @@ export * from './comparison/engine';
 export * from './contracts/schemas';
 export * from './contracts/api';
 export * from './i18n/languages';
+export * from './barcode';
+export * from './categories';

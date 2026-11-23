@@ -33,11 +33,14 @@
     "@prisma/adapter-pg": "6.19.3",
     "@prisma/client": "6.19.3",
     "@sentry/node": "^10.78.0",
+    "@tesseract.js-data/eng": "1.0.0",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.1",
     "fast-xml-parser": "^5.12.1",
+    "fflate": "^0.8.3",
     "helmet": "^8.3.0",
     "ioredis": "^5.11.1",
+    "mdb-reader": "3.2.2",
     "nestjs-pino": "^4.6.1",
     "nodemailer": "^7.0.13",
     "pg": "^8.23.1",
@@ -45,6 +48,7 @@
     "pino-http": "^10.5.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
+    "tesseract.js": "7.0.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {

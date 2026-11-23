@@ -1,5 +1,5 @@
-import type { DocumentKind, PrescriptionStatus, PriceType, ReleaseMechanism, Verification } from '@prisma/client';
-import { normalizeText } from '@meddexa/shared';
+import type { CodeSystem, DocumentKind, PrescriptionStatus, PriceType, ReleaseMechanism, Verification } from '@prisma/client';
+import { candidatesFromGtin, normalizeText, toGtin14 } from '@meddexa/shared';
 import { refreshSearchText } from '../medicines/search-text';
 import type { PrismaService } from '../prisma/prisma.service';
 
@@ -19,7 +19,15 @@ export interface ImportedPackage {
   unit: string | null;
   barcode?: string | null;
   registrationNumber?: string | null;
+  /** National pack codes printed on / encoded in the box (CN, CIP7, PZN, TTT …). */
+  codes?: ImportedCode[];
   price?: { amount: number; currency: string; priceType: PriceType; observedAt: Date } | null;
+}
+
+export interface ImportedCode {
+  system: CodeSystem;
+  code: string;
+  countryCode?: string | null;
 }
 
 export interface ImportedMedicine {
@@ -33,6 +41,8 @@ export interface ImportedMedicine {
   registrationStatus: 'AUTHORISED' | 'SUSPENDED' | 'WITHDRAWN' | 'UNKNOWN';
   authorisedAt?: Date | null;
   atcCode?: string | null;
+  /** Name of the ATC code as published by the source (optional). */
+  atcName?: string | null;
   formCode: string | null;
   route: string | null;
   release: ReleaseMechanism;
@@ -41,6 +51,53 @@ export interface ImportedMedicine {
   packages: ImportedPackage[];
   documents?: { kind: DocumentKind; title: string; language: string; url: string }[];
   imageUrl?: string | null;
+  imageCredit?: string | null;
+  /** Codes not tied to a parsed package. */
+  codes?: ImportedCode[];
+}
+
+/** All identifiers implied by a package: its barcode (GTIN + embedded national code) and explicit codes. */
+export function packageCodes(p: Pick<ImportedPackage, 'barcode' | 'codes'>): ImportedCode[] {
+  const out: ImportedCode[] = [...(p.codes ?? [])];
+  const gtin = p.barcode ? toGtin14(p.barcode.replace(/\D/g, '')) : null;
+  if (gtin) out.push(...candidatesFromGtin(gtin));
+  const seen = new Set<string>();
+  return out.filter((c) => {
+    const k = `${c.system}:${c.code}`;
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+
+async function saveCodes(prisma: PrismaService, medicineId: string, packageId: string | null, sourceId: string, codes: ImportedCode[]) {
+  for (const c of codes) {
+    await prisma.productCode.upsert({
+      where: { system_code_medicineId: { system: c.system, code: c.code, medicineId } },
+      update: { packageId: packageId ?? undefined, sourceId },
+      create: { medicineId, packageId, system: c.system, code: c.code, countryCode: c.countryCode ?? null, sourceId },
+    });
+  }
+}
+
+const ATC_LEVEL_BY_LENGTH: Record<number, number> = { 1: 1, 3: 2, 4: 3, 5: 4, 7: 5 };
+const ATC_PARENT_LENGTH: Record<number, number> = { 3: 1, 4: 3, 5: 4, 7: 5 };
+
+/**
+ * Makes sure an official ATC code (and its parents) exists in the classification table, so
+ * imported products keep their code — the everyday categories depend on it. Names come from
+ * the source when it provides them; otherwise the code itself is used until an editor names it.
+ */
+export async function ensureAtc(prisma: PrismaService, rawCode: string, name?: string | null): Promise<string | null> {
+  const code = rawCode.trim().toUpperCase();
+  const level = ATC_LEVEL_BY_LENGTH[code.length];
+  if (!level || !/^[A-Z](\d{2}([A-Z]([A-Z](\d{2})?)?)?)?$/.test(code)) return null;
+  const existing = await prisma.atcClass.findUnique({ where: { code } });
+  if (existing) return existing.code;
+  const parentLen = ATC_PARENT_LENGTH[code.length];
+  const parentCode = parentLen ? await ensureAtc(prisma, code.slice(0, parentLen)) : null;
+  await prisma.atcClass.create({ data: { code, name: name?.trim() || code, level, parentCode } });
+  return code;
 }
 
 async function findOrCreateIngredient(prisma: PrismaService, name: string, moietyId?: string | null) {
@@ -77,7 +134,7 @@ export async function upsertImportedMedicine(
       })
     ).id;
   }
-  const atc = input.atcCode ? await prisma.atcClass.findUnique({ where: { code: input.atcCode } }) : null;
+  const atcCode = input.atcCode ? await ensureAtc(prisma, input.atcCode, input.atcName) : null;
   const form = input.formCode ? await prisma.pharmaceuticalForm.findUnique({ where: { code: input.formCode } }) : null;
 
   const where = { sourceId_sourceReference: { sourceId, sourceReference: input.sourceReference } };
@@ -87,13 +144,14 @@ export async function upsertImportedMedicine(
     normalizedName: normalizeText(input.name),
     brand: input.brand ?? null,
     manufacturerId,
-    atcCode: atc?.code ?? null,
+    atcCode,
     formCode: form?.code ?? null,
     route: input.route,
     release: input.release,
     prescription: input.prescription,
     countryCode: input.countryCode,
     imageUrl: input.imageUrl ?? null,
+    imageCredit: input.imageUrl ? (input.imageCredit ?? null) : null,
     syncedAt: now,
     verification,
     confidence: 1,
@@ -144,8 +202,13 @@ export async function upsertImportedMedicine(
     });
   }
 
+  await saveCodes(prisma, medicine.id, null, sourceId, input.codes ?? []);
   for (const [i, p] of input.packages.entries()) {
-    if (p.quantity == null || !p.unit) continue;
+    if (p.quantity == null || !p.unit) {
+      // Unparsed pack size: keep its identifiers so barcode search still finds the product.
+      await saveCodes(prisma, medicine.id, null, sourceId, packageCodes(p));
+      continue;
+    }
     let pkg = await prisma.medicinePackage.findFirst({
       where: { medicineId: medicine.id, OR: [{ barcode: p.barcode ?? '__none__' }, { description: p.description }] },
     });
@@ -160,6 +223,7 @@ export async function upsertImportedMedicine(
         isDefault: i === 0,
       },
     });
+    await saveCodes(prisma, medicine.id, pkg.id, sourceId, packageCodes(p));
     if (p.price) {
       // Country-level price-list entry (no pharmacy). NULL pharmacyId is not usable in a
       // compound unique lookup, so look it up explicitly.

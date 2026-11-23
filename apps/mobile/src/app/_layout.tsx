@@ -71,6 +71,8 @@ function Navigator() {
         <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="medicine/[id]" options={{ title: '' }} />
         <Stack.Screen name="pharmacy/[id]" options={{ title: '' }} />
+        <Stack.Screen name="scan" options={{ presentation: 'fullScreenModal', headerShown: false }} />
+        <Stack.Screen name="photo" options={{ presentation: 'modal', title: t('photo.title') }} />
         <Stack.Screen name="review/new" options={{ presentation: 'modal', title: t('reviews.write') }} />
         <Stack.Screen name="auth/login" options={{ presentation: 'modal', title: '' }} />
         <Stack.Screen name="auth/register" options={{ presentation: 'modal', title: '' }} />

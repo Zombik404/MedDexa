@@ -1,20 +1,20 @@
 import type { MedicineSearchQuery, Suggestion } from '@meddexa/shared';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowUpDown, Building2, Clock, FlaskConical, Layers, Pill, SlidersHorizontal, TrendingUp, X } from 'lucide-react-native';
+import { ArrowUpDown, Building2, Camera, ChevronRight, Clock, FlaskConical, Layers, Pill, ScanBarcode, SlidersHorizontal, X, type LucideIcon } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Keyboard, Pressable, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useMedicineSearch, useMeta, usePopularSearches, useSearchHistory, useSignedIn, useSuggestions } from '@/api/hooks';
+import { useIngredientSearch, useMedicineSearch, useMeta, useSearchHistory, useSignedIn, useSuggestions } from '@/api/hooks';
 import { MedicineCard } from '@/components/medicine/MedicineCard';
-import { Button, Chip, EmptyState, ErrorState, ListSkeleton, SearchBar, Sheet, Text, TextField } from '@/components/ui';
+import { Button, Chip, EmptyState, ErrorState, IconButton, ListSkeleton, SearchBar, Sheet, Text, TextField } from '@/components/ui';
 import { ListRow } from '@/components/ui/ListRow';
 import { useLocal } from '@/store/local';
 import { usePreferences } from '@/store/preferences';
 import { useTheme } from '@/theme/ThemeProvider';
-import { spacing } from '@/theme/tokens';
+import { radius, spacing } from '@/theme/tokens';
 
-type Filters = Partial<Pick<MedicineSearchQuery, 'ingredients' | 'manufacturer' | 'atc' | 'form' | 'route' | 'prescription' | 'country' | 'strength' | 'packageSize' | 'barcode' | 'registrationNumber' | 'hasPrice'>>;
+type Filters = Partial<Pick<MedicineSearchQuery, 'ingredients' | 'manufacturer' | 'atc' | 'category' | 'form' | 'route' | 'prescription' | 'country' | 'strength' | 'packageSize' | 'barcode' | 'registrationNumber' | 'hasPrice'>>;
 type Sort = MedicineSearchQuery['sort'];
 
 const SUGGEST_ICON = { medicine: Pill, ingredient: FlaskConical, manufacturer: Building2, atc: Layers } as const;
@@ -28,19 +28,60 @@ function useDebounced<T>(value: T, ms = 280) {
   return v;
 }
 
+/** Big, explicit entry points for the two non-typing ways to search. */
+function ActionRow({ icon: Icon, title, body, onPress, testID }: { icon: LucideIcon; title: string; body: string; onPress: () => void; testID: string }) {
+  const { colors } = useTheme();
+  return (
+    <Pressable
+      testID={testID}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      onPress={onPress}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.lg,
+        padding: spacing.lg,
+        borderRadius: radius.xl,
+        backgroundColor: pressed ? colors.primarySoft : colors.surface,
+        borderWidth: 1,
+        borderColor: colors.border,
+      })}
+    >
+      <View style={{ width: 48, height: 48, borderRadius: radius.lg, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' }}>
+        <Icon size={24} color={colors.primary} strokeWidth={2} />
+      </View>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text variant="bodyStrong">{title}</Text>
+        <Text variant="small" color="textSecondary">
+          {body}
+        </Text>
+      </View>
+      <ChevronRight size={18} color={colors.textTertiary} />
+    </Pressable>
+  );
+}
+
+function GroupTitle({ children }: { children: string }) {
+  return (
+    <Text variant="caption" color="textTertiary" style={{ paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.xs, textTransform: 'uppercase' }}>
+      {children}
+    </Text>
+  );
+}
+
 export default function SearchScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const params = useLocalSearchParams<{ q?: string; focus?: string; atc?: string; hasPrice?: string; ingredients?: string }>();
+  const params = useLocalSearchParams<{ q?: string; focus?: string; atc?: string; category?: string; hasPrice?: string; ingredients?: string }>();
   const input = useRef<ComponentRef<typeof TextInput>>(null);
   const meta = useMeta();
   const signedIn = useSignedIn();
   const local = useLocal();
   const saveHistory = usePreferences((s) => s.saveSearchHistory);
   const serverHistory = useSearchHistory();
-  const popular = usePopularSearches();
 
   const [text, setText] = useState(params.q ?? '');
   const [submitted, setSubmitted] = useState(params.q ?? '');
@@ -53,7 +94,7 @@ export default function SearchScreen() {
 
   // Deep links from Home (category, prices shortcut, popular search). The tab stays mounted,
   // so incoming params are applied when they change (React's "adjust state on prop change").
-  const paramKey = [params.q, params.atc, params.hasPrice, params.ingredients].join('|');
+  const paramKey = [params.q, params.atc, params.category, params.hasPrice, params.ingredients].join('|');
   const [seenParams, setSeenParams] = useState<string | null>(null);
   if (paramKey !== seenParams) {
     setSeenParams(paramKey);
@@ -61,8 +102,16 @@ export default function SearchScreen() {
       setText(params.q);
       setSubmitted(params.q);
     }
-    if (params.atc || params.hasPrice || params.ingredients) {
-      setFilters((f) => ({ ...f, atc: params.atc || undefined, hasPrice: params.hasPrice ? true : undefined, ingredients: params.ingredients ? params.ingredients.split(',') : undefined }));
+    if (params.atc || params.category || params.hasPrice || params.ingredients) {
+      // Arriving from a category tile or an ingredient link starts a fresh, single-purpose search.
+      setText(params.q ?? '');
+      setSubmitted(params.q ?? '');
+      setFilters({
+        atc: params.atc || undefined,
+        category: params.category || undefined,
+        hasPrice: params.hasPrice ? true : undefined,
+        ingredients: params.ingredients ? params.ingredients.split(',') : undefined,
+      });
     }
   }
   useEffect(() => {
@@ -72,7 +121,9 @@ export default function SearchScreen() {
   }, [params.focus]);
 
   const debounced = useDebounced(text);
-  const suggestions = useSuggestions(focused && debounced !== submitted ? debounced : '');
+  const typing = focused && debounced !== submitted ? debounced : '';
+  const suggestions = useSuggestions(typing);
+  const ingredientHits = useIngredientSearch(typing);
   const activeFilters = Object.entries(filters).filter(([, v]) => v !== undefined && v !== '' && !(Array.isArray(v) && !v.length));
   const hasQuery = submitted.trim().length > 0 || activeFilters.length > 0;
   const query = useMemo(() => ({ q: submitted.trim() || undefined, ...filters, sort }), [submitted, filters, sort]);
@@ -106,6 +157,8 @@ export default function SearchScreen() {
 
   const filterLabel = (k: string, v: unknown) => {
     if (k === 'hasPrice') return t('search.f.hasPrice');
+    if (k === 'category') return t(`category.${v}`);
+    if (k === 'ingredients') return `${t('search.ingredientChip')}: ${(v as string[]).join(' + ')}`;
     if (k === 'prescription') return t(`rx.${v}`);
     if (k === 'route') return t(`route.${v}`, { defaultValue: String(v) });
     if (k === 'form') return meta.data?.forms.find((f) => f.code === v)?.name ?? String(v);
@@ -113,31 +166,37 @@ export default function SearchScreen() {
   };
 
   const header = (
-    <View style={{ paddingHorizontal: spacing.xl, paddingTop: insets.top + spacing.lg, gap: spacing.md, backgroundColor: colors.background }}>
-      <Text variant="h1" accessibilityRole="header">
-        {t('search.title')}
-      </Text>
-      <SearchBar
-        ref={input}
-        testID="search-input"
-        value={text}
-        placeholder={t('search.placeholder')}
-        onChangeText={setText}
-        onSubmitEditing={() => submit(text)}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setTimeout(() => setFocused(false), 150)}
-        onClear={() => {
-          setText('');
-          setSubmitted('');
-        }}
-      />
-      <View style={{ flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' }}>
-        <Chip testID="open-filters" icon={SlidersHorizontal} label={activeFilters.length ? `${t('search.filters')} · ${activeFilters.length}` : t('search.advanced')} selected={activeFilters.length > 0} onPress={() => { setDraft(filters); setFiltersOpen(true); }} />
-        <Chip icon={ArrowUpDown} label={t(`search.s.${sort}`)} onPress={() => setSortOpen(true)} />
-        {activeFilters.map(([k, v]) => (
-          <Chip key={k} icon={X} label={filterLabel(k, v)} onPress={() => setFilters((f) => ({ ...f, [k]: undefined }))} />
-        ))}
+    <View style={{ paddingHorizontal: spacing.xl, paddingTop: insets.top + spacing.md, gap: spacing.md, backgroundColor: colors.background }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+        <View style={{ flex: 1 }}>
+          <SearchBar
+            ref={input}
+            testID="search-input"
+            value={text}
+            placeholder={t('search.placeholder')}
+            onChangeText={setText}
+            onSubmitEditing={() => submit(text)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setTimeout(() => setFocused(false), 150)}
+            onClear={() => {
+              setText('');
+              setSubmitted('');
+              setFilters({});
+            }}
+          />
+        </View>
+        <IconButton testID="search-scan" icon={ScanBarcode} label={t('scan.title')} size={48} onPress={() => router.push('/scan')} />
+        <IconButton testID="search-photo" icon={Camera} label={t('photo.title')} size={48} onPress={() => router.push('/photo')} />
       </View>
+      {hasQuery && !showSuggestions ? (
+        <View style={{ flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' }}>
+          {activeFilters.map(([k, v]) => (
+            <Chip key={k} icon={X} label={filterLabel(k, v)} selected onPress={() => setFilters((f) => ({ ...f, [k]: undefined }))} />
+          ))}
+          <Chip testID="open-filters" icon={SlidersHorizontal} label={t('search.filters')} onPress={() => { setDraft(filters); setFiltersOpen(true); }} />
+          <Chip icon={ArrowUpDown} label={t(`search.s.${sort}`)} onPress={() => setSortOpen(true)} />
+        </View>
+      ) : null}
     </View>
   );
 
@@ -147,17 +206,37 @@ export default function SearchScreen() {
       {showSuggestions ? (
         <FlatList
           keyboardShouldPersistTaps="handled"
-          data={suggestions.data ?? []}
-          keyExtractor={(s) => `${s.type}:${s.id}`}
-          contentContainerStyle={{ paddingVertical: spacing.md }}
+          data={(suggestions.data ?? []).filter((x) => x.type === 'medicine')}
+          keyExtractor={(x) => `${x.type}:${x.id}`}
+          contentContainerStyle={{ paddingBottom: 120 }}
           ListHeaderComponent={
-            <Pressable accessibilityRole="button" onPress={() => submit(text)} style={{ paddingHorizontal: spacing.xl, paddingVertical: spacing.md }}>
-              <Text variant="bodyStrong" color="primary">
-                {t('common.appName')}: “{text}”
-              </Text>
-            </Pressable>
+            <View>
+              <Pressable accessibilityRole="button" onPress={() => submit(text)} style={{ paddingHorizontal: spacing.xl, paddingVertical: spacing.md }}>
+                <Text variant="bodyStrong" color="primary">
+                  {t('search.searchFor', { q: text })}
+                </Text>
+              </Pressable>
+              {ingredientHits.data?.length ? (
+                <View>
+                  <GroupTitle>{t('search.ingredientsGroup')}</GroupTitle>
+                  {ingredientHits.data.map((h) => (
+                    <ListRow
+                      key={h.id}
+                      icon={FlaskConical}
+                      title={h.name}
+                      subtitle={[h.synonym, t('search.productCount', { count: h.medicineCount })].filter(Boolean).join(' · ')}
+                      onPress={() => {
+                        setFilters({ ingredients: [h.name] });
+                        submit('');
+                      }}
+                    />
+                  ))}
+                </View>
+              ) : null}
+              {(suggestions.data ?? []).some((x) => x.type === 'medicine') ? <GroupTitle>{t('search.medicinesGroup')}</GroupTitle> : null}
+            </View>
           }
-          renderItem={({ item }) => <ListRow icon={SUGGEST_ICON[item.type]} title={item.label} subtitle={[t(`search.type.${item.type}`), item.secondary].filter(Boolean).join(' · ')} onPress={() => onSuggestion(item)} />}
+          renderItem={({ item }) => <ListRow icon={SUGGEST_ICON[item.type]} title={item.label} subtitle={item.secondary ?? undefined} onPress={() => onSuggestion(item)} />}
         />
       ) : !hasQuery ? (
         <FlatList
@@ -166,9 +245,11 @@ export default function SearchScreen() {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ padding: spacing.xl, paddingBottom: 120 }}
           ListHeaderComponent={
-            <View style={{ gap: spacing.xxl }}>
+            <View style={{ gap: spacing.md }}>
+              <ActionRow testID="action-scan" icon={ScanBarcode} title={t('scan.title')} body={t('scan.subtitle')} onPress={() => router.push('/scan')} />
+              <ActionRow testID="action-photo" icon={Camera} title={t('photo.title')} body={t('photo.subtitle')} onPress={() => router.push('/photo')} />
               {recent.length ? (
-                <View style={{ gap: spacing.md }}>
+                <View style={{ gap: spacing.md, marginTop: spacing.lg }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text variant="h3">{t('search.recent')}</Text>
                     {!signedIn ? (
@@ -185,18 +266,11 @@ export default function SearchScreen() {
                     ))}
                   </View>
                 </View>
-              ) : null}
-              {popular.data?.length ? (
-                <View style={{ gap: spacing.md }}>
-                  <Text variant="h3">{t('search.popular')}</Text>
-                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-                    {popular.data.map((q) => (
-                      <Chip key={q} icon={TrendingUp} label={q} onPress={() => submit(q)} />
-                    ))}
-                  </View>
-                </View>
-              ) : null}
-              <EmptyState icon={Pill} title={t('search.startTitle')} body={t('search.startBody')} compact />
+              ) : (
+                <Text variant="small" color="textSecondary" style={{ marginTop: spacing.md }}>
+                  {t('search.startBody')}
+                </Text>
+              )}
             </View>
           }
         />
@@ -304,7 +378,6 @@ export default function SearchScreen() {
         </View>
         <TextField label={t('search.f.atc')} value={draft.atc ?? ''} onChangeText={(v) => setDraft({ ...draft, atc: v ? v.toUpperCase() : undefined })} autoCapitalize="characters" />
         <TextField label={t('search.f.packageSize')} value={draft.packageSize ? String(draft.packageSize) : ''} onChangeText={(v) => setDraft({ ...draft, packageSize: Number(v) || undefined })} keyboardType="numeric" />
-        <TextField label={t('search.f.barcode')} value={draft.barcode ?? ''} onChangeText={(v) => setDraft({ ...draft, barcode: v.replace(/\D/g, '') || undefined })} keyboardType="number-pad" />
         <TextField label={t('search.f.registrationNumber')} value={draft.registrationNumber ?? ''} onChangeText={(v) => setDraft({ ...draft, registrationNumber: v || undefined })} autoCapitalize="characters" />
         <ListRow title={t('search.f.hasPrice')} toggle={{ value: !!draft.hasPrice, onChange: (v) => setDraft({ ...draft, hasPrice: v || undefined }) }} last />
       </Sheet>
