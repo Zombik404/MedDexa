@@ -1,0 +1,23 @@
+{
+  "name": "meddexa",
+  "private": true,
+  "version": "0.1.0",
+  "description": "MedDexa — Smarter Healthcare. Across Europe.",
+  "packageManager": "pnpm@10.28.0",
+  "engines": { "node": ">=20.19" },
+  "scripts": {
+    "build:shared": "pnpm --filter @meddexa/shared build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "format": "prettier --write .",
+    "db:up": "docker compose up -d postgres redis",
+    "api:dev": "pnpm --filter @meddexa/api dev",
+    "admin:dev": "pnpm --filter @meddexa/admin dev",
+    "mobile:start": "pnpm --filter @meddexa/mobile start"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "typescript": "~5.9.3"
+  }
+}
