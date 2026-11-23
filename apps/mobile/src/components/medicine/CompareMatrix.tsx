@@ -9,6 +9,20 @@ import { fonts, radius, spacing } from '@/theme/tokens';
 const LABEL_W = 116;
 const COL_W = 150;
 
+function Row({ label, children, highlight }: { label: string; children: React.ReactNode; highlight?: boolean }) {
+  const { colors } = useTheme();
+  return (
+    <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.border }}>
+      <View style={{ width: LABEL_W, padding: spacing.sm, backgroundColor: highlight ? colors.warningSoft : colors.surfaceAlt, justifyContent: 'center' }}>
+        <Text variant="caption" color="textSecondary" style={{ textTransform: 'uppercase' }} numberOfLines={3}>
+          {label}
+        </Text>
+      </View>
+      {children}
+    </View>
+  );
+}
+
 /**
  * Side-by-side matrix. The reference column comes first; cells that differ from the
  * reference are highlighted, and missing ingredients are called out explicitly.
@@ -41,17 +55,6 @@ export function CompareMatrix({ medicines, result, prices }: { medicines: Medici
     if (row.key === 'country') return countryName(v);
     return v;
   };
-
-  const Row = ({ label, children, highlight }: { label: string; children: React.ReactNode; highlight?: boolean }) => (
-    <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.border }}>
-      <View style={{ width: LABEL_W, padding: spacing.sm, backgroundColor: highlight ? colors.warningSoft : colors.surfaceAlt, justifyContent: 'center' }}>
-        <Text variant="caption" color="textSecondary" style={{ textTransform: 'uppercase' }} numberOfLines={3}>
-          {label}
-        </Text>
-      </View>
-      {children}
-    </View>
-  );
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: spacing.xl }}>

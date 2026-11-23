@@ -24,7 +24,7 @@ export function Screen({ children, title, subtitle, right, scroll = true, topIns
   const header = title ? (
     <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: spacing.xl, gap: spacing.md }}>
       <View style={{ flex: 1 }}>
-        <Text variant="h1" accessibilityRole="header">
+        <Text variant="h1" accessibilityRole="header" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
           {title}
         </Text>
         {subtitle ? (

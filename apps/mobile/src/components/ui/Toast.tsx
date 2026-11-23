@@ -1,5 +1,5 @@
 import { CircleCheck, Info } from 'lucide-react-native';
-import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { View } from 'react-native';
 import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,6 +15,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const insets = useSafeAreaInsets();
   const [toast, setToast] = useState<{ id: number; message: string; tone: Tone } | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (timer.current) clearTimeout(timer.current);
+  }, []);
   const show = useCallback((message: string, tone: Tone = 'success') => {
     if (timer.current) clearTimeout(timer.current);
     setToast({ id: Date.now(), message, tone });

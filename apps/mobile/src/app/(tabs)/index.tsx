@@ -94,7 +94,7 @@ export default function Home() {
       <SearchBar large placeholder={t('home.searchPlaceholder')} onPressFake={() => router.push({ pathname: '/search', params: { focus: '1' } })} />
 
       {/* Compare shortcut */}
-      <Card tone="primary" onPress={() => router.push('/compare')} style={{ marginTop: spacing.lg, marginBottom: spacing.xxl, borderRadius: radius.xxl }} testID="compare-shortcut">
+      <Card tone="primary" onPress={() => router.push('/compare')} style={{ marginTop: spacing.lg, marginBottom: spacing.xxl, borderRadius: radius.xxl, backgroundColor: palette.forest800 }} testID="compare-shortcut">
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.lg }}>
           <View style={{ flex: 1, gap: 4 }}>
             <Text variant="h3" style={{ color: '#FFFFFF' }}>

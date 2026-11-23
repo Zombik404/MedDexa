@@ -29,12 +29,14 @@ export function resolveLanguage(preference: string | null): string {
   return preference && supported.includes(preference) ? preference : deviceLanguage();
 }
 
+// eslint-disable-next-line import/no-named-as-default-member
 void i18n.use(initReactI18next).init({
   resources: Object.fromEntries(Object.entries(resources).map(([k, v]) => [k, { translation: v }])),
   lng: deviceLanguage(),
   fallbackLng: DEFAULT_LANGUAGE,
   interpolation: { escapeValue: false },
   returnNull: false,
+  showSupportNotice: false,
 });
 
 export default i18n;

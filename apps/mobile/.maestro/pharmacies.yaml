@@ -1,0 +1,12 @@
+appId: app.meddexa
+---
+- launchApp
+- tapOn:
+    id: "tab-pharmacies"
+- tapOn:
+    id: "pharmacy-search"
+- inputText: "Budapest"
+- assertVisible:
+    id: "pharmacy-list"
+- tapOn:
+    id: "filter-open-now"

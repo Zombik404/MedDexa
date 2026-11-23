@@ -41,9 +41,12 @@ export default function PharmaciesScreen() {
   const [selected, setSelected] = useState<string | null>(null);
   const q = useDebounced(text.trim());
 
-  useEffect(() => {
+  // Sync the "open now" deep link from Home (the tab stays mounted between visits).
+  const [seenOpenParam, setSeenOpenParam] = useState(params.openNow);
+  if (params.openNow !== seenOpenParam) {
+    setSeenOpenParam(params.openNow);
     if (params.openNow) setOpenNow(true);
-  }, [params.openNow]);
+  }
 
   const center = area ?? (location.coords ? { ...location.coords, radiusKm: 10 } : null);
   const query = useMemo(

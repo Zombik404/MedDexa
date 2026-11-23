@@ -48,6 +48,8 @@
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/react": "~19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-expo": "~58.0.4",
     "jest": "^29.7.0",
     "typescript": "~6.0.3"
   },
@@ -62,5 +64,21 @@
     "export:web": "expo export --platform web",
     "doctor": "expo-doctor"
   },
-  "private": true
+  "private": true,
+  "jest": {
+    "preset": "jest-expo",
+    "setupFiles": [
+      "./jest.setup.js"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.test.ts?(x)"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|lucide-react-native|@meddexa/.*))"
+    ],
+    "moduleNameMapper": {
+      "^lucide-react-native$": "<rootDir>/../../node_modules/lucide-react-native/dist/cjs/lucide-react-native.js",
+      "^@/(.*)$": "<rootDir>/src/$1"
+    }
+  }
 }

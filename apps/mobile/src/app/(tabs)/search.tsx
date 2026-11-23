@@ -51,8 +51,12 @@ export default function SearchScreen() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
 
-  // Deep links from Home (category, prices shortcut, popular search).
-  useEffect(() => {
+  // Deep links from Home (category, prices shortcut, popular search). The tab stays mounted,
+  // so incoming params are applied when they change (React's "adjust state on prop change").
+  const paramKey = [params.q, params.atc, params.hasPrice, params.ingredients].join('|');
+  const [seenParams, setSeenParams] = useState<string | null>(null);
+  if (paramKey !== seenParams) {
+    setSeenParams(paramKey);
     if (params.q !== undefined) {
       setText(params.q);
       setSubmitted(params.q);
@@ -60,8 +64,12 @@ export default function SearchScreen() {
     if (params.atc || params.hasPrice || params.ingredients) {
       setFilters((f) => ({ ...f, atc: params.atc || undefined, hasPrice: params.hasPrice ? true : undefined, ingredients: params.ingredients ? params.ingredients.split(',') : undefined }));
     }
-    if (params.focus) setTimeout(() => input.current?.focus(), 250);
-  }, [params.q, params.atc, params.hasPrice, params.ingredients, params.focus]);
+  }
+  useEffect(() => {
+    if (!params.focus) return;
+    const id = setTimeout(() => input.current?.focus(), 250);
+    return () => clearTimeout(id);
+  }, [params.focus]);
 
   const debounced = useDebounced(text);
   const suggestions = useSuggestions(focused && debounced !== submitted ? debounced : '');

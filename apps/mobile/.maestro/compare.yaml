@@ -1,0 +1,19 @@
+appId: app.meddexa
+---
+- launchApp
+- tapOn:
+    id: "tab-compare"
+- tapOn:
+    id: "compare-add"
+- tapOn:
+    id: "compare-add-input"
+- inputText: "paradex"
+- tapOn:
+    text: "Paradex 500 mg tablets"
+- tapOn:
+    text: "Paradex Plus 500 mg/65 mg tablets"
+- tapOn: "Done"
+- assertVisible:
+    id: "assessment-banner"
+- assertVisible:
+    id: "compare-matrix"

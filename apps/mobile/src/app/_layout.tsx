@@ -1,4 +1,3 @@
-import '@/i18n';
 import {
   Manrope_400Regular,
   Manrope_500Medium,

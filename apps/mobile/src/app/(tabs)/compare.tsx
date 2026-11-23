@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { Check, GitCompareArrows, History, Plus, Star, Trash2, X } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useCompareQuery, useComparisonHistory, useMedicineSearch, useSignedIn } from '@/api/hooks';
 import { AssessmentBanner, DifferenceList, useAssessmentTone } from '@/components/medicine/Assessment';
 import { CompareMatrix } from '@/components/medicine/CompareMatrix';

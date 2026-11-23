@@ -1,0 +1,23 @@
+# Maestro E2E flow — run against a development build:  maestro test .maestro
+appId: app.meddexa
+---
+- clearState
+- launchApp
+- tapOn:
+    id: "onboarding-next"
+- tapOn:
+    id: "onboarding-next"
+- tapOn:
+    id: "onboarding-next"
+- tapOn:
+    id: "accept-disclaimer"
+- assertVisible:
+    id: "home-search"
+- tapOn:
+    id: "tab-search"
+- tapOn:
+    id: "search-input"
+- inputText: "paracetamol"
+- pressKey: Enter
+- assertVisible:
+    id: "search-results"
