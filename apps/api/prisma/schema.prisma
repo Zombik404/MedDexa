@@ -1,0 +1,953 @@
+// MedDexa database schema.
+//
+// Design notes (see docs/DATABASE.md):
+//  - A Medicine is one central pharmaceutical product identity (composition, strength,
+//    form, release, route). Country-specific names and numbers live in
+//    ProductRegistration and ProductSynonym, so the same product sold in several
+//    countries does not create duplicate identities.
+//  - A MedicinePackage is a presentation (pack size, barcode). Offers and prices attach
+//    to packages, never to the medicine directly.
+//  - Every externally sourced record keeps provenance: sourceId, sourceReference,
+//    syncedAt, verification and confidence.
+//  - There are deliberately NO orders, payments, carts, deliveries, couriers or
+//    reservations. MedDexa is an information and comparison platform.
+
+generator client {
+  provider   = "prisma-client-js"
+  // Rust-free client: queries are compiled in WebAssembly and executed through the
+  // node-postgres driver adapter (see src/prisma/prisma.service.ts).
+  engineType = "client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // Extensions pg_trgm and unaccent are created in the initial migration.
+}
+
+// ───────────────────────────── Enums ─────────────────────────────
+
+enum Role {
+  USER
+  MODERATOR
+  EDITOR
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum Verification {
+  VERIFIED
+  UNVERIFIED
+  OUTDATED
+  DEMO
+}
+
+enum ReleaseMechanism {
+  IMMEDIATE
+  MODIFIED
+  PROLONGED
+  DELAYED
+  GASTRO_RESISTANT
+  UNKNOWN
+}
+
+enum PrescriptionStatus {
+  RX
+  OTC
+  PHARMACY_ONLY
+  UNKNOWN
+}
+
+enum StrengthBasis {
+  SUBSTANCE
+  MOIETY
+}
+
+enum RecordStatus {
+  ACTIVE
+  DRAFT
+  ARCHIVED
+}
+
+enum RegistrationStatus {
+  AUTHORISED
+  SUSPENDED
+  WITHDRAWN
+  UNKNOWN
+}
+
+enum SynonymKind {
+  BRAND
+  LOCAL_NAME
+  INN
+  SPELLING
+  OTHER
+}
+
+enum DocumentKind {
+  SMPC
+  PIL
+  EPAR
+  LABEL
+  OTHER
+}
+
+enum SafetyKind {
+  WARNINGS
+  CONTRAINDICATIONS
+  SIDE_EFFECTS
+  DOSAGE
+}
+
+enum PriceType {
+  RETAIL
+  MAX_RETAIL
+  REIMBURSEMENT_REFERENCE
+}
+
+enum AvailabilityStatus {
+  IN_STOCK
+  LIMITED
+  OUT_OF_STOCK
+  UNKNOWN
+}
+
+enum ReviewTarget {
+  MEDICINE
+  PHARMACY
+}
+
+enum ReviewStatus {
+  PENDING
+  PUBLISHED
+  REJECTED
+  REMOVED
+}
+
+enum ReportReason {
+  SPAM
+  ABUSIVE
+  MEDICAL_MISINFORMATION
+  PERSONAL_DATA
+  OFF_TOPIC
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+enum DataSourceKind {
+  MEDICINES
+  PHARMACIES
+  PRICES
+  AVAILABILITY
+  FX
+  DOCUMENTS
+}
+
+enum SyncStatus {
+  RUNNING
+  SUCCESS
+  PARTIAL
+  FAILED
+  SKIPPED
+}
+
+enum AnalyticsEventType {
+  SEARCH
+  SUGGEST
+  COMPARE
+  VIEW_MEDICINE
+  VIEW_PHARMACY
+  PHARMACY_SEARCH
+}
+
+// ───────────────────────────── Reference data ─────────────────────────────
+
+model Country {
+  code            String  @id @db.Char(2)
+  name            String
+  currencyCode    String  @db.Char(3)
+  defaultLanguage String  @db.VarChar(10)
+  /// True when at least one verified integration covers this market.
+  supported       Boolean @default(false)
+  timezone        String  @default("Europe/Brussels")
+
+  currency      Currency              @relation(fields: [currencyCode], references: [code])
+  registrations ProductRegistration[]
+  pharmacies    Pharmacy[]
+  offers        PharmacyOffer[]
+  dataSources   DataSource[]
+
+  @@map("countries")
+}
+
+model Language {
+  code String @id @db.VarChar(10)
+  name String
+
+  @@map("languages")
+}
+
+model Currency {
+  code      String    @id @db.Char(3)
+  name      String
+  digits    Int       @default(2)
+  countries Country[]
+
+  @@map("currencies")
+}
+
+model ExchangeRate {
+  id        String   @id @default(cuid())
+  base      String   @default("EUR") @db.Char(3)
+  currency  String   @db.Char(3)
+  rate      Decimal  @db.Decimal(18, 8)
+  rateDate  DateTime @db.Date
+  sourceId  String
+  fetchedAt DateTime @default(now())
+
+  source DataSource @relation(fields: [sourceId], references: [id])
+
+  @@unique([currency, rateDate, sourceId])
+  @@index([rateDate])
+  @@map("exchange_rates")
+}
+
+// ───────────────────────────── Users ─────────────────────────────
+
+model User {
+  id              String     @id @default(cuid())
+  email           String     @unique
+  passwordHash    String
+  displayName     String?
+  role            Role       @default(USER)
+  status          UserStatus @default(ACTIVE)
+  emailVerifiedAt DateTime?
+  lastLoginAt     DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  preferences       UserPreferences?
+  sessions          Session[]
+  resetTokens       PasswordResetToken[]
+  favorites         Favorite[]
+  searchHistory     SearchHistory[]
+  comparisonHistory ComparisonHistory[]
+  recentlyViewed    RecentlyViewed[]
+  notifications     Notification[]
+  pushTokens        PushToken[]
+  reviews           Review[]             @relation("ReviewAuthor")
+  moderatedReviews  Review[]             @relation("ReviewModerator")
+  reviewVotes       ReviewVote[]
+  reports           ReviewReport[]       @relation("Reporter")
+  resolvedReports   ReviewReport[]       @relation("Resolver")
+  auditLogs         AuditLog[]
+
+  @@map("users")
+}
+
+model UserPreferences {
+  userId               String  @id
+  language             String  @default("en") @db.VarChar(10)
+  currency             String  @default("EUR") @db.Char(3)
+  countryCode          String? @db.Char(2)
+  theme                String  @default("system")
+  notifyPriceChanges   Boolean @default(false)
+  notifyProductUpdates Boolean @default(false)
+  analyticsConsent     Boolean @default(false)
+  saveSearchHistory    Boolean @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+model Session {
+  id           String    @id @default(cuid())
+  userId       String
+  /// SHA-256 of the refresh token; the token itself is never stored.
+  tokenHash    String    @unique
+  userAgent    String?
+  createdAt    DateTime  @default(now())
+  lastUsedAt   DateTime  @default(now())
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  replacedById String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+// ───────────────────────────── Pharmaceutical entities ─────────────────────────────
+
+model Manufacturer {
+  id             String   @id @default(cuid())
+  name           String
+  normalizedName String   @unique
+  countryCode    String?  @db.Char(2)
+  website        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  medicines Medicine[]
+
+  @@map("manufacturers")
+}
+
+model ActiveIngredient {
+  id             String  @id @default(cuid())
+  /// International non-proprietary name (or most common English name).
+  name           String
+  normalizedName String  @unique
+  /// Active moiety for salts/esters, e.g. ibuprofen lysine → ibuprofen.
+  moietyId       String?
+  casNumber      String?
+  description    String?
+
+  moiety     ActiveIngredient?    @relation("Moiety", fields: [moietyId], references: [id])
+  salts      ActiveIngredient[]   @relation("Moiety")
+  quantities IngredientQuantity[]
+  synonyms   IngredientSynonym[]
+
+  @@map("active_ingredients")
+}
+
+model IngredientSynonym {
+  id             String  @id @default(cuid())
+  ingredientId   String
+  name           String
+  normalizedName String
+  language       String? @db.VarChar(10)
+
+  ingredient ActiveIngredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@unique([ingredientId, normalizedName])
+  @@index([normalizedName])
+  @@map("ingredient_synonyms")
+}
+
+model PharmaceuticalForm {
+  code     String  @id
+  name     String
+  /// ORAL_SOLID, ORAL_LIQUID, CUTANEOUS, PARENTERAL, OPHTHALMIC, NASAL, RECTAL, TRANSDERMAL, INHALATION
+  group    String?
+  /// EDQM Standard Terms code where mapped.
+  edqmCode String?
+
+  medicines Medicine[]
+
+  @@map("pharmaceutical_forms")
+}
+
+model AtcClass {
+  code       String  @id @db.VarChar(7)
+  name       String
+  level      Int
+  parentCode String? @db.VarChar(7)
+
+  parent    AtcClass?  @relation("AtcTree", fields: [parentCode], references: [code])
+  children  AtcClass[] @relation("AtcTree")
+  medicines Medicine[]
+
+  @@map("atc_classes")
+}
+
+model Medicine {
+  id              String                   @id @default(cuid())
+  name            String
+  normalizedName  String
+  brand           String?
+  manufacturerId  String?
+  atcCode         String?                  @db.VarChar(7)
+  formCode        String?
+  route           String?
+  release         ReleaseMechanism         @default(UNKNOWN)
+  prescription    PrescriptionStatus       @default(UNKNOWN)
+  /// Market of the primary registration (null for centrally authorised products).
+  countryCode     String?                  @db.Char(2)
+  imageUrl        String?
+  status          RecordStatus             @default(ACTIVE)
+  duplicateOfId   String?
+  /// Denormalised, diacritic-free search document maintained by the API.
+  searchText      String                   @default("")
+  searchVector    Unsupported("tsvector")?
+  // provenance
+  sourceId        String?
+  sourceReference String?
+  syncedAt        DateTime?
+  verification    Verification             @default(UNVERIFIED)
+  confidence      Float?
+  isDemo          Boolean                  @default(false)
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+
+  manufacturer   Manufacturer?         @relation(fields: [manufacturerId], references: [id])
+  atc            AtcClass?             @relation(fields: [atcCode], references: [code])
+  form           PharmaceuticalForm?   @relation(fields: [formCode], references: [code])
+  source         DataSource?           @relation(fields: [sourceId], references: [id])
+  duplicateOf    Medicine?             @relation("Duplicate", fields: [duplicateOfId], references: [id])
+  duplicates     Medicine[]            @relation("Duplicate")
+  ingredients    IngredientQuantity[]
+  packages       MedicinePackage[]
+  registrations  ProductRegistration[]
+  synonyms       ProductSynonym[]
+  documents      MedicineDocument[]
+  safety         SafetySection[]
+  reviews        Review[]
+  favorites      Favorite[]
+  recentlyViewed RecentlyViewed[]
+
+  @@unique([sourceId, sourceReference])
+  @@index([normalizedName])
+  @@index([atcCode])
+  @@index([manufacturerId])
+  @@index([formCode])
+  @@index([countryCode])
+  @@map("medicines")
+}
+
+model IngredientQuantity {
+  id           String        @id @default(cuid())
+  medicineId   String
+  ingredientId String
+  amount       Decimal?      @db.Decimal(14, 6)
+  unit         String?
+  perAmount    Decimal?      @db.Decimal(14, 6)
+  perUnit      String?
+  basis        StrengthBasis @default(SUBSTANCE)
+  position     Int           @default(0)
+
+  medicine   Medicine         @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  ingredient ActiveIngredient @relation(fields: [ingredientId], references: [id])
+
+  @@unique([medicineId, ingredientId])
+  @@index([ingredientId])
+  @@map("ingredient_quantities")
+}
+
+model MedicinePackage {
+  id                 String   @id @default(cuid())
+  medicineId         String
+  quantity           Decimal  @db.Decimal(12, 3)
+  unit               String
+  description        String?
+  /// GTIN/EAN or national pack code (PZN, CIP13 …)
+  barcode            String?
+  registrationNumber String?
+  isDefault          Boolean  @default(false)
+  createdAt          DateTime @default(now())
+
+  medicine Medicine        @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  offers   PharmacyOffer[]
+
+  @@index([medicineId])
+  @@index([barcode])
+  @@map("medicine_packages")
+}
+
+model ProductRegistration {
+  id                 String             @id @default(cuid())
+  medicineId         String
+  countryCode        String             @db.Char(2)
+  authority          String
+  registrationNumber String?
+  localName          String
+  status             RegistrationStatus @default(UNKNOWN)
+  authorisedAt       DateTime?
+  sourceId           String?
+  sourceReference    String?
+  syncedAt           DateTime?
+  verification       Verification       @default(UNVERIFIED)
+
+  medicine Medicine    @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  country  Country     @relation(fields: [countryCode], references: [code])
+  source   DataSource? @relation(fields: [sourceId], references: [id])
+
+  @@unique([countryCode, registrationNumber])
+  @@index([medicineId])
+  @@map("product_registrations")
+}
+
+model ProductSynonym {
+  id             String      @id @default(cuid())
+  medicineId     String
+  name           String
+  normalizedName String
+  language       String?     @db.VarChar(10)
+  countryCode    String?     @db.Char(2)
+  kind           SynonymKind @default(OTHER)
+
+  medicine Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+
+  @@unique([medicineId, normalizedName, countryCode])
+  @@index([normalizedName])
+  @@map("product_synonyms")
+}
+
+model MedicineDocument {
+  id              String       @id @default(cuid())
+  medicineId      String
+  kind            DocumentKind
+  title           String
+  language        String       @db.VarChar(10)
+  countryCode     String?      @db.Char(2)
+  url             String
+  sourceId        String?
+  sourceReference String?
+  syncedAt        DateTime?
+  verification    Verification @default(UNVERIFIED)
+
+  medicine Medicine    @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  source   DataSource? @relation(fields: [sourceId], references: [id])
+
+  @@index([medicineId])
+  @@map("medicine_documents")
+}
+
+/// Official product-information excerpts (warnings, contraindications, side effects).
+/// Must come from authoritative documentation, never generated text.
+model SafetySection {
+  id              String       @id @default(cuid())
+  medicineId      String
+  kind            SafetyKind
+  language        String       @db.VarChar(10)
+  countryCode     String?      @db.Char(2)
+  content         String
+  sourceId        String?
+  sourceReference String?
+  syncedAt        DateTime?
+  verification    Verification @default(UNVERIFIED)
+
+  medicine Medicine    @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  source   DataSource? @relation(fields: [sourceId], references: [id])
+
+  @@unique([medicineId, kind, language, countryCode])
+  @@map("safety_sections")
+}
+
+// ───────────────────────────── Pharmacies ─────────────────────────────
+
+model Pharmacy {
+  id              String       @id @default(cuid())
+  name            String
+  normalizedName  String
+  street          String
+  city            String?
+  postcode        String?
+  countryCode     String       @db.Char(2)
+  lat             Float
+  lng             Float
+  timezone        String?
+  phone           String?
+  phoneVerified   Boolean      @default(false)
+  website         String?
+  websiteVerified Boolean      @default(false)
+  email           String?
+  status          RecordStatus @default(ACTIVE)
+  // provenance
+  sourceId        String?
+  sourceReference String?
+  syncedAt        DateTime?
+  verification    Verification @default(UNVERIFIED)
+  confidence      Float?
+  isDemo          Boolean      @default(false)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  country        Country               @relation(fields: [countryCode], references: [code])
+  source         DataSource?           @relation(fields: [sourceId], references: [id])
+  openingHours   OpeningHours[]
+  services       PharmacyServiceLink[]
+  offers         PharmacyOffer[]
+  reviews        Review[]
+  favorites      Favorite[]
+  recentlyViewed RecentlyViewed[]
+
+  @@unique([sourceId, sourceReference])
+  @@index([countryCode, city])
+  @@index([postcode])
+  @@index([lat, lng])
+  @@index([normalizedName])
+  @@map("pharmacies")
+}
+
+model OpeningHours {
+  id         String @id @default(cuid())
+  pharmacyId String
+  /// 0 = Monday … 6 = Sunday
+  day        Int
+  /// "HH:MM" local time; closes may be "24:00"
+  opens      String
+  closes     String
+
+  pharmacy Pharmacy @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+
+  @@index([pharmacyId])
+  @@map("opening_hours")
+}
+
+model PharmacyService {
+  code  String                @id
+  name  String
+  links PharmacyServiceLink[]
+
+  @@map("pharmacy_services")
+}
+
+model PharmacyServiceLink {
+  pharmacyId  String
+  serviceCode String
+
+  pharmacy Pharmacy        @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+  service  PharmacyService @relation(fields: [serviceCode], references: [code])
+
+  @@id([pharmacyId, serviceCode])
+  @@map("pharmacy_service_links")
+}
+
+// ───────────────────────────── Offers, prices, availability ─────────────────────────────
+
+/// A package as listed by one pharmacy, or a country-level price-list entry
+/// (pharmacyId = null, e.g. a national maximum retail price).
+model PharmacyOffer {
+  id              String   @id @default(cuid())
+  packageId       String
+  pharmacyId      String?
+  countryCode     String   @db.Char(2)
+  sourceId        String
+  sourceReference String?
+  isDemo          Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  package      MedicinePackage      @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  pharmacy     Pharmacy?            @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+  country      Country              @relation(fields: [countryCode], references: [code])
+  source       DataSource           @relation(fields: [sourceId], references: [id])
+  price        Price?
+  snapshots    PriceSnapshot[]
+  availability AvailabilityRecord[]
+
+  @@unique([packageId, pharmacyId, sourceId])
+  @@index([countryCode])
+  @@index([pharmacyId])
+  @@map("pharmacy_offers")
+}
+
+/// Current price of an offer. History lives in PriceSnapshot.
+model Price {
+  id           String       @id @default(cuid())
+  offerId      String       @unique
+  amount       Decimal      @db.Decimal(12, 2)
+  currency     String       @db.Char(3)
+  priceType    PriceType    @default(RETAIL)
+  observedAt   DateTime
+  verification Verification @default(UNVERIFIED)
+  updatedAt    DateTime     @updatedAt
+
+  offer PharmacyOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+
+  @@index([observedAt])
+  @@map("prices")
+}
+
+model PriceSnapshot {
+  id         String   @id @default(cuid())
+  offerId    String
+  amount     Decimal  @db.Decimal(12, 2)
+  currency   String   @db.Char(3)
+  capturedAt DateTime
+
+  offer PharmacyOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+
+  @@unique([offerId, capturedAt])
+  @@map("price_snapshots")
+}
+
+model AvailabilityRecord {
+  id         String             @id @default(cuid())
+  offerId    String
+  status     AvailabilityStatus
+  observedAt DateTime
+  sourceId   String
+
+  offer  PharmacyOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  source DataSource    @relation(fields: [sourceId], references: [id])
+
+  @@index([offerId, observedAt])
+  @@map("availability_records")
+}
+
+// ───────────────────────────── Reviews ─────────────────────────────
+
+model Review {
+  id                  String       @id @default(cuid())
+  authorId            String
+  target              ReviewTarget
+  medicineId          String?
+  pharmacyId          String?
+  rating              Int
+  title               String?
+  body                String
+  language            String       @db.VarChar(10)
+  countryCode         String?      @db.Char(2)
+  staffRating         Int?
+  serviceRating       Int?
+  waitingRating       Int?
+  cleanlinessRating   Int?
+  accessibilityRating Int?
+  status              ReviewStatus @default(PENDING)
+  moderatedById       String?
+  moderatedAt         DateTime?
+  moderationNote      String?
+  helpfulCount        Int          @default(0)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  author      User           @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  moderatedBy User?          @relation("ReviewModerator", fields: [moderatedById], references: [id])
+  medicine    Medicine?      @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  pharmacy    Pharmacy?      @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+  votes       ReviewVote[]
+  reports     ReviewReport[]
+
+  @@unique([authorId, medicineId])
+  @@unique([authorId, pharmacyId])
+  @@index([medicineId, status])
+  @@index([pharmacyId, status])
+  @@index([status, createdAt])
+  @@map("reviews")
+}
+
+model ReviewVote {
+  reviewId  String
+  userId    String
+  createdAt DateTime @default(now())
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([reviewId, userId])
+  @@map("review_votes")
+}
+
+model ReviewReport {
+  id           String       @id @default(cuid())
+  reviewId     String
+  reporterId   String
+  reason       ReportReason
+  details      String?
+  status       ReportStatus @default(OPEN)
+  resolvedById String?
+  resolvedAt   DateTime?
+  createdAt    DateTime     @default(now())
+
+  review     Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reporter   User   @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  resolvedBy User?  @relation("Resolver", fields: [resolvedById], references: [id])
+
+  @@unique([reviewId, reporterId])
+  @@index([status])
+  @@map("review_reports")
+}
+
+// ───────────────────────────── Data integration ─────────────────────────────
+
+model DataSource {
+  id          String         @id
+  name        String
+  kind        DataSourceKind
+  adapter     String
+  countryCode String?        @db.Char(2)
+  enabled     Boolean        @default(false)
+  isDemo      Boolean        @default(false)
+  url         String?
+  licence     String?
+  attribution String?
+  /// Non-secret adapter settings. Secrets come from environment variables.
+  config      Json?
+  lastSyncAt  DateTime?
+  lastStatus  SyncStatus?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  country       Country?                 @relation(fields: [countryCode], references: [code])
+  syncLogs      DataSynchronizationLog[]
+  medicines     Medicine[]
+  pharmacies    Pharmacy[]
+  offers        PharmacyOffer[]
+  availability  AvailabilityRecord[]
+  registrations ProductRegistration[]
+  documents     MedicineDocument[]
+  safety        SafetySection[]
+  rates         ExchangeRate[]
+
+  @@map("data_sources")
+}
+
+model DataSynchronizationLog {
+  id             String     @id @default(cuid())
+  sourceId       String
+  status         SyncStatus
+  trigger        String     @default("schedule")
+  startedAt      DateTime   @default(now())
+  finishedAt     DateTime?
+  recordsRead    Int        @default(0)
+  recordsCreated Int        @default(0)
+  recordsUpdated Int        @default(0)
+  recordsFailed  Int        @default(0)
+  error          String?
+  details        Json?
+
+  source DataSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@index([sourceId, startedAt])
+  @@map("data_sync_logs")
+}
+
+// ───────────────────────────── Personal data ─────────────────────────────
+
+model Favorite {
+  id         String   @id @default(cuid())
+  userId     String
+  medicineId String?
+  pharmacyId String?
+  createdAt  DateTime @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  medicine Medicine? @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  pharmacy Pharmacy? @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, medicineId])
+  @@unique([userId, pharmacyId])
+  @@map("favorites")
+}
+
+model SearchHistory {
+  id          String   @id @default(cuid())
+  userId      String
+  query       String
+  filters     Json?
+  resultCount Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("search_history")
+}
+
+model ComparisonHistory {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String?
+  medicineIds String[]
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("comparison_history")
+}
+
+model RecentlyViewed {
+  id         String   @id @default(cuid())
+  userId     String
+  medicineId String?
+  pharmacyId String?
+  viewedAt   DateTime @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  medicine Medicine? @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  pharmacy Pharmacy? @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, medicineId])
+  @@unique([userId, pharmacyId])
+  @@index([userId, viewedAt])
+  @@map("recently_viewed")
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  body      String
+  data      Json?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+model PushToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  platform  String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("push_tokens")
+}
+
+/// Anonymous product analytics. Never stores user ids, IPs or device ids.
+model AnalyticsEvent {
+  id          String             @id @default(cuid())
+  type        AnalyticsEventType
+  query       String?
+  entityId    String?
+  countryCode String?            @db.Char(2)
+  resultCount Int?
+  createdAt   DateTime           @default(now())
+
+  @@index([type, createdAt])
+  @@index([entityId])
+  @@map("analytics_events")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String?
+  before     Json?
+  after      Json?
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

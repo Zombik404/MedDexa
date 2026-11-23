@@ -1,4 +1,5 @@
 export * from './units';
+export * from './text';
 export * from './currency';
 export * from './comparison/types';
 export * from './comparison/engine';

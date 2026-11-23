@@ -38,3 +38,16 @@ describe('units', () => {
     expect(quantitiesEqual(400, 400.5)).toBe(false);
   });
 });
+
+import { normalizeText, tokenize } from './text';
+describe('text normalisation', () => {
+  it('removes diacritics and unifies spacing', () => {
+    expect(normalizeText('  Ibuprofén   400 mg ')).toBe('ibuprofen 400 mg');
+    expect(normalizeText('Paracetamol/Coffein')).toBe('paracetamol/coffein');
+    expect(normalizeText('Łódź Apteka')).toBe('lodz apteka');
+    expect(normalizeText('Größe')).toBe('grosse');
+  });
+  it('tokenizes', () => {
+    expect(tokenize('Paracetamol+Caffeine 500mg')).toEqual(['paracetamol', 'caffeine', '500mg']);
+  });
+});
