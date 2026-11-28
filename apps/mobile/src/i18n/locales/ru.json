@@ -131,7 +131,10 @@
       "any": "Любой",
       "addMore": "Добавить ещё",
       "typeToSee": "Введите букву — появятся варианты",
-      "noOptions": "Ничего не начинается так"
+      "noOptions": "Ничего не начинается так",
+      "typeDigit": "Введите цифру — появятся варианты",
+      "typeAtc": "Введите букву или код (например, N02)",
+      "typeNumber": "Введите начало номера"
     },
     "s": {
       "relevance": "Релевантность",
@@ -224,7 +227,8 @@
     "findPharmacy": "Аптеки рядом",
     "save": "В избранное",
     "saved": "В избранном",
-    "sameComposition": "С тем же составом"
+    "sameComposition": "С тем же составом",
+    "saltOf": "соль: {{name}}"
   },
   "composition": {
     "SAME_ACTIVE_INGREDIENT": "То же действующее вещество",
@@ -247,20 +251,20 @@
   "diff": {
     "MISSING_INGREDIENT": "Отсутствует: {{ref}}",
     "ADDITIONAL_INGREDIENT": "Дополнительно содержит: {{other}}",
-    "DIFFERENT_STRENGTH": "Другая дозировка: {{ref}} vs {{other}}",
-    "DIFFERENT_CONCENTRATION": "Другая концентрация: {{ref}} vs {{other}}",
-    "DIFFERENT_SALT": "Другая соль: {{ref}} vs {{other}}",
-    "INCOMPARABLE_STRENGTH": "Дозировки нельзя сравнить напрямую ({{ref}} vs {{other}})",
+    "DIFFERENT_STRENGTH": "Другая дозировка: {{ref}} → {{other}}",
+    "DIFFERENT_CONCENTRATION": "Другая концентрация: {{ref}} → {{other}}",
+    "DIFFERENT_SALT": "Другая соль: {{ref}} → {{other}}",
+    "INCOMPARABLE_STRENGTH": "Дозировки нельзя сравнить напрямую ({{ref}} → {{other}})",
     "UNKNOWN_STRENGTH": "Дозировка недоступна",
-    "DIFFERENT_FORM": "Другая форма: {{ref}} vs {{other}}",
-    "FORM_VARIANT": "Вариант формы: {{ref}} vs {{other}}",
+    "DIFFERENT_FORM": "Другая форма: {{ref}} → {{other}}",
+    "FORM_VARIANT": "Вариант формы: {{ref}} → {{other}}",
     "UNKNOWN_FORM": "Форма недоступна",
-    "DIFFERENT_RELEASE": "Другое высвобождение: {{ref}} vs {{other}}",
+    "DIFFERENT_RELEASE": "Другое высвобождение: {{ref}} → {{other}}",
     "UNKNOWN_RELEASE": "Тип высвобождения недоступен",
-    "DIFFERENT_ROUTE": "Другой путь введения: {{ref}} vs {{other}}",
+    "DIFFERENT_ROUTE": "Другой путь введения: {{ref}} → {{other}}",
     "UNKNOWN_ROUTE": "Путь введения недоступен",
     "DIFFERENT_PRESCRIPTION_STATUS": "Другие условия отпуска",
-    "DIFFERENT_PACKAGE_SIZE": "Другая упаковка: {{ref}} vs {{other}}",
+    "DIFFERENT_PACKAGE_SIZE": "Другая упаковка: {{ref}} → {{other}}",
     "DIFFERENT_COUNTRY": "Зарегистрированы в разных странах"
   },
   "severity": {
@@ -540,5 +544,53 @@
     "takePhoto": "Сделать фото",
     "fromGallery": "Выбрать из галереи",
     "privacy": "Фото используется только для распознавания текста и не сохраняется."
+  },
+  "form": {
+    "CAPSULE_HARD": "Капсулы твёрдые",
+    "CAPSULE_SOFT": "Капсулы мягкие",
+    "CREAM": "Крем",
+    "EFFERVESCENT_TABLET": "Шипучие таблетки",
+    "EYE_DROPS": "Глазные капли",
+    "FILM_COATED_TABLET": "Таблетки в плёночной оболочке",
+    "GASTRO_RESISTANT_CAPSULE": "Кишечнорастворимые капсулы",
+    "GASTRO_RESISTANT_TABLET": "Кишечнорастворимые таблетки",
+    "GEL": "Гель",
+    "GRANULES": "Гранулы",
+    "NASAL_SPRAY": "Спрей назальный",
+    "OINTMENT": "Мазь",
+    "ORAL_SOLUTION": "Раствор для приёма внутрь",
+    "ORAL_SUSPENSION": "Суспензия для приёма внутрь",
+    "ORODISPERSIBLE_TABLET": "Таблетки, диспергируемые в полости рта",
+    "PROLONGED_RELEASE_TABLET": "Таблетки пролонгированного действия",
+    "SOLUTION_FOR_INJECTION": "Раствор для инъекций",
+    "SUPPOSITORY": "Суппозитории",
+    "SYRUP": "Сироп",
+    "TABLET": "Таблетки",
+    "TRANSDERMAL_PATCH": "Трансдермальный пластырь"
+  },
+  "packUnit": {
+    "tablet": "таб.",
+    "capsule": "капс.",
+    "ml": "мл",
+    "g": "г",
+    "sachet": "пак.",
+    "patch": "пласт.",
+    "ampoule": "амп.",
+    "vial": "фл.",
+    "suppository": "супп.",
+    "dose": "доз",
+    "unit": "шт."
+  },
+  "service": {
+    "BLOOD_PRESSURE": "Измерение давления",
+    "COMPOUNDING": "Изготовление лекарств",
+    "ENGLISH_SPOKEN": "Говорят по-английски",
+    "HOMEOPATHY": "Гомеопатия",
+    "MEDICATION_REVIEW": "Консультация по лекарствам",
+    "NIGHT_SERVICE": "Ночное / дежурное обслуживание",
+    "PARKING": "Парковка",
+    "RAPID_TESTS": "Экспресс-тесты",
+    "VACCINATION": "Вакцинация",
+    "WHEELCHAIR_ACCESS": "Доступ для колясок"
   }
 }

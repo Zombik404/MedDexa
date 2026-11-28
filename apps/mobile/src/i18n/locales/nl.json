@@ -129,7 +129,10 @@
       "any": "Alle",
       "addMore": "Nog een toevoegen",
       "typeToSee": "Typ een letter om opties te zien",
-      "noOptions": "Niets begint zo"
+      "noOptions": "Niets begint zo",
+      "typeDigit": "Typ een cijfer om opties te zien",
+      "typeAtc": "Typ een letter of code (bijv. N02)",
+      "typeNumber": "Typ het begin van het nummer"
     },
     "s": {
       "relevance": "Relevantie",
@@ -220,7 +223,8 @@
     "findPharmacy": "Apotheken in de buurt",
     "save": "Bewaren",
     "saved": "Bewaard",
-    "sameComposition": "Dezelfde werkzame stoffen"
+    "sameComposition": "Dezelfde werkzame stoffen",
+    "saltOf": "zout van {{name}}"
   },
   "composition": {
     "SAME_ACTIVE_INGREDIENT": "Zelfde werkzame stof",
@@ -243,20 +247,20 @@
   "diff": {
     "MISSING_INGREDIENT": "{{ref}} ontbreekt",
     "ADDITIONAL_INGREDIENT": "Bevat extra {{other}}",
-    "DIFFERENT_STRENGTH": "Andere sterkte: {{ref}} vs {{other}}",
-    "DIFFERENT_CONCENTRATION": "Andere concentratie: {{ref}} vs {{other}}",
-    "DIFFERENT_SALT": "Ander zout: {{ref}} vs {{other}}",
-    "INCOMPARABLE_STRENGTH": "Sterktes niet direct vergelijkbaar ({{ref}} vs {{other}})",
+    "DIFFERENT_STRENGTH": "Andere sterkte: {{ref}} → {{other}}",
+    "DIFFERENT_CONCENTRATION": "Andere concentratie: {{ref}} → {{other}}",
+    "DIFFERENT_SALT": "Ander zout: {{ref}} → {{other}}",
+    "INCOMPARABLE_STRENGTH": "Sterktes niet direct vergelijkbaar ({{ref}} → {{other}})",
     "UNKNOWN_STRENGTH": "Sterkte niet beschikbaar",
-    "DIFFERENT_FORM": "Andere vorm: {{ref}} vs {{other}}",
-    "FORM_VARIANT": "Vormvariant: {{ref}} vs {{other}}",
+    "DIFFERENT_FORM": "Andere vorm: {{ref}} → {{other}}",
+    "FORM_VARIANT": "Vormvariant: {{ref}} → {{other}}",
     "UNKNOWN_FORM": "Vorm niet beschikbaar",
-    "DIFFERENT_RELEASE": "Andere afgifte: {{ref}} vs {{other}}",
+    "DIFFERENT_RELEASE": "Andere afgifte: {{ref}} → {{other}}",
     "UNKNOWN_RELEASE": "Afgifte niet beschikbaar",
-    "DIFFERENT_ROUTE": "Andere toedieningsweg: {{ref}} vs {{other}}",
+    "DIFFERENT_ROUTE": "Andere toedieningsweg: {{ref}} → {{other}}",
     "UNKNOWN_ROUTE": "Toedieningsweg niet beschikbaar",
     "DIFFERENT_PRESCRIPTION_STATUS": "Andere afleverstatus",
-    "DIFFERENT_PACKAGE_SIZE": "Andere verpakking: {{ref}} vs {{other}}",
+    "DIFFERENT_PACKAGE_SIZE": "Andere verpakking: {{ref}} → {{other}}",
     "DIFFERENT_COUNTRY": "Geregistreerd in verschillende landen"
   },
   "severity": {
@@ -528,5 +532,53 @@
     "takePhoto": "Foto maken",
     "fromGallery": "Kiezen uit galerij",
     "privacy": "De foto wordt alleen gebruikt om de tekst te lezen en wordt niet bewaard."
+  },
+  "form": {
+    "CAPSULE_HARD": "Harde capsule",
+    "CAPSULE_SOFT": "Zachte capsule",
+    "CREAM": "Crème",
+    "EFFERVESCENT_TABLET": "Bruistablet",
+    "EYE_DROPS": "Oogdruppels",
+    "FILM_COATED_TABLET": "Filmomhulde tablet",
+    "GASTRO_RESISTANT_CAPSULE": "Maagsapresistente capsule",
+    "GASTRO_RESISTANT_TABLET": "Maagsapresistente tablet",
+    "GEL": "Gel",
+    "GRANULES": "Granulaat",
+    "NASAL_SPRAY": "Neusspray",
+    "OINTMENT": "Zalf",
+    "ORAL_SOLUTION": "Drank (oplossing)",
+    "ORAL_SUSPENSION": "Suspensie voor oraal gebruik",
+    "ORODISPERSIBLE_TABLET": "Orodispergeerbare tablet",
+    "PROLONGED_RELEASE_TABLET": "Tablet met verlengde afgifte",
+    "SOLUTION_FOR_INJECTION": "Oplossing voor injectie",
+    "SUPPOSITORY": "Zetpil",
+    "SYRUP": "Siroop",
+    "TABLET": "Tablet",
+    "TRANSDERMAL_PATCH": "Pleister voor transdermaal gebruik"
+  },
+  "packUnit": {
+    "tablet": "tabletten",
+    "capsule": "capsules",
+    "ml": "ml",
+    "g": "g",
+    "sachet": "sachets",
+    "patch": "pleisters",
+    "ampoule": "ampullen",
+    "vial": "flacons",
+    "suppository": "zetpillen",
+    "dose": "doses",
+    "unit": "stuks"
+  },
+  "service": {
+    "BLOOD_PRESSURE": "Bloeddrukmeting",
+    "COMPOUNDING": "Bereidingen",
+    "ENGLISH_SPOKEN": "Engels gesproken",
+    "HOMEOPATHY": "Homeopathie",
+    "MEDICATION_REVIEW": "Medicatiebeoordeling",
+    "NIGHT_SERVICE": "Nacht- / weekenddienst",
+    "PARKING": "Parkeren",
+    "RAPID_TESTS": "Sneltesten",
+    "VACCINATION": "Vaccinatie",
+    "WHEELCHAIR_ACCESS": "Rolstoeltoegankelijk"
   }
 }

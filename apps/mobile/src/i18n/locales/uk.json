@@ -131,7 +131,10 @@
       "any": "Будь-яке",
       "addMore": "Додати ще",
       "typeToSee": "Введіть літеру — з'являться варіанти",
-      "noOptions": "Нічого не починається так"
+      "noOptions": "Нічого не починається так",
+      "typeDigit": "Введіть цифру — зʼявляться варіанти",
+      "typeAtc": "Введіть літеру або код (наприклад, N02)",
+      "typeNumber": "Введіть початок номера"
     },
     "s": {
       "relevance": "Релевантність",
@@ -224,7 +227,8 @@
     "findPharmacy": "Аптеки поруч",
     "save": "В обране",
     "saved": "В обраному",
-    "sameComposition": "З тим самим складом"
+    "sameComposition": "З тим самим складом",
+    "saltOf": "сіль: {{name}}"
   },
   "composition": {
     "SAME_ACTIVE_INGREDIENT": "Та сама діюча речовина",
@@ -247,20 +251,20 @@
   "diff": {
     "MISSING_INGREDIENT": "Відсутня речовина: {{ref}}",
     "ADDITIONAL_INGREDIENT": "Містить додатково: {{other}}",
-    "DIFFERENT_STRENGTH": "Інше дозування: {{ref}} vs {{other}}",
-    "DIFFERENT_CONCENTRATION": "Інша концентрація: {{ref}} vs {{other}}",
-    "DIFFERENT_SALT": "Інша сіль: {{ref}} vs {{other}}",
-    "INCOMPARABLE_STRENGTH": "Дозування не можна порівняти напряму ({{ref}} vs {{other}})",
+    "DIFFERENT_STRENGTH": "Інше дозування: {{ref}} → {{other}}",
+    "DIFFERENT_CONCENTRATION": "Інша концентрація: {{ref}} → {{other}}",
+    "DIFFERENT_SALT": "Інша сіль: {{ref}} → {{other}}",
+    "INCOMPARABLE_STRENGTH": "Дозування не можна порівняти напряму ({{ref}} → {{other}})",
     "UNKNOWN_STRENGTH": "Дозування недоступне",
-    "DIFFERENT_FORM": "Інша форма: {{ref}} vs {{other}}",
-    "FORM_VARIANT": "Варіант форми: {{ref}} vs {{other}}",
+    "DIFFERENT_FORM": "Інша форма: {{ref}} → {{other}}",
+    "FORM_VARIANT": "Варіант форми: {{ref}} → {{other}}",
     "UNKNOWN_FORM": "Форма недоступна",
-    "DIFFERENT_RELEASE": "Інше вивільнення: {{ref}} vs {{other}}",
+    "DIFFERENT_RELEASE": "Інше вивільнення: {{ref}} → {{other}}",
     "UNKNOWN_RELEASE": "Тип вивільнення недоступний",
-    "DIFFERENT_ROUTE": "Інший шлях введення: {{ref}} vs {{other}}",
+    "DIFFERENT_ROUTE": "Інший шлях введення: {{ref}} → {{other}}",
     "UNKNOWN_ROUTE": "Шлях введення недоступний",
     "DIFFERENT_PRESCRIPTION_STATUS": "Інші умови відпуску",
-    "DIFFERENT_PACKAGE_SIZE": "Інша упаковка: {{ref}} vs {{other}}",
+    "DIFFERENT_PACKAGE_SIZE": "Інша упаковка: {{ref}} → {{other}}",
     "DIFFERENT_COUNTRY": "Зареєстровані в різних країнах"
   },
   "severity": {
@@ -540,5 +544,53 @@
     "takePhoto": "Зробити фото",
     "fromGallery": "Вибрати з галереї",
     "privacy": "Фото використовується лише для розпізнавання тексту й не зберігається."
+  },
+  "form": {
+    "CAPSULE_HARD": "Капсули тверді",
+    "CAPSULE_SOFT": "Капсули мʼякі",
+    "CREAM": "Крем",
+    "EFFERVESCENT_TABLET": "Шипучі таблетки",
+    "EYE_DROPS": "Очні краплі",
+    "FILM_COATED_TABLET": "Таблетки, вкриті плівковою оболонкою",
+    "GASTRO_RESISTANT_CAPSULE": "Кишковорозчинні капсули",
+    "GASTRO_RESISTANT_TABLET": "Кишковорозчинні таблетки",
+    "GEL": "Гель",
+    "GRANULES": "Гранули",
+    "NASAL_SPRAY": "Назальний спрей",
+    "OINTMENT": "Мазь",
+    "ORAL_SOLUTION": "Розчин оральний",
+    "ORAL_SUSPENSION": "Суспензія оральна",
+    "ORODISPERSIBLE_TABLET": "Таблетки, що диспергуються в ротовій порожнині",
+    "PROLONGED_RELEASE_TABLET": "Таблетки пролонгованої дії",
+    "SOLUTION_FOR_INJECTION": "Розчин для інʼєкцій",
+    "SUPPOSITORY": "Супозиторії",
+    "SYRUP": "Сироп",
+    "TABLET": "Таблетки",
+    "TRANSDERMAL_PATCH": "Трансдермальний пластир"
+  },
+  "packUnit": {
+    "tablet": "таб.",
+    "capsule": "капс.",
+    "ml": "мл",
+    "g": "г",
+    "sachet": "саше",
+    "patch": "пласт.",
+    "ampoule": "амп.",
+    "vial": "фл.",
+    "suppository": "суп.",
+    "dose": "доз",
+    "unit": "шт."
+  },
+  "service": {
+    "BLOOD_PRESSURE": "Вимірювання тиску",
+    "COMPOUNDING": "Виготовлення ліків",
+    "ENGLISH_SPOKEN": "Розмовляють англійською",
+    "HOMEOPATHY": "Гомеопатія",
+    "MEDICATION_REVIEW": "Консультація щодо ліків",
+    "NIGHT_SERVICE": "Нічне / чергове обслуговування",
+    "PARKING": "Паркування",
+    "RAPID_TESTS": "Експрес-тести",
+    "VACCINATION": "Вакцинація",
+    "WHEELCHAIR_ACCESS": "Доступ для візків"
   }
 }

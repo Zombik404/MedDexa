@@ -1,5 +1,6 @@
 import type { AttributeRow, ComparisonResult, IngredientCell, MedicineSummary, PriceOfferView } from '@meddexa/shared';
 import { useTranslation } from 'react-i18next';
+import { useLocalize } from '@/lib/localize';
 import { ScrollView, View } from 'react-native';
 import { Text } from '@/components/ui';
 import { countryName, formatMoney } from '@/lib/format';
@@ -30,6 +31,7 @@ function Row({ label, children, highlight }: { label: string; children: React.Re
 export function CompareMatrix({ medicines, result, prices }: { medicines: MedicineSummary[]; result: ComparisonResult; prices: Record<string, PriceOfferView | null> }) {
   const { colors } = useTheme();
   const { t } = useTranslation();
+  const l = useLocalize();
 
   const cellTone = (status: IngredientCell['status']) => {
     switch (status) {
@@ -47,8 +49,10 @@ export function CompareMatrix({ medicines, result, prices }: { medicines: Medici
     }
   };
 
-  const attrValue = (row: AttributeRow, v: string | null) => {
+  const attrValue = (row: AttributeRow, v: string | null, i: number) => {
     if (v == null) return '—';
+    if (row.key === 'form') return l.form(medicines[i]?.form) || v;
+    if (row.key === 'packageSize') return medicines[i]?.packageSize ? l.pack(medicines[i]!.packageSize!.quantity, medicines[i]!.packageSize!.unit) : v;
     if (row.key === 'release') return t(`release.${v}`);
     if (row.key === 'prescription') return t(`rx.${v}`);
     if (row.key === 'route') return t(`route.${v}`, { defaultValue: v });
@@ -76,17 +80,17 @@ export function CompareMatrix({ medicines, result, prices }: { medicines: Medici
 
         {/* Ingredients */}
         {result.ingredientRows.map((row) => (
-          <Row key={row.key} label={row.name} highlight={!row.allSame}>
+          <Row key={row.key} label={l.ingredientName(row.name)} highlight={!row.allSame}>
             {row.cells.map((c, i) => {
               const tone = cellTone(c.status);
               return (
-                <View key={i} accessible accessibilityLabel={`${row.name}: ${c.display ?? t('cell.MISSING')} — ${t(`cell.${c.status}`)}`} style={{ width: COL_W, padding: spacing.sm, backgroundColor: tone.bg, gap: 2 }}>
+                <View key={i} accessible accessibilityLabel={`${l.ingredientName(row.name)}: ${l.dose(c.display) || t('cell.MISSING')} — ${t(`cell.${c.status}`)}`} style={{ width: COL_W, padding: spacing.sm, backgroundColor: tone.bg, gap: 2 }}>
                   <Text variant="mono" style={{ color: c.present ? colors.text : tone.fg }}>
-                    {c.present ? c.display ?? '?' : '—'}
+                    {c.present ? (c.display ? l.dose(c.display) : '?') : '—'}
                   </Text>
                   {c.present && c.substanceName && c.substanceName !== row.name ? (
                     <Text variant="small" color="textSecondary" numberOfLines={1}>
-                      {c.substanceName}
+                      {l.ingredientName(c.substanceName)}
                     </Text>
                   ) : null}
                   {c.status !== 'REFERENCE' && c.status !== 'SAME' ? (
@@ -108,7 +112,7 @@ export function CompareMatrix({ medicines, result, prices }: { medicines: Medici
               return (
                 <View key={i} style={{ width: COL_W, padding: spacing.sm, backgroundColor: differs ? colors.warningSoft : colors.surface }}>
                   <Text variant="small" style={{ color: differs ? colors.warning : colors.text, fontFamily: differs ? fonts.bold : fonts.medium }} numberOfLines={3}>
-                    {attrValue(row, v)}
+                    {attrValue(row, v, i)}
                   </Text>
                 </View>
               );

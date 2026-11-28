@@ -129,7 +129,10 @@
       "any": "Tous",
       "addMore": "En ajouter un autre",
       "typeToSee": "Tapez une lettre pour voir les choix",
-      "noOptions": "Rien ne commence ainsi"
+      "noOptions": "Rien ne commence ainsi",
+      "typeDigit": "Tapez un chiffre pour voir les choix",
+      "typeAtc": "Tapez une lettre ou un code (ex. N02)",
+      "typeNumber": "Tapez le début du numéro"
     },
     "s": {
       "relevance": "Pertinence",
@@ -220,7 +223,8 @@
     "findPharmacy": "Pharmacies à proximité",
     "save": "Enregistrer",
     "saved": "Enregistré",
-    "sameComposition": "Mêmes substances actives"
+    "sameComposition": "Mêmes substances actives",
+    "saltOf": "sel de {{name}}"
   },
   "composition": {
     "SAME_ACTIVE_INGREDIENT": "Même substance active",
@@ -243,20 +247,20 @@
   "diff": {
     "MISSING_INGREDIENT": "{{ref}} absent",
     "ADDITIONAL_INGREDIENT": "Contient en plus {{other}}",
-    "DIFFERENT_STRENGTH": "Dosage différent : {{ref}} vs {{other}}",
-    "DIFFERENT_CONCENTRATION": "Concentration différente : {{ref}} vs {{other}}",
-    "DIFFERENT_SALT": "Sel différent : {{ref}} vs {{other}}",
-    "INCOMPARABLE_STRENGTH": "Dosages non comparables directement ({{ref}} vs {{other}})",
+    "DIFFERENT_STRENGTH": "Dosage différent : {{ref}} → {{other}}",
+    "DIFFERENT_CONCENTRATION": "Concentration différente : {{ref}} → {{other}}",
+    "DIFFERENT_SALT": "Sel différent : {{ref}} → {{other}}",
+    "INCOMPARABLE_STRENGTH": "Dosages non comparables directement ({{ref}} → {{other}})",
     "UNKNOWN_STRENGTH": "Dosage non disponible",
-    "DIFFERENT_FORM": "Forme différente : {{ref}} vs {{other}}",
-    "FORM_VARIANT": "Variante de forme : {{ref}} vs {{other}}",
+    "DIFFERENT_FORM": "Forme différente : {{ref}} → {{other}}",
+    "FORM_VARIANT": "Variante de forme : {{ref}} → {{other}}",
     "UNKNOWN_FORM": "Forme non disponible",
-    "DIFFERENT_RELEASE": "Libération différente : {{ref}} vs {{other}}",
+    "DIFFERENT_RELEASE": "Libération différente : {{ref}} → {{other}}",
     "UNKNOWN_RELEASE": "Mode de libération non disponible",
-    "DIFFERENT_ROUTE": "Voie différente : {{ref}} vs {{other}}",
+    "DIFFERENT_ROUTE": "Voie différente : {{ref}} → {{other}}",
     "UNKNOWN_ROUTE": "Voie non disponible",
     "DIFFERENT_PRESCRIPTION_STATUS": "Statut de prescription différent",
-    "DIFFERENT_PACKAGE_SIZE": "Conditionnement différent : {{ref}} vs {{other}}",
+    "DIFFERENT_PACKAGE_SIZE": "Conditionnement différent : {{ref}} → {{other}}",
     "DIFFERENT_COUNTRY": "Autorisés dans des pays différents"
   },
   "severity": {
@@ -528,5 +532,53 @@
     "takePhoto": "Prendre une photo",
     "fromGallery": "Choisir dans la galerie",
     "privacy": "La photo sert uniquement à lire le texte et n'est pas conservée."
+  },
+  "form": {
+    "CAPSULE_HARD": "Gélule",
+    "CAPSULE_SOFT": "Capsule molle",
+    "CREAM": "Crème",
+    "EFFERVESCENT_TABLET": "Comprimé effervescent",
+    "EYE_DROPS": "Collyre",
+    "FILM_COATED_TABLET": "Comprimé pelliculé",
+    "GASTRO_RESISTANT_CAPSULE": "Gélule gastro-résistante",
+    "GASTRO_RESISTANT_TABLET": "Comprimé gastro-résistant",
+    "GEL": "Gel",
+    "GRANULES": "Granulés",
+    "NASAL_SPRAY": "Spray nasal",
+    "OINTMENT": "Pommade",
+    "ORAL_SOLUTION": "Solution buvable",
+    "ORAL_SUSPENSION": "Suspension buvable",
+    "ORODISPERSIBLE_TABLET": "Comprimé orodispersible",
+    "PROLONGED_RELEASE_TABLET": "Comprimé à libération prolongée",
+    "SOLUTION_FOR_INJECTION": "Solution injectable",
+    "SUPPOSITORY": "Suppositoire",
+    "SYRUP": "Sirop",
+    "TABLET": "Comprimé",
+    "TRANSDERMAL_PATCH": "Dispositif transdermique"
+  },
+  "packUnit": {
+    "tablet": "comprimés",
+    "capsule": "gélules",
+    "ml": "ml",
+    "g": "g",
+    "sachet": "sachets",
+    "patch": "patchs",
+    "ampoule": "ampoules",
+    "vial": "flacons",
+    "suppository": "suppositoires",
+    "dose": "doses",
+    "unit": "unités"
+  },
+  "service": {
+    "BLOOD_PRESSURE": "Mesure de la tension",
+    "COMPOUNDING": "Préparations magistrales",
+    "ENGLISH_SPOKEN": "Anglais parlé",
+    "HOMEOPATHY": "Homéopathie",
+    "MEDICATION_REVIEW": "Bilan de médication",
+    "NIGHT_SERVICE": "Service de nuit / de garde",
+    "PARKING": "Parking",
+    "RAPID_TESTS": "Tests rapides",
+    "VACCINATION": "Vaccination",
+    "WHEELCHAIR_ACCESS": "Accessible en fauteuil roulant"
   }
 }

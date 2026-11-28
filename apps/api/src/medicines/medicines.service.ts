@@ -60,7 +60,7 @@ export class MedicinesService {
     const { ids, total } = await this.search.search(query);
     const items = await this.summaries(ids, currency);
     if (query.q && query.page === 1) {
-      this.analytics.record('SEARCH', { query: query.q, resultCount: total, countryCode: query.country });
+      this.analytics.record('SEARCH', { query: query.q, resultCount: total, countryCode: query.country?.length === 1 ? query.country[0] : undefined });
       if (user) await this.saveHistory(user.id, query, total);
     }
     return { items, page: query.page, pageSize: query.pageSize, total, hasMore: query.page * query.pageSize < total };

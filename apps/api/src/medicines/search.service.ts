@@ -12,6 +12,7 @@ import {
   type FilterOption,
   type FilterOptionField,
   type IngredientHit,
+  type IngredientNames,
   type MedicineSearchQuery,
   type Suggestion,
 } from '@meddexa/shared';
@@ -82,8 +83,9 @@ export class SearchService {
     if (params.form) where.push(Prisma.sql`m."formCode" = ${params.form}`);
     if (params.route) where.push(Prisma.sql`m.route = ${params.route}`);
     if (params.prescription) where.push(Prisma.sql`m.prescription = ${params.prescription}::"PrescriptionStatus"`);
-    if (params.country) {
-      where.push(Prisma.sql`(m."countryCode" = ${params.country} OR EXISTS (SELECT 1 FROM product_registrations r WHERE r."medicineId" = m.id AND r."countryCode" = ${params.country}))`);
+    if (params.country?.length) {
+      const countries = params.country;
+      where.push(Prisma.sql`(m."countryCode" = ANY (${countries}::text[]) OR EXISTS (SELECT 1 FROM product_registrations r WHERE r."medicineId" = m.id AND r."countryCode" = ANY (${countries}::text[])))`);
     }
     if (params.strength) {
       const dose = parseDose(params.strength);
@@ -288,5 +290,19 @@ export class SearchService {
         break;
     }
     return rows.map((r) => ({ value: r.value, label: r.label, secondary: r.secondary, count: Number(r.count) }));
+  }
+
+  /** Ingredient names in one language, chosen from language-tagged synonyms (abbreviations excluded). */
+  async ingredientNames(lang: string): Promise<IngredientNames> {
+    const language = lang.slice(0, 2).toLowerCase();
+    const rows = await this.prisma.$queryRaw<{ id: string; name: string; local: string }[]>(Prisma.sql`
+      SELECT DISTINCT ON (ai.id) ai.id, ai.name, s.name AS local
+      FROM active_ingredients ai JOIN ingredient_synonyms s ON s."ingredientId" = ai.id
+      WHERE s.language = ${language} AND length(s.name) >= 4 AND s.name <> upper(s.name)
+      ORDER BY ai.id, length(s.name) DESC`);
+    return {
+      byId: Object.fromEntries(rows.map((r) => [r.id, r.local])),
+      byName: Object.fromEntries(rows.map((r) => [r.name, r.local])),
+    };
   }
 }

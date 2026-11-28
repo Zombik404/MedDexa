@@ -131,7 +131,10 @@
       "any": "Dowolne",
       "addMore": "Dodaj kolejny",
       "typeToSee": "Wpisz literę, aby zobaczyć opcje",
-      "noOptions": "Nic tak się nie zaczyna"
+      "noOptions": "Nic tak się nie zaczyna",
+      "typeDigit": "Wpisz cyfrę, aby zobaczyć opcje",
+      "typeAtc": "Wpisz literę lub kod (np. N02)",
+      "typeNumber": "Wpisz początek numeru"
     },
     "s": {
       "relevance": "Trafność",
@@ -224,7 +227,8 @@
     "findPharmacy": "Apteki w pobliżu",
     "save": "Zapisz",
     "saved": "Zapisano",
-    "sameComposition": "Te same substancje czynne"
+    "sameComposition": "Te same substancje czynne",
+    "saltOf": "sól: {{name}}"
   },
   "composition": {
     "SAME_ACTIVE_INGREDIENT": "Ta sama substancja czynna",
@@ -247,20 +251,20 @@
   "diff": {
     "MISSING_INGREDIENT": "Brak: {{ref}}",
     "ADDITIONAL_INGREDIENT": "Zawiera dodatkowo: {{other}}",
-    "DIFFERENT_STRENGTH": "Inna dawka: {{ref}} vs {{other}}",
-    "DIFFERENT_CONCENTRATION": "Inne stężenie: {{ref}} vs {{other}}",
-    "DIFFERENT_SALT": "Inna sól: {{ref}} vs {{other}}",
-    "INCOMPARABLE_STRENGTH": "Dawek nie można porównać bezpośrednio ({{ref}} vs {{other}})",
+    "DIFFERENT_STRENGTH": "Inna dawka: {{ref}} → {{other}}",
+    "DIFFERENT_CONCENTRATION": "Inne stężenie: {{ref}} → {{other}}",
+    "DIFFERENT_SALT": "Inna sól: {{ref}} → {{other}}",
+    "INCOMPARABLE_STRENGTH": "Dawek nie można porównać bezpośrednio ({{ref}} → {{other}})",
     "UNKNOWN_STRENGTH": "Dawka niedostępna",
-    "DIFFERENT_FORM": "Inna postać: {{ref}} vs {{other}}",
-    "FORM_VARIANT": "Wariant postaci: {{ref}} vs {{other}}",
+    "DIFFERENT_FORM": "Inna postać: {{ref}} → {{other}}",
+    "FORM_VARIANT": "Wariant postaci: {{ref}} → {{other}}",
     "UNKNOWN_FORM": "Postać niedostępna",
-    "DIFFERENT_RELEASE": "Inne uwalnianie: {{ref}} vs {{other}}",
+    "DIFFERENT_RELEASE": "Inne uwalnianie: {{ref}} → {{other}}",
     "UNKNOWN_RELEASE": "Sposób uwalniania niedostępny",
-    "DIFFERENT_ROUTE": "Inna droga podania: {{ref}} vs {{other}}",
+    "DIFFERENT_ROUTE": "Inna droga podania: {{ref}} → {{other}}",
     "UNKNOWN_ROUTE": "Droga podania niedostępna",
     "DIFFERENT_PRESCRIPTION_STATUS": "Inna kategoria dostępności",
-    "DIFFERENT_PACKAGE_SIZE": "Inne opakowanie: {{ref}} vs {{other}}",
+    "DIFFERENT_PACKAGE_SIZE": "Inne opakowanie: {{ref}} → {{other}}",
     "DIFFERENT_COUNTRY": "Zarejestrowane w różnych krajach"
   },
   "severity": {
@@ -540,5 +544,53 @@
     "takePhoto": "Zrób zdjęcie",
     "fromGallery": "Wybierz z galerii",
     "privacy": "Zdjęcie służy tylko do odczytania tekstu i nie jest zapisywane."
+  },
+  "form": {
+    "CAPSULE_HARD": "Kapsułki twarde",
+    "CAPSULE_SOFT": "Kapsułki miękkie",
+    "CREAM": "Krem",
+    "EFFERVESCENT_TABLET": "Tabletki musujące",
+    "EYE_DROPS": "Krople do oczu",
+    "FILM_COATED_TABLET": "Tabletki powlekane",
+    "GASTRO_RESISTANT_CAPSULE": "Kapsułki dojelitowe",
+    "GASTRO_RESISTANT_TABLET": "Tabletki dojelitowe",
+    "GEL": "Żel",
+    "GRANULES": "Granulat",
+    "NASAL_SPRAY": "Aerozol do nosa",
+    "OINTMENT": "Maść",
+    "ORAL_SOLUTION": "Roztwór doustny",
+    "ORAL_SUSPENSION": "Zawiesina doustna",
+    "ORODISPERSIBLE_TABLET": "Tabletki ulegające rozpadowi w jamie ustnej",
+    "PROLONGED_RELEASE_TABLET": "Tabletki o przedłużonym uwalnianiu",
+    "SOLUTION_FOR_INJECTION": "Roztwór do wstrzykiwań",
+    "SUPPOSITORY": "Czopki",
+    "SYRUP": "Syrop",
+    "TABLET": "Tabletki",
+    "TRANSDERMAL_PATCH": "System transdermalny"
+  },
+  "packUnit": {
+    "tablet": "tabl.",
+    "capsule": "kaps.",
+    "ml": "ml",
+    "g": "g",
+    "sachet": "sasz.",
+    "patch": "plast.",
+    "ampoule": "amp.",
+    "vial": "fiol.",
+    "suppository": "czop.",
+    "dose": "dawek",
+    "unit": "szt."
+  },
+  "service": {
+    "BLOOD_PRESSURE": "Pomiar ciśnienia",
+    "COMPOUNDING": "Leki recepturowe",
+    "ENGLISH_SPOKEN": "Mówimy po angielsku",
+    "HOMEOPATHY": "Homeopatia",
+    "MEDICATION_REVIEW": "Przegląd lekowy",
+    "NIGHT_SERVICE": "Dyżur nocny",
+    "PARKING": "Parking",
+    "RAPID_TESTS": "Szybkie testy",
+    "VACCINATION": "Szczepienia",
+    "WHEELCHAIR_ACCESS": "Dostęp dla wózków"
   }
 }

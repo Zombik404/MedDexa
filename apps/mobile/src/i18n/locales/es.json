@@ -129,7 +129,10 @@
       "any": "Cualquiera",
       "addMore": "Añadir otro",
       "typeToSee": "Escribe una letra para ver opciones",
-      "noOptions": "Nada empieza así"
+      "noOptions": "Nada empieza así",
+      "typeDigit": "Escribe un número para ver opciones",
+      "typeAtc": "Escribe una letra o un código (p. ej. N02)",
+      "typeNumber": "Escribe el inicio del número"
     },
     "s": {
       "relevance": "Relevancia",
@@ -220,7 +223,8 @@
     "findPharmacy": "Farmacias cercanas",
     "save": "Guardar",
     "saved": "Guardado",
-    "sameComposition": "Mismos principios activos"
+    "sameComposition": "Mismos principios activos",
+    "saltOf": "sal de {{name}}"
   },
   "composition": {
     "SAME_ACTIVE_INGREDIENT": "Mismo principio activo",
@@ -528,5 +532,53 @@
     "takePhoto": "Hacer una foto",
     "fromGallery": "Elegir de la galería",
     "privacy": "La foto solo se usa para leer el texto y no se guarda."
+  },
+  "form": {
+    "CAPSULE_HARD": "Cápsula dura",
+    "CAPSULE_SOFT": "Cápsula blanda",
+    "CREAM": "Crema",
+    "EFFERVESCENT_TABLET": "Comprimido efervescente",
+    "EYE_DROPS": "Colirio",
+    "FILM_COATED_TABLET": "Comprimido recubierto con película",
+    "GASTRO_RESISTANT_CAPSULE": "Cápsula gastrorresistente",
+    "GASTRO_RESISTANT_TABLET": "Comprimido gastrorresistente",
+    "GEL": "Gel",
+    "GRANULES": "Granulado",
+    "NASAL_SPRAY": "Pulverización nasal",
+    "OINTMENT": "Pomada",
+    "ORAL_SOLUTION": "Solución oral",
+    "ORAL_SUSPENSION": "Suspensión oral",
+    "ORODISPERSIBLE_TABLET": "Comprimido bucodispersable",
+    "PROLONGED_RELEASE_TABLET": "Comprimido de liberación prolongada",
+    "SOLUTION_FOR_INJECTION": "Solución inyectable",
+    "SUPPOSITORY": "Supositorio",
+    "SYRUP": "Jarabe",
+    "TABLET": "Comprimido",
+    "TRANSDERMAL_PATCH": "Parche transdérmico"
+  },
+  "packUnit": {
+    "tablet": "comprimidos",
+    "capsule": "cápsulas",
+    "ml": "ml",
+    "g": "g",
+    "sachet": "sobres",
+    "patch": "parches",
+    "ampoule": "ampollas",
+    "vial": "viales",
+    "suppository": "supositorios",
+    "dose": "dosis",
+    "unit": "unidades"
+  },
+  "service": {
+    "BLOOD_PRESSURE": "Toma de tensión",
+    "COMPOUNDING": "Fórmulas magistrales",
+    "ENGLISH_SPOKEN": "Se habla inglés",
+    "HOMEOPATHY": "Homeopatía",
+    "MEDICATION_REVIEW": "Revisión de la medicación",
+    "NIGHT_SERVICE": "Servicio nocturno / de guardia",
+    "PARKING": "Aparcamiento",
+    "RAPID_TESTS": "Pruebas rápidas",
+    "VACCINATION": "Vacunación",
+    "WHEELCHAIR_ACCESS": "Accesible en silla de ruedas"
   }
 }

@@ -340,3 +340,10 @@ export interface FilterOption {
   /** Products in the catalogue with this value. */
   count: number;
 }
+
+/** Active-ingredient names in the user's language (from official/curated synonyms). */
+export interface IngredientNames {
+  byId: Record<string, string>;
+  /** Keyed by the catalogue (English INN) name, for filter values. */
+  byName: Record<string, string>;
+}

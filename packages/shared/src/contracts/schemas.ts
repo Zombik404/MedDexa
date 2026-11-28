@@ -28,7 +28,8 @@ export const medicineSearchSchema = paginationSchema.extend({
   form: z.string().trim().max(60).optional(),
   route: z.string().trim().max(60).optional(),
   prescription: z.enum(['RX', 'OTC', 'PHARMACY_ONLY']).optional(),
-  country: z.string().trim().length(2).toUpperCase().optional(),
+  /** One or more markets (comma-separated ISO codes). */
+  country: csv.pipe(z.array(z.string().length(2).toUpperCase()).max(30)).optional(),
   strength: z.string().trim().max(40).optional(),
   packageSize: z.coerce.number().positive().optional(),
   barcode: z.string().trim().regex(/^\d{8,14}$/).optional(),
@@ -172,3 +173,5 @@ export const filterOptionsSchema = z.object({
   field: z.enum(FILTER_OPTION_FIELDS),
   q: z.string().trim().max(80).default(''),
 });
+
+export const ingredientNamesSchema = z.object({ lang: z.string().trim().min(2).max(10) });

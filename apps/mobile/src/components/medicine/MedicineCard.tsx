@@ -5,14 +5,17 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 import { Badge, Card, Text } from '@/components/ui';
 import { MedicineImage } from './MedicineImage';
+import { useLocalize } from '@/lib/localize';
 import { flag, formatMoney } from '@/lib/format';
 import { useCompare } from '@/store/compare';
 import { useToast } from '@/components/ui/Toast';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, spacing } from '@/theme/tokens';
 
-export function ingredientLine(m: Pick<MedicineSummary, 'ingredients'>) {
-  return m.ingredients.map((i) => `${i.substanceName}${i.display ? ` ${i.display}` : ''}`).join(' + ');
+/** "ibuprofen 400 mg + caffeine 65 mg", in the app language. */
+export function useIngredientLine() {
+  const l = useLocalize();
+  return (m: Pick<MedicineSummary, 'ingredients'>) => m.ingredients.map((i) => `${l.ingredient(i)}${i.display ? ` ${l.dose(i.display)}` : ''}`).join(' + ');
 }
 
 export function MedicineCard({ medicine: m, compact, testID }: { medicine: MedicineSummary; compact?: boolean; testID?: string }) {
@@ -22,6 +25,7 @@ export function MedicineCard({ medicine: m, compact, testID }: { medicine: Medic
   const inCompare = useCompare((s) => s.items.some((i) => i.id === m.id));
   const toggle = useCompare((s) => s.toggle);
   const toast = useToast();
+  const ingredientLine = useIngredientLine();
 
   const onCompare = () => {
     const r = toggle({ id: m.id, name: m.name });

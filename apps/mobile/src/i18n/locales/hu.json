@@ -129,7 +129,10 @@
       "any": "Bármely",
       "addMore": "Még egy hozzáadása",
       "typeToSee": "Írj be egy betűt a lehetőségekhez",
-      "noOptions": "Nincs ilyen kezdetű találat"
+      "noOptions": "Nincs ilyen kezdetű találat",
+      "typeDigit": "Írj be egy számot a lehetőségekhez",
+      "typeAtc": "Írj be betűt vagy kódot (pl. N02)",
+      "typeNumber": "Írd be a szám elejét"
     },
     "s": {
       "relevance": "Relevancia",
@@ -220,7 +223,8 @@
     "findPharmacy": "Közeli patikák",
     "save": "Mentés",
     "saved": "Elmentve",
-    "sameComposition": "Azonos hatóanyagok"
+    "sameComposition": "Azonos hatóanyagok",
+    "saltOf": "{{name}} sója"
   },
   "composition": {
     "SAME_ACTIVE_INGREDIENT": "Azonos hatóanyag",
@@ -528,5 +532,53 @@
     "takePhoto": "Fotó készítése",
     "fromGallery": "Választás a galériából",
     "privacy": "A fotót csak a szöveg felismerésére használjuk, nem tároljuk."
+  },
+  "form": {
+    "CAPSULE_HARD": "Kemény kapszula",
+    "CAPSULE_SOFT": "Lágy kapszula",
+    "CREAM": "Krém",
+    "EFFERVESCENT_TABLET": "Pezsgőtabletta",
+    "EYE_DROPS": "Szemcsepp",
+    "FILM_COATED_TABLET": "Filmtabletta",
+    "GASTRO_RESISTANT_CAPSULE": "Gyomornedv-ellenálló kapszula",
+    "GASTRO_RESISTANT_TABLET": "Gyomornedv-ellenálló tabletta",
+    "GEL": "Gél",
+    "GRANULES": "Granulátum",
+    "NASAL_SPRAY": "Orrspray",
+    "OINTMENT": "Kenőcs",
+    "ORAL_SOLUTION": "Belsőleges oldat",
+    "ORAL_SUSPENSION": "Belsőleges szuszpenzió",
+    "ORODISPERSIBLE_TABLET": "Szájban diszpergálódó tabletta",
+    "PROLONGED_RELEASE_TABLET": "Retard tabletta",
+    "SOLUTION_FOR_INJECTION": "Oldatos injekció",
+    "SUPPOSITORY": "Végbélkúp",
+    "SYRUP": "Szirup",
+    "TABLET": "Tabletta",
+    "TRANSDERMAL_PATCH": "Transzdermális tapasz"
+  },
+  "packUnit": {
+    "tablet": "db tabletta",
+    "capsule": "db kapszula",
+    "ml": "ml",
+    "g": "g",
+    "sachet": "tasak",
+    "patch": "tapasz",
+    "ampoule": "ampulla",
+    "vial": "injekciós üveg",
+    "suppository": "kúp",
+    "dose": "adag",
+    "unit": "db"
+  },
+  "service": {
+    "BLOOD_PRESSURE": "Vérnyomásmérés",
+    "COMPOUNDING": "Magisztrális gyógyszerkészítés",
+    "ENGLISH_SPOKEN": "Angolul beszélnek",
+    "HOMEOPATHY": "Homeopátia",
+    "MEDICATION_REVIEW": "Gyógyszerelési tanácsadás",
+    "NIGHT_SERVICE": "Éjszakai / ügyeleti szolgálat",
+    "PARKING": "Parkolás",
+    "RAPID_TESTS": "Gyorstesztek",
+    "VACCINATION": "Oltás",
+    "WHEELCHAIR_ACCESS": "Akadálymentes"
   }
 }

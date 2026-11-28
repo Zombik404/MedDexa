@@ -1,5 +1,6 @@
 import type { IngredientView } from '@meddexa/shared';
 import { ChevronRight } from 'lucide-react-native';
+import { useLocalize } from '@/lib/localize';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 import { Text } from '@/components/ui';
@@ -10,6 +11,7 @@ import { radius, spacing } from '@/theme/tokens';
 export function IngredientList({ ingredients, onPressIngredient }: { ingredients: IngredientView[]; onPressIngredient?: (i: IngredientView) => void }) {
   const { colors } = useTheme();
   const { t } = useTranslation();
+  const l = useLocalize();
   if (!ingredients.length) return <Text color="textSecondary">{t('common.unknown')}</Text>;
   return (
     <View style={{ borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' }}>
@@ -20,22 +22,22 @@ export function IngredientList({ ingredients, onPressIngredient }: { ingredients
           disabled={!onPressIngredient}
           onPress={() => onPressIngredient?.(i)}
           accessibilityRole={onPressIngredient ? 'button' : undefined}
-          accessibilityLabel={`${i.substanceName} ${i.display ?? t('common.unknown')}`}
+          accessibilityLabel={`${l.ingredient(i)} ${l.dose(i.display) || t('common.unknown')}`}
           accessibilityHint={onPressIngredient ? t('medicine.ingredientHint') : undefined}
           style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm, padding: spacing.lg, backgroundColor: pressed ? colors.surfaceAlt : colors.surface, borderTopWidth: idx ? 1 : 0, borderTopColor: colors.border })}
         >
           <View style={{ flex: 1 }}>
             <Text variant="bodyStrong" style={{ textTransform: 'capitalize' }}>
-              {i.substanceName}
+              {l.ingredient(i)}
             </Text>
             {i.moietyName && i.moietyName !== i.substanceName ? (
               <Text variant="small" color="textSecondary">
-                {i.basis === 'MOIETY' ? `= ${i.moietyName}` : `${i.moietyName} (salt)`}
+                {i.basis === 'MOIETY' ? `= ${l.ingredientName(i.moietyName, i.moietyId)}` : t('medicine.saltOf', { name: l.ingredientName(i.moietyName, i.moietyId) })}
               </Text>
             ) : null}
           </View>
           <Text variant="mono" color="primary">
-            {i.display ?? t('medicine.amountUnknown')}
+            {i.display ? l.dose(i.display) : t('medicine.amountUnknown')}
           </Text>
           {onPressIngredient ? <ChevronRight size={16} color={colors.textTertiary} /> : null}
         </Pressable>

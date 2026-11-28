@@ -129,7 +129,10 @@
       "any": "Qualsiasi",
       "addMore": "Aggiungine un altro",
       "typeToSee": "Digita una lettera per vedere le opzioni",
-      "noOptions": "Niente inizia così"
+      "noOptions": "Niente inizia così",
+      "typeDigit": "Digita un numero per vedere le opzioni",
+      "typeAtc": "Digita una lettera o un codice (es. N02)",
+      "typeNumber": "Digita l’inizio del numero"
     },
     "s": {
       "relevance": "Pertinenza",
@@ -220,7 +223,8 @@
     "findPharmacy": "Farmacie vicine",
     "save": "Salva",
     "saved": "Salvato",
-    "sameComposition": "Stessi principi attivi"
+    "sameComposition": "Stessi principi attivi",
+    "saltOf": "sale di {{name}}"
   },
   "composition": {
     "SAME_ACTIVE_INGREDIENT": "Stesso principio attivo",
@@ -243,20 +247,20 @@
   "diff": {
     "MISSING_INGREDIENT": "Manca {{ref}}",
     "ADDITIONAL_INGREDIENT": "Contiene in più {{other}}",
-    "DIFFERENT_STRENGTH": "Dosaggio diverso: {{ref}} vs {{other}}",
-    "DIFFERENT_CONCENTRATION": "Concentrazione diversa: {{ref}} vs {{other}}",
-    "DIFFERENT_SALT": "Sale diverso: {{ref}} vs {{other}}",
-    "INCOMPARABLE_STRENGTH": "Dosaggi non direttamente confrontabili ({{ref}} vs {{other}})",
+    "DIFFERENT_STRENGTH": "Dosaggio diverso: {{ref}} → {{other}}",
+    "DIFFERENT_CONCENTRATION": "Concentrazione diversa: {{ref}} → {{other}}",
+    "DIFFERENT_SALT": "Sale diverso: {{ref}} → {{other}}",
+    "INCOMPARABLE_STRENGTH": "Dosaggi non direttamente confrontabili ({{ref}} → {{other}})",
     "UNKNOWN_STRENGTH": "Dosaggio non disponibile",
-    "DIFFERENT_FORM": "Forma diversa: {{ref}} vs {{other}}",
-    "FORM_VARIANT": "Variante di forma: {{ref}} vs {{other}}",
+    "DIFFERENT_FORM": "Forma diversa: {{ref}} → {{other}}",
+    "FORM_VARIANT": "Variante di forma: {{ref}} → {{other}}",
     "UNKNOWN_FORM": "Forma non disponibile",
-    "DIFFERENT_RELEASE": "Rilascio diverso: {{ref}} vs {{other}}",
+    "DIFFERENT_RELEASE": "Rilascio diverso: {{ref}} → {{other}}",
     "UNKNOWN_RELEASE": "Rilascio non disponibile",
-    "DIFFERENT_ROUTE": "Via diversa: {{ref}} vs {{other}}",
+    "DIFFERENT_ROUTE": "Via diversa: {{ref}} → {{other}}",
     "UNKNOWN_ROUTE": "Via non disponibile",
     "DIFFERENT_PRESCRIPTION_STATUS": "Regime di dispensazione diverso",
-    "DIFFERENT_PACKAGE_SIZE": "Confezione diversa: {{ref}} vs {{other}}",
+    "DIFFERENT_PACKAGE_SIZE": "Confezione diversa: {{ref}} → {{other}}",
     "DIFFERENT_COUNTRY": "Autorizzati in paesi diversi"
   },
   "severity": {
@@ -528,5 +532,53 @@
     "takePhoto": "Scatta una foto",
     "fromGallery": "Scegli dalla galleria",
     "privacy": "La foto serve solo a leggere il testo e non viene salvata."
+  },
+  "form": {
+    "CAPSULE_HARD": "Capsula rigida",
+    "CAPSULE_SOFT": "Capsula molle",
+    "CREAM": "Crema",
+    "EFFERVESCENT_TABLET": "Compressa effervescente",
+    "EYE_DROPS": "Collirio",
+    "FILM_COATED_TABLET": "Compressa rivestita con film",
+    "GASTRO_RESISTANT_CAPSULE": "Capsula gastroresistente",
+    "GASTRO_RESISTANT_TABLET": "Compressa gastroresistente",
+    "GEL": "Gel",
+    "GRANULES": "Granulato",
+    "NASAL_SPRAY": "Spray nasale",
+    "OINTMENT": "Unguento",
+    "ORAL_SOLUTION": "Soluzione orale",
+    "ORAL_SUSPENSION": "Sospensione orale",
+    "ORODISPERSIBLE_TABLET": "Compressa orodispersibile",
+    "PROLONGED_RELEASE_TABLET": "Compressa a rilascio prolungato",
+    "SOLUTION_FOR_INJECTION": "Soluzione iniettabile",
+    "SUPPOSITORY": "Supposta",
+    "SYRUP": "Sciroppo",
+    "TABLET": "Compressa",
+    "TRANSDERMAL_PATCH": "Cerotto transdermico"
+  },
+  "packUnit": {
+    "tablet": "compresse",
+    "capsule": "capsule",
+    "ml": "ml",
+    "g": "g",
+    "sachet": "bustine",
+    "patch": "cerotti",
+    "ampoule": "fiale",
+    "vial": "flaconcini",
+    "suppository": "supposte",
+    "dose": "dosi",
+    "unit": "unità"
+  },
+  "service": {
+    "BLOOD_PRESSURE": "Misurazione della pressione",
+    "COMPOUNDING": "Preparazioni galeniche",
+    "ENGLISH_SPOKEN": "Si parla inglese",
+    "HOMEOPATHY": "Omeopatia",
+    "MEDICATION_REVIEW": "Revisione della terapia",
+    "NIGHT_SERVICE": "Servizio notturno / di turno",
+    "PARKING": "Parcheggio",
+    "RAPID_TESTS": "Test rapidi",
+    "VACCINATION": "Vaccinazione",
+    "WHEELCHAIR_ACCESS": "Accessibile in sedia a rotelle"
   }
 }

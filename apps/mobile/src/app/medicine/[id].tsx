@@ -7,6 +7,7 @@ import { useMedicine, usePrices, useSimilar, useSignedIn } from '@/api/hooks';
 import { IngredientList } from '@/components/medicine/IngredientList';
 import { MedicineCard } from '@/components/medicine/MedicineCard';
 import { MedicineImage } from '@/components/medicine/MedicineImage';
+import { useLocalize } from '@/lib/localize';
 import { PriceList } from '@/components/medicine/PriceList';
 import { ReviewsBlock } from '@/components/Reviews';
 import { Screen } from '@/components/Screen';
@@ -48,6 +49,7 @@ function Collapsible({ title, children, first }: { title: string; children: Reac
 export default function MedicineScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useTranslation();
+  const l = useLocalize();
   const { colors } = useTheme();
   const router = useRouter();
   const toast = useToast();
@@ -104,7 +106,7 @@ export default function MedicineScreen() {
       </View>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: spacing.md }}>
         <Badge label={t(`rx.${m.prescription}`)} tone={m.prescription === 'RX' ? 'info' : 'neutral'} />
-        {m.form ? <Badge label={m.form.name} tone="primary" /> : null}
+        {m.form ? <Badge label={l.form(m.form)} tone="primary" /> : null}
         {m.release && m.release !== 'IMMEDIATE' && m.release !== 'UNKNOWN' ? <Badge label={t(`release.${m.release}`)} tone="warning" /> : null}
       </View>
       {m.isDemo ? (
@@ -171,9 +173,9 @@ export default function MedicineScreen() {
         <View style={{ paddingHorizontal: spacing.lg }}>
           <Collapsible title={t('medicine.details')} first>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-              <Detail label={t('medicine.form')} value={m.form?.name} />
+              <Detail label={t('medicine.form')} value={l.form(m.form)} />
               <Detail label={t('medicine.route')} value={m.route ? t(`route.${m.route}`, { defaultValue: m.route }) : null} />
-              <Detail label={t('medicine.package')} value={m.packageSize ? `${m.packageSize.quantity} ${m.packageSize.unit}` : null} />
+              <Detail label={t('medicine.package')} value={m.packageSize ? l.pack(m.packageSize.quantity, m.packageSize.unit) : null} />
               <Detail label={t('medicine.atc')} value={m.atcCode} />
               <Detail label={t('medicine.barcodes')} value={m.codes.filter((c) => c.system === 'GTIN').map((c) => c.code.replace(/^0/, '')).join(', ') || m.barcodes.join(', ')} />
               <Detail label={t('medicine.prescription')} value={t(`rx.${m.prescription}`)} />

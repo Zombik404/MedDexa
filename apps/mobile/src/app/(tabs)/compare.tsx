@@ -4,19 +4,21 @@ import { Check, GitCompareArrows, History, Plus, Star, Trash2, X } from 'lucide-
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
-import { useCompareQuery, useComparisonHistory, useMedicineSearch, useSignedIn } from '@/api/hooks';
+import { useCompareQuery, useComparisonHistory, useMedicineSearch, useMeta, useSignedIn } from '@/api/hooks';
 import { AssessmentBanner, DifferenceList, useAssessmentTone } from '@/components/medicine/Assessment';
 import { CompareMatrix } from '@/components/medicine/CompareMatrix';
-import { ingredientLine } from '@/components/medicine/MedicineCard';
+import { useIngredientLine } from '@/components/medicine/MedicineCard';
 import { Screen } from '@/components/Screen';
 import { Button, Card, EmptyState, ErrorState, ListSkeleton, SearchBar, Section, Sheet, Text } from '@/components/ui';
 import { ListGroup, ListRow } from '@/components/ui/ListRow';
-import { formatDate } from '@/lib/format';
+import { countryName, formatDate } from '@/lib/format';
+import { useLocalize } from '@/lib/localize';
 import { useCompare } from '@/store/compare';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, spacing } from '@/theme/tokens';
 
 function AddSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
+  const ingredientLine = useIngredientLine();
   const { t } = useTranslation();
   const { colors } = useTheme();
   const [q, setQ] = useState('');
@@ -77,13 +79,24 @@ export default function CompareScreen() {
     ? (remoteHistory.data ?? []).map((h) => ({ key: h.id, ids: h.medicineIds, names: h.medicineNames, at: h.createdAt }))
     : localHistory.map((h) => ({ key: h.ids.join(','), ...h }));
 
+  const l = useLocalize();
+  const meta = useMeta();
   const nameOf = (id: string) => q.data?.medicines.find((m) => m.id === id)?.name ?? '';
   const diffLabel = (side: 'ref' | 'other', d: Difference) => {
     const v = side === 'ref' ? d.reference : d.other;
     if (v == null) return '—';
     if (d.code === 'DIFFERENT_RELEASE') return t(`release.${v}`);
     if (d.code === 'DIFFERENT_ROUTE') return t(`route.${v}`, { defaultValue: v });
-    return v;
+    if (d.code === 'DIFFERENT_COUNTRY') return countryName(v);
+    if (d.code === 'DIFFERENT_PRESCRIPTION_STATUS') return t(`rx.${v}`, { defaultValue: v });
+    if (d.code === 'DIFFERENT_FORM' || d.code === 'FORM_VARIANT' || d.code === 'UNKNOWN_FORM') {
+      return l.form(meta.data?.forms.find((f) => f.name === v)) || v;
+    }
+    if (d.code === 'DIFFERENT_PACKAGE_SIZE') {
+      const m = v.match(/^([\d.]+)\s+(\S+)$/);
+      return m ? l.pack(m[1]!, m[2]!) : v;
+    }
+    return l.dose(l.ingredientName(v));
   };
 
   return (

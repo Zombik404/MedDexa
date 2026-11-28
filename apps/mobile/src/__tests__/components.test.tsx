@@ -1,11 +1,13 @@
 import type { MedicineSummary } from '@meddexa/shared';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '../i18n';
 import { AssessmentBanner } from '../components/medicine/Assessment';
 import { MedicineCard } from '../components/medicine/MedicineCard';
 import { MedicineImage } from '../components/medicine/MedicineImage';
 import { CategoryTile } from '../components/CategoryTile';
+import { localizeDose } from '../lib/localize';
 import { ToastProvider } from '../components/ui/Toast';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useCompare } from '../store/compare';
@@ -14,9 +16,11 @@ import { ThemeProvider } from '../theme/ThemeProvider';
 const wrap = (ui: ReactNode) =>
   render(
     <SafeAreaProvider initialMetrics={{ frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 0, left: 0, right: 0, bottom: 0 } }}>
-      <ThemeProvider>
-        <ToastProvider>{ui}</ToastProvider>
-      </ThemeProvider>
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } })}>
+        <ThemeProvider>
+          <ToastProvider>{ui}</ToastProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
     </SafeAreaProvider>,
   );
 
@@ -91,5 +95,14 @@ describe('CategoryTile', () => {
     await wrap(<CategoryTile slug="pain" icon="pain" onPress={onPress} />);
     await fireEvent.press(screen.getByLabelText('Pain relief'));
     expect(onPress).toHaveBeenCalled();
+  });
+});
+
+describe('localized display', () => {
+  it('writes units the Russian way', () => {
+    expect(localizeDose('400 mg', 'ru')).toBe('400 мг');
+    expect(localizeDose('100 mg/5 ml', 'ru')).toBe('100 мг/5 мл');
+    expect(localizeDose('1000 IU', 'uk')).toBe('1000 МО');
+    expect(localizeDose('400 mg', 'de')).toBe('400 mg');
   });
 });

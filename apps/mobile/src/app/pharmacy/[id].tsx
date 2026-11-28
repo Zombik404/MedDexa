@@ -108,7 +108,7 @@ export default function PharmacyScreen() {
         <Section title={t('pharmacies.services')}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
             {p.services.map((s) => (
-              <Badge key={s.code} label={s.name} tone="primary" />
+              <Badge key={s.code} label={t(`service.${s.code}`, { defaultValue: s.name })} tone="primary" />
             ))}
           </View>
         </Section>

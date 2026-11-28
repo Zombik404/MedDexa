@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 import { useFilterOptions } from '@/api/hooks';
+import { useLocalize } from '@/lib/localize';
 import { Chip, Text, TextField } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, spacing } from '@/theme/tokens';
@@ -30,7 +31,18 @@ export function TypeaheadField({ field, label, placeholder, values, onChange, mu
   const [text, setText] = useState('');
   const [open, setOpen] = useState(false);
   const options = useFilterOptions(field, text, open);
+  const l = useLocalize();
   const shown = (options.data ?? []).filter((o) => !values.includes(o.value)).slice(0, 6);
+  /** Option and chip text in the app language (values sent to the API stay as catalogued). */
+  const display = (value: string, label = value) => {
+    if (field === 'ingredient') return l.ingredientName(value);
+    if (field === 'strength') return l.dose(label);
+    if (field === 'packageSize') {
+      const m = label.match(/^([\d.]+)\s+(\S+)$/);
+      return m ? l.pack(m[1]!, m[2]!) : label;
+    }
+    return label;
+  };
 
   const pick = (value: string) => {
     onChange(multiple ? [...values, value] : [value]);
@@ -47,7 +59,7 @@ export function TypeaheadField({ field, label, placeholder, values, onChange, mu
           </Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
             {values.map((v) => (
-              <Chip key={v} icon={X} label={v} selected onPress={() => onChange(values.filter((x) => x !== v))} />
+              <Chip key={v} icon={X} label={display(v)} selected onPress={() => onChange(values.filter((x) => x !== v))} />
             ))}
           </View>
         </View>
@@ -73,7 +85,7 @@ export function TypeaheadField({ field, label, placeholder, values, onChange, mu
               key={o.value}
               testID={testID ? `${testID}-option-${i}` : undefined}
               accessibilityRole="button"
-              accessibilityLabel={o.label}
+              accessibilityLabel={display(o.value, o.label)}
               onPress={() => pick(o.value)}
               style={({ pressed }) => ({
                 flexDirection: 'row',
@@ -88,9 +100,9 @@ export function TypeaheadField({ field, label, placeholder, values, onChange, mu
             >
               <View style={{ flex: 1 }}>
                 <Text variant="bodyStrong" numberOfLines={1}>
-                  {o.label}
+                  {display(o.value, o.label)}
                 </Text>
-                {o.secondary ? (
+                {o.secondary && (field !== 'atc' || l.lang.startsWith('en')) && (field !== 'ingredient' || o.secondary !== display(o.value)) ? (
                   <Text variant="small" color="textSecondary" numberOfLines={1}>
                     {o.secondary}
                   </Text>
@@ -114,20 +126,20 @@ export function TypeaheadField({ field, label, placeholder, values, onChange, mu
 }
 
 /** Country picker: flags and names, one tap to choose. */
-export function CountryList({ countries, value, onChange }: { countries: { code: string; name: string; flag: string }[]; value?: string; onChange: (code?: string) => void }) {
+export function CountryList({ countries, values, onChange }: { countries: { code: string; name: string; flag: string }[]; values: string[]; onChange: (codes: string[]) => void }) {
   const { colors } = useTheme();
   return (
     <View style={{ borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' }}>
       {countries.map((c, i) => {
-        const selected = value === c.code;
+        const selected = values.includes(c.code);
         return (
           <Pressable
             key={c.code}
             testID={`country-${c.code}`}
-            accessibilityRole="radio"
+            accessibilityRole="checkbox"
             accessibilityState={{ selected }}
             accessibilityLabel={c.name}
-            onPress={() => onChange(selected ? undefined : c.code)}
+            onPress={() => onChange(selected ? values.filter((v) => v !== c.code) : [...values, c.code])}
             style={({ pressed }) => ({
               flexDirection: 'row',
               alignItems: 'center',

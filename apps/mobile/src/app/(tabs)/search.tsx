@@ -11,6 +11,7 @@ import { CategoryIcon } from '@/components/CategoryTile';
 import { CountryList, TypeaheadField } from '@/components/search/TypeaheadField';
 import { useDebounced } from '@/hooks/useDebounced';
 import { countryName, flag } from '@/lib/format';
+import { useLocalize } from '@/lib/localize';
 import { Button, Chip, EmptyState, ErrorState, IconButton, ListSkeleton, SearchBar, Sheet, Text } from '@/components/ui';
 import { ListRow } from '@/components/ui/ListRow';
 import { useLocal } from '@/store/local';
@@ -120,6 +121,7 @@ export default function SearchScreen() {
     .map((c) => ({ code: c.code, name: countryName(c.code), flag: flag(c.code) }))
     .sort((x, y) => x.name.localeCompare(y.name));
   const categories = useCategories();
+  const l = useLocalize();
   const typing = focused && debounced !== submitted ? debounced : '';
   const suggestions = useSuggestions(typing);
   const ingredientHits = useIngredientSearch(typing);
@@ -157,8 +159,10 @@ export default function SearchScreen() {
   const filterLabel = (k: string, v: unknown) => {
     if (k === 'hasPrice') return t('search.f.hasPrice');
     if (k === 'category') return t(`category.${v}`);
-    if (k === 'country') return `${flag(v as string)} ${countryName(v as string)}`;
-    if (k === 'ingredients') return `${t('search.ingredientChip')}: ${(v as string[]).join(' + ')}`;
+    if (k === 'country') return (v as string[]).map((c) => `${flag(c)} ${countryName(c)}`).join(', ');
+    if (k === 'ingredients') return `${t('search.ingredientChip')}: ${(v as string[]).map((n) => l.ingredientName(n)).join(' + ')}`;
+    if (k === 'form') return l.form(meta.data?.forms.find((f) => f.code === v));
+    if (k === 'strength') return l.dose(v as string);
     if (k === 'prescription') return t(`rx.${v}`);
     if (k === 'route') return t(`route.${v}`, { defaultValue: String(v) });
     if (k === 'form') return meta.data?.forms.find((f) => f.code === v)?.name ?? String(v);
@@ -223,8 +227,8 @@ export default function SearchScreen() {
                     <ListRow
                       key={h.id}
                       icon={FlaskConical}
-                      title={h.name}
-                      subtitle={[h.synonym, t('search.productCount', { count: h.medicineCount })].filter(Boolean).join(' · ')}
+                      title={l.ingredientName(h.name, h.id)}
+                      subtitle={[h.synonym !== l.ingredientName(h.name, h.id) ? h.synonym : null, t('search.productCount', { count: h.medicineCount })].filter(Boolean).join(' · ')}
                       onPress={() => {
                         setFilters({ ingredients: [h.name] });
                         submit('');
@@ -377,6 +381,7 @@ export default function SearchScreen() {
         <TypeaheadField
           testID="filter-strength"
           field="strength"
+          placeholder={t('search.f.typeDigit')}
           label={t('search.f.strength')}
           values={draft.strength ? [draft.strength] : []}
           onChange={(v) => setDraft({ ...draft, strength: v[0] })}
@@ -404,7 +409,7 @@ export default function SearchScreen() {
           </Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
             {(meta.data?.forms ?? []).map((f) => (
-              <Chip key={f.code} label={f.name} selected={draft.form === f.code} onPress={() => setDraft({ ...draft, form: draft.form === f.code ? undefined : f.code })} />
+              <Chip key={f.code} label={l.form(f)} selected={draft.form === f.code} onPress={() => setDraft({ ...draft, form: draft.form === f.code ? undefined : f.code })} />
             ))}
           </View>
         </View>
@@ -422,16 +427,18 @@ export default function SearchScreen() {
           <Text variant="small" color="textSecondary" style={{ fontFamily: 'Manrope_600SemiBold' }}>
             {t('search.f.country')}
           </Text>
-          <CountryList countries={countries} value={draft.country} onChange={(c) => setDraft({ ...draft, country: c })} />
+          <CountryList countries={countries} values={draft.country ?? []} onChange={(c) => setDraft({ ...draft, country: c.length ? c : undefined })} />
         </View>
         <TypeaheadField
           field="atc"
+          placeholder={t('search.f.typeAtc')}
           label={t('search.f.atc')}
           values={draft.atc ? [draft.atc] : []}
           onChange={(v) => setDraft({ ...draft, atc: v[0] })}
         />
         <TypeaheadField
           field="packageSize"
+          placeholder={t('search.f.typeDigit')}
           label={t('search.f.packageSize')}
           keyboardType="numeric"
           values={draft.packageSize ? [String(draft.packageSize)] : []}
@@ -439,6 +446,7 @@ export default function SearchScreen() {
         />
         <TypeaheadField
           field="registration"
+          placeholder={t('search.f.typeNumber')}
           label={t('search.f.registrationNumber')}
           values={draft.registrationNumber ? [draft.registrationNumber] : []}
           onChange={(v) => setDraft({ ...draft, registrationNumber: v[0] })}

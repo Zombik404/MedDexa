@@ -1,5 +1,7 @@
+import { useTranslation } from 'react-i18next';
 import type {
   CategoryView,
+  IngredientNames,
   FilterOption,
   FilterOptionField,
   IngredientHit,
@@ -309,5 +311,17 @@ export function useFilterOptions(field: FilterOptionField, q: string, enabled: b
     enabled,
     staleTime: 5 * 60_000,
     placeholderData: (prev) => prev,
+  });
+}
+
+/** Ingredient names in the app language (empty for English, where the catalogue names are used). */
+export function useIngredientNames() {
+  const { i18n } = useTranslation();
+  const lang = i18n.language.slice(0, 2);
+  return useQuery({
+    queryKey: ['ingredients', 'names', lang],
+    queryFn: () => api<IngredientNames>('/ingredients/names', { query: { lang } }),
+    enabled: lang !== 'en',
+    staleTime: 60 * 60_000,
   });
 }

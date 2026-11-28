@@ -70,7 +70,7 @@ function searchMedicines(q: URLSearchParams): MedicineSummary[] {
   }
   for (const key of ['prescription', 'country'] as const) {
     const v = q.get(key);
-    if (v) list = list.filter((m) => (key === 'country' ? m.countryCode : m.prescription) === v.toUpperCase());
+    if (v) list = list.filter((m) => (key === 'country' ? v.toUpperCase().split(',').includes(m.countryCode ?? '') : m.prescription === v.toUpperCase()));
   }
   const manufacturer = q.get('manufacturer');
   if (manufacturer) list = list.filter((m) => normalizeText(m.manufacturer ?? '').includes(normalizeText(manufacturer)));
@@ -228,6 +228,11 @@ async function handle(method: string, path: string, q: URLSearchParams, body: an
       .sort((a, c) => Number(!!a.synonym) - Number(!!c.synonym) || a.name.localeCompare(c.name))
       .slice(0, 8);
     return json(hits);
+  }
+  if (path === '/ingredients/names') {
+    const lang = (q.get('lang') ?? 'en').slice(0, 2);
+    const rows = (D.ingredients as any[]).filter((i) => i.local?.[lang]);
+    return json({ byId: Object.fromEntries(rows.map((i) => [i.id, i.local[lang]])), byName: Object.fromEntries(rows.map((i) => [i.name, i.local[lang]])) });
   }
   if (path === '/medicines/filter-options') return json(filterOptions(q.get('field') ?? '', q.get('q') ?? '', b.summaries));
   if (path === '/medicines/scan') {

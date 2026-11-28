@@ -66,6 +66,32 @@ async function seedAdmin() {
 
 const DEMO = { sourceId: 'demo', verification: 'DEMO' as const, isDemo: true };
 
+/** Russian and Ukrainian INN names shown in the app when those languages are selected. */
+const LOCAL_INGREDIENT_NAMES: Record<string, { ru: string; uk: string }> = {
+  ibuprofen: { ru: 'ибупрофен', uk: 'ібупрофен' },
+  'ibuprofen-lysine': { ru: 'ибупрофена лизинат', uk: 'ібупрофену лізинат' },
+  paracetamol: { ru: 'парацетамол', uk: 'парацетамол' },
+  caffeine: { ru: 'кофеин', uk: 'кофеїн' },
+  asa: { ru: 'ацетилсалициловая кислота', uk: 'ацетилсаліцилова кислота' },
+  diclofenac: { ru: 'диклофенак', uk: 'диклофенак' },
+  'diclofenac-sodium': { ru: 'диклофенак натрия', uk: 'диклофенак натрію' },
+  'diclofenac-diethylamine': { ru: 'диклофенак диэтиламин', uk: 'диклофенак діетиламін' },
+  cetirizine: { ru: 'цетиризин', uk: 'цетиризин' },
+  'cetirizine-2hcl': { ru: 'цетиризина дигидрохлорид', uk: 'цетиризину дигідрохлорид' },
+  loratadine: { ru: 'лоратадин', uk: 'лоратадин' },
+  omeprazole: { ru: 'омепразол', uk: 'омепразол' },
+  pseudoephedrine: { ru: 'псевдоэфедрин', uk: 'псевдоефедрин' },
+  'pseudoephedrine-hcl': { ru: 'псевдоэфедрина гидрохлорид', uk: 'псевдоефедрину гідрохлорид' },
+  ambroxol: { ru: 'амброксол', uk: 'амброксол' },
+  'ambroxol-hcl': { ru: 'амброксола гидрохлорид', uk: 'амброксолу гідрохлорид' },
+  colecalciferol: { ru: 'колекальциферол', uk: 'колекальциферол' },
+  hydrocortisone: { ru: 'гидрокортизон', uk: 'гідрокортизон' },
+  'hydrocortisone-acetate': { ru: 'гидрокортизона ацетат', uk: 'гідрокортизону ацетат' },
+  amlodipine: { ru: 'амлодипин', uk: 'амлодипін' },
+  'amlodipine-besilate': { ru: 'амлодипина безилат', uk: 'амлодипіну безилат' },
+  hypromellose: { ru: 'гипромеллоза', uk: 'гіпромелоза' },
+};
+
 const INGREDIENTS: { key: string; name: string; moiety?: string; synonyms: [string, string | null][] }[] = [
   { key: 'ibuprofen', name: 'ibuprofen', synonyms: [['Ibuprofen', 'de'], ['ibuprofén', 'hu'], ['ibuprofeno', 'es']] },
   { key: 'ibuprofen-lysine', name: 'ibuprofen lysine', moiety: 'ibuprofen', synonyms: [['ibuprofen lizyna', 'pl']] },
@@ -426,7 +452,9 @@ async function seedDemo() {
       },
     });
     ingredientIds.set(i.key, rec.id);
-    for (const [name, language] of i.synonyms) {
+    const local = LOCAL_INGREDIENT_NAMES[i.key];
+    const synonyms: [string, string | null][] = [...i.synonyms, ...(local ? ([[local.ru, 'ru'], [local.uk, 'uk']] as [string, string][]) : [])];
+    for (const [name, language] of synonyms) {
       await prisma.ingredientSynonym.upsert({
         where: { ingredientId_normalizedName: { ingredientId: rec.id, normalizedName: normalizeText(name) } },
         update: {},

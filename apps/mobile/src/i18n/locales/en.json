@@ -129,7 +129,10 @@
       "any": "Any",
       "addMore": "Add another",
       "typeToSee": "Type a letter to see options",
-      "noOptions": "Nothing starts with that"
+      "noOptions": "Nothing starts with that",
+      "typeDigit": "Type a number to see options",
+      "typeAtc": "Type a letter or code (e.g. N02)",
+      "typeNumber": "Type the start of the number"
     },
     "s": {
       "relevance": "Relevance",
@@ -220,7 +223,8 @@
     "findPharmacy": "Pharmacies nearby",
     "save": "Save",
     "saved": "Saved",
-    "sameComposition": "Same active ingredients"
+    "sameComposition": "Same active ingredients",
+    "saltOf": "salt of {{name}}"
   },
   "composition": {
     "SAME_ACTIVE_INGREDIENT": "Same active ingredient",
@@ -528,5 +532,53 @@
     "takePhoto": "Take a photo",
     "fromGallery": "Choose from gallery",
     "privacy": "The photo is only used to read the text and is not stored."
+  },
+  "form": {
+    "CAPSULE_HARD": "Capsule, hard",
+    "CAPSULE_SOFT": "Capsule, soft",
+    "CREAM": "Cream",
+    "EFFERVESCENT_TABLET": "Effervescent tablet",
+    "EYE_DROPS": "Eye drops, solution",
+    "FILM_COATED_TABLET": "Film-coated tablet",
+    "GASTRO_RESISTANT_CAPSULE": "Gastro-resistant capsule",
+    "GASTRO_RESISTANT_TABLET": "Gastro-resistant tablet",
+    "GEL": "Gel",
+    "GRANULES": "Granules",
+    "NASAL_SPRAY": "Nasal spray",
+    "OINTMENT": "Ointment",
+    "ORAL_SOLUTION": "Oral solution",
+    "ORAL_SUSPENSION": "Oral suspension",
+    "ORODISPERSIBLE_TABLET": "Orodispersible tablet",
+    "PROLONGED_RELEASE_TABLET": "Prolonged-release tablet",
+    "SOLUTION_FOR_INJECTION": "Solution for injection",
+    "SUPPOSITORY": "Suppository",
+    "SYRUP": "Syrup",
+    "TABLET": "Tablet",
+    "TRANSDERMAL_PATCH": "Transdermal patch"
+  },
+  "packUnit": {
+    "tablet": "tablets",
+    "capsule": "capsules",
+    "ml": "ml",
+    "g": "g",
+    "sachet": "sachets",
+    "patch": "patches",
+    "ampoule": "ampoules",
+    "vial": "vials",
+    "suppository": "suppositories",
+    "dose": "doses",
+    "unit": "units"
+  },
+  "service": {
+    "BLOOD_PRESSURE": "Blood pressure measurement",
+    "COMPOUNDING": "Compounding",
+    "ENGLISH_SPOKEN": "English spoken",
+    "HOMEOPATHY": "Homeopathy",
+    "MEDICATION_REVIEW": "Medication review",
+    "NIGHT_SERVICE": "Night / on-duty service",
+    "PARKING": "Parking",
+    "RAPID_TESTS": "Rapid tests",
+    "VACCINATION": "Vaccination",
+    "WHEELCHAIR_ACCESS": "Wheelchair accessible"
   }
 }

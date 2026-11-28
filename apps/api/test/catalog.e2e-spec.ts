@@ -299,4 +299,20 @@ describe('Catalogue, search, prices and comparison (guest)', () => {
     expect((await opts('registration', 'OGYI-T-DEMO-000')).length).toBeGreaterThan(0);
     await http.get('/v1/medicines/filter-options').query({ field: 'nope' }).expect(400);
   });
+
+  it('filters by several countries at once', async () => {
+    const at = await search({ country: 'AT' });
+    const hu = await search({ country: 'HU' });
+    const both = await search({ country: 'AT,HU', pageSize: '50' });
+    expect(both.total).toBeGreaterThanOrEqual(Math.max(at.total, hu.total));
+    expect(both.total).toBeLessThanOrEqual(at.total + hu.total);
+  });
+
+  it('returns ingredient names in the user language', async () => {
+    const ru = (await http.get('/v1/ingredients/names').query({ lang: 'ru' }).expect(200)).body as { byName: Record<string, string> };
+    expect(ru.byName.ibuprofen).toBe('ибупрофен');
+    expect(ru.byName['acetylsalicylic acid']).toBe('ацетилсалициловая кислота');
+    const de = (await http.get('/v1/ingredients/names').query({ lang: 'de' }).expect(200)).body as { byName: Record<string, string> };
+    expect(de.byName['acetylsalicylic acid']).toBeUndefined(); // "ASS" is an abbreviation, not a display name
+  });
 });

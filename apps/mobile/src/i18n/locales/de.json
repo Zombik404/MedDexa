@@ -129,7 +129,10 @@
       "any": "Beliebig",
       "addMore": "Weitere hinzufügen",
       "typeToSee": "Buchstaben eingeben für Vorschläge",
-      "noOptions": "Nichts beginnt so"
+      "noOptions": "Nichts beginnt so",
+      "typeDigit": "Zahl eingeben für Vorschläge",
+      "typeAtc": "Buchstabe oder Code eingeben (z. B. N02)",
+      "typeNumber": "Anfang der Nummer eingeben"
     },
     "s": {
       "relevance": "Relevanz",
@@ -220,7 +223,8 @@
     "findPharmacy": "Apotheken in der Nähe",
     "save": "Merken",
     "saved": "Gemerkt",
-    "sameComposition": "Gleiche Wirkstoffe"
+    "sameComposition": "Gleiche Wirkstoffe",
+    "saltOf": "Salz von {{name}}"
   },
   "composition": {
     "SAME_ACTIVE_INGREDIENT": "Gleicher Wirkstoff",
@@ -528,5 +532,53 @@
     "takePhoto": "Foto aufnehmen",
     "fromGallery": "Aus Galerie wählen",
     "privacy": "Das Foto wird nur zum Lesen des Textes verwendet und nicht gespeichert."
+  },
+  "form": {
+    "CAPSULE_HARD": "Hartkapsel",
+    "CAPSULE_SOFT": "Weichkapsel",
+    "CREAM": "Creme",
+    "EFFERVESCENT_TABLET": "Brausetablette",
+    "EYE_DROPS": "Augentropfen",
+    "FILM_COATED_TABLET": "Filmtablette",
+    "GASTRO_RESISTANT_CAPSULE": "Magensaftresistente Kapsel",
+    "GASTRO_RESISTANT_TABLET": "Magensaftresistente Tablette",
+    "GEL": "Gel",
+    "GRANULES": "Granulat",
+    "NASAL_SPRAY": "Nasenspray",
+    "OINTMENT": "Salbe",
+    "ORAL_SOLUTION": "Lösung zum Einnehmen",
+    "ORAL_SUSPENSION": "Suspension zum Einnehmen",
+    "ORODISPERSIBLE_TABLET": "Schmelztablette",
+    "PROLONGED_RELEASE_TABLET": "Retardtablette",
+    "SOLUTION_FOR_INJECTION": "Injektionslösung",
+    "SUPPOSITORY": "Zäpfchen",
+    "SYRUP": "Sirup",
+    "TABLET": "Tablette",
+    "TRANSDERMAL_PATCH": "Transdermales Pflaster"
+  },
+  "packUnit": {
+    "tablet": "Tabletten",
+    "capsule": "Kapseln",
+    "ml": "ml",
+    "g": "g",
+    "sachet": "Beutel",
+    "patch": "Pflaster",
+    "ampoule": "Ampullen",
+    "vial": "Durchstechflaschen",
+    "suppository": "Zäpfchen",
+    "dose": "Dosen",
+    "unit": "Stück"
+  },
+  "service": {
+    "BLOOD_PRESSURE": "Blutdruckmessung",
+    "COMPOUNDING": "Rezepturherstellung",
+    "ENGLISH_SPOKEN": "Englisch wird gesprochen",
+    "HOMEOPATHY": "Homöopathie",
+    "MEDICATION_REVIEW": "Medikationsberatung",
+    "NIGHT_SERVICE": "Nacht- / Notdienst",
+    "PARKING": "Parkplatz",
+    "RAPID_TESTS": "Schnelltests",
+    "VACCINATION": "Impfung",
+    "WHEELCHAIR_ACCESS": "Rollstuhlgerecht"
   }
 }

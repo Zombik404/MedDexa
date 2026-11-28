@@ -4,6 +4,7 @@ import { Throttle } from '@nestjs/throttler';
 import { ApiBody, ApiConsumes, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import {
   filterOptionsSchema,
+  ingredientNamesSchema,
   ingredientSearchSchema,
   type FilterOptionField,
   medicineSearchSchema,
@@ -144,6 +145,13 @@ export class MedicinesController {
 @Controller('ingredients')
 export class IngredientsController {
   constructor(private readonly searchService: SearchService) {}
+
+  @Get('names')
+  @ApiOperation({ summary: 'Ingredient names in a language (for showing the catalogue in the user language)' })
+  @ApiQuery({ name: 'lang' })
+  names(@Query(new ZodPipe(ingredientNamesSchema)) query: { lang: string }) {
+    return this.searchService.ingredientNames(query.lang);
+  }
 
   @Get('search')
   @ApiOperation({ summary: 'Active ingredients by name or translated synonym, with product counts' })

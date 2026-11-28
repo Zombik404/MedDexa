@@ -130,7 +130,10 @@
       "any": "Oricare",
       "addMore": "Adaugă încă unul",
       "typeToSee": "Scrie o literă pentru a vedea opțiunile",
-      "noOptions": "Nimic nu începe așa"
+      "noOptions": "Nimic nu începe așa",
+      "typeDigit": "Scrie o cifră pentru a vedea opțiunile",
+      "typeAtc": "Scrie o literă sau un cod (ex. N02)",
+      "typeNumber": "Scrie începutul numărului"
     },
     "s": {
       "relevance": "Relevanță",
@@ -222,7 +225,8 @@
     "findPharmacy": "Farmacii în apropiere",
     "save": "Salvează",
     "saved": "Salvat",
-    "sameComposition": "Aceleași substanțe active"
+    "sameComposition": "Aceleași substanțe active",
+    "saltOf": "sare de {{name}}"
   },
   "composition": {
     "SAME_ACTIVE_INGREDIENT": "Aceeași substanță activă",
@@ -245,20 +249,20 @@
   "diff": {
     "MISSING_INGREDIENT": "Lipsește {{ref}}",
     "ADDITIONAL_INGREDIENT": "Conține în plus {{other}}",
-    "DIFFERENT_STRENGTH": "Concentrație diferită: {{ref}} vs {{other}}",
-    "DIFFERENT_CONCENTRATION": "Concentrație diferită: {{ref}} vs {{other}}",
-    "DIFFERENT_SALT": "Sare diferită: {{ref}} vs {{other}}",
-    "INCOMPARABLE_STRENGTH": "Concentrații necomparabile direct ({{ref}} vs {{other}})",
+    "DIFFERENT_STRENGTH": "Concentrație diferită: {{ref}} → {{other}}",
+    "DIFFERENT_CONCENTRATION": "Concentrație diferită: {{ref}} → {{other}}",
+    "DIFFERENT_SALT": "Sare diferită: {{ref}} → {{other}}",
+    "INCOMPARABLE_STRENGTH": "Concentrații necomparabile direct ({{ref}} → {{other}})",
     "UNKNOWN_STRENGTH": "Concentrație indisponibilă",
-    "DIFFERENT_FORM": "Formă diferită: {{ref}} vs {{other}}",
-    "FORM_VARIANT": "Variantă de formă: {{ref}} vs {{other}}",
+    "DIFFERENT_FORM": "Formă diferită: {{ref}} → {{other}}",
+    "FORM_VARIANT": "Variantă de formă: {{ref}} → {{other}}",
     "UNKNOWN_FORM": "Formă indisponibilă",
-    "DIFFERENT_RELEASE": "Eliberare diferită: {{ref}} vs {{other}}",
+    "DIFFERENT_RELEASE": "Eliberare diferită: {{ref}} → {{other}}",
     "UNKNOWN_RELEASE": "Mod de eliberare indisponibil",
-    "DIFFERENT_ROUTE": "Cale diferită: {{ref}} vs {{other}}",
+    "DIFFERENT_ROUTE": "Cale diferită: {{ref}} → {{other}}",
     "UNKNOWN_ROUTE": "Cale indisponibilă",
     "DIFFERENT_PRESCRIPTION_STATUS": "Mod de eliberare (prescripție) diferit",
-    "DIFFERENT_PACKAGE_SIZE": "Ambalaj diferit: {{ref}} vs {{other}}",
+    "DIFFERENT_PACKAGE_SIZE": "Ambalaj diferit: {{ref}} → {{other}}",
     "DIFFERENT_COUNTRY": "Autorizate în țări diferite"
   },
   "severity": {
@@ -534,5 +538,53 @@
     "takePhoto": "Fă o fotografie",
     "fromGallery": "Alege din galerie",
     "privacy": "Fotografia este folosită doar pentru a citi textul și nu este stocată."
+  },
+  "form": {
+    "CAPSULE_HARD": "Capsule",
+    "CAPSULE_SOFT": "Capsule moi",
+    "CREAM": "Cremă",
+    "EFFERVESCENT_TABLET": "Comprimate efervescente",
+    "EYE_DROPS": "Picături oftalmice",
+    "FILM_COATED_TABLET": "Comprimate filmate",
+    "GASTRO_RESISTANT_CAPSULE": "Capsule gastrorezistente",
+    "GASTRO_RESISTANT_TABLET": "Comprimate gastrorezistente",
+    "GEL": "Gel",
+    "GRANULES": "Granule",
+    "NASAL_SPRAY": "Spray nazal",
+    "OINTMENT": "Unguent",
+    "ORAL_SOLUTION": "Soluție orală",
+    "ORAL_SUSPENSION": "Suspensie orală",
+    "ORODISPERSIBLE_TABLET": "Comprimate orodispersabile",
+    "PROLONGED_RELEASE_TABLET": "Comprimate cu eliberare prelungită",
+    "SOLUTION_FOR_INJECTION": "Soluție injectabilă",
+    "SUPPOSITORY": "Supozitoare",
+    "SYRUP": "Sirop",
+    "TABLET": "Comprimate",
+    "TRANSDERMAL_PATCH": "Plasture transdermic"
+  },
+  "packUnit": {
+    "tablet": "comprimate",
+    "capsule": "capsule",
+    "ml": "ml",
+    "g": "g",
+    "sachet": "plicuri",
+    "patch": "plasturi",
+    "ampoule": "fiole",
+    "vial": "flacoane",
+    "suppository": "supozitoare",
+    "dose": "doze",
+    "unit": "bucăți"
+  },
+  "service": {
+    "BLOOD_PRESSURE": "Măsurarea tensiunii",
+    "COMPOUNDING": "Preparate magistrale",
+    "ENGLISH_SPOKEN": "Se vorbește engleză",
+    "HOMEOPATHY": "Homeopatie",
+    "MEDICATION_REVIEW": "Consiliere privind medicația",
+    "NIGHT_SERVICE": "Serviciu de noapte / de gardă",
+    "PARKING": "Parcare",
+    "RAPID_TESTS": "Teste rapide",
+    "VACCINATION": "Vaccinare",
+    "WHEELCHAIR_ACCESS": "Acces pentru scaun cu rotile"
   }
 }

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { Text } from '@/components/ui';
+import { useLocalize } from '@/lib/localize';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, spacing } from '@/theme/tokens';
 
@@ -57,6 +58,7 @@ export function MedicineImage({ medicine, size = 'thumb', testID }: { medicine: 
   const { colors } = useTheme();
   const { t } = useTranslation();
   const [failed, setFailed] = useState(false);
+  const l = useLocalize();
   const dims = size === 'hero' ? { width: '100%' as const, height: 220 } : size === 'card' ? { width: 72, height: 72 } : { width: 56, height: 56 };
   const round = size === 'hero' ? radius.xxl : radius.lg;
   const photo = medicine.imageUrl && !failed ? medicine.imageUrl : null;
@@ -89,7 +91,7 @@ export function MedicineImage({ medicine, size = 'thumb', testID }: { medicine: 
             <FormIllustration formCode={medicine.form?.code} size={size === 'hero' ? 72 : size === 'card' ? 32 : 26} color={colors.primary} />
             {size === 'hero' && medicine.form ? (
               <Text variant="small" color="textSecondary">
-                {medicine.form.name}
+                {l.form(medicine.form)}
               </Text>
             ) : null}
           </View>
