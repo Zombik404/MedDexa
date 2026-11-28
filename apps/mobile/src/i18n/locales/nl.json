@@ -126,7 +126,10 @@
       "registrationNumber": "Registratienummer",
       "atc": "ATC-code",
       "hasPrice": "Alleen met actuele prijs",
-      "any": "Alle"
+      "any": "Alle",
+      "addMore": "Nog een toevoegen",
+      "typeToSee": "Typ een letter om opties te zien",
+      "noOptions": "Niets begint zo"
     },
     "s": {
       "relevance": "Relevantie",

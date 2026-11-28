@@ -1,5 +1,5 @@
 import { forwardRef, type ComponentRef } from 'react';
-import { TextInput, View, type TextInputProps } from 'react-native';
+import { Platform, TextInput, View, type TextInputProps } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
 import { fonts, radius, spacing } from '@/theme/tokens';
 import { Text } from './Text';
@@ -25,6 +25,7 @@ export const TextField = forwardRef<ComponentRef<typeof TextInput>, Props>(funct
         maxFontSizeMultiplier={1.5}
         multiline={multiline}
         style={[
+          Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : null,
           {
             minHeight: multiline ? 120 : 52,
             paddingHorizontal: spacing.lg,

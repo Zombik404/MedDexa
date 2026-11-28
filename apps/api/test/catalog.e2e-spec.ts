@@ -287,4 +287,16 @@ describe('Catalogue, search, prices and comparison (guest)', () => {
     const pain = await search({ category: 'pain', q: 'aspirina' });
     expect(pain.items.map((m) => m.name)).toContain('ASPIRINA C 400 mg/240 mg COMPRIMIDOS EFERVESCENTES');
   });
+
+  it('suggests filter values that start with the typed letters', async () => {
+    const opts = (field: string, q: string) => http.get('/v1/medicines/filter-options').query({ field, q }).expect(200).then((r) => r.body as { value: string; count: number }[]);
+    expect((await opts('ingredient', 'p')).map((o) => o.value)).toContain('paracetamol');
+    expect((await opts('ingredient', '')).length).toBeGreaterThan(3);
+    expect((await opts('manufacturer', 'dex'))[0]!.value).toBe('Dexalis Pharma (demo)');
+    expect((await opts('atc', 'M01'))[0]!.value).toBe('M01');
+    expect((await opts('strength', '40')).map((o) => o.value)).toContain('400 mg');
+    expect((await opts('packageSize', '2')).map((o) => o.value)).toContain('20');
+    expect((await opts('registration', 'OGYI-T-DEMO-000')).length).toBeGreaterThan(0);
+    await http.get('/v1/medicines/filter-options').query({ field: 'nope' }).expect(400);
+  });
 });

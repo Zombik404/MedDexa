@@ -9,6 +9,8 @@ import {
   normalizeText,
   parseScannedCode,
   tokenize,
+  type FilterOption,
+  type FilterOptionField,
   type IngredientHit,
   type MedicineSearchQuery,
   type Suggestion,
@@ -222,5 +224,69 @@ export class SearchService {
       ORDER BY ts_rank(m."searchVector", to_tsquery('simple', ${orq})) DESC, m.name
       LIMIT ${limit}`);
     return rows.map((r) => r.id);
+  }
+
+  /** Type-ahead values for one search filter, starting with what was typed, most common first. */
+  async filterOptions(field: FilterOptionField, input: string): Promise<FilterOption[]> {
+    const raw = hasCyrillic(input) ? transliterateCyrillic(input) : input;
+    const q = normalizeText(raw);
+    const like = `${q}%`;
+    const demo = this.config.get('ALLOW_DEMO_DATA', { infer: true }) ? Prisma.empty : Prisma.sql`AND m."isDemo" = false`;
+    const live = Prisma.sql`m.status = 'ACTIVE' AND m."duplicateOfId" IS NULL ${demo}`;
+    type Row = { value: string; label: string; secondary: string | null; count: bigint };
+    let rows: Row[] = [];
+    switch (field) {
+      case 'ingredient':
+        if (q.length >= 2) return (await this.ingredients(raw)).map((h) => ({ value: h.name, label: h.name, secondary: h.synonym, count: h.medicineCount }));
+        rows = await this.prisma.$queryRaw<Row[]>(Prisma.sql`
+          SELECT coalesce(mo.name, ai.name) AS value, coalesce(mo.name, ai.name) AS label, NULL AS secondary, count(DISTINCT m.id) AS count
+          FROM ingredient_quantities iq JOIN active_ingredients ai ON ai.id = iq."ingredientId"
+          LEFT JOIN active_ingredients mo ON mo.id = ai."moietyId" JOIN medicines m ON m.id = iq."medicineId"
+          WHERE ${live} AND coalesce(mo."normalizedName", ai."normalizedName") LIKE ${like}
+          GROUP BY 1, 2 ORDER BY count DESC, 1 LIMIT 12`);
+        break;
+      case 'manufacturer':
+        rows = await this.prisma.$queryRaw<Row[]>(Prisma.sql`
+          SELECT mf.name AS value, mf.name AS label, NULL AS secondary, count(*) AS count
+          FROM medicines m JOIN manufacturers mf ON mf.id = m."manufacturerId"
+          WHERE ${live} AND (mf."normalizedName" LIKE ${like} OR mf."normalizedName" LIKE ${'% ' + like})
+          GROUP BY mf.name, mf."normalizedName" ORDER BY (mf."normalizedName" LIKE ${like}) DESC, count DESC, mf.name LIMIT 12`);
+        break;
+      case 'atc':
+        rows = await this.prisma.$queryRaw<Row[]>(Prisma.sql`
+          SELECT a.code AS value, a.code AS label, a.name AS secondary,
+            (SELECT count(*) FROM medicines m WHERE ${live} AND m."atcCode" LIKE a.code || '%') AS count
+          FROM atc_classes a
+          WHERE a.code ILIKE ${raw.trim().toUpperCase() + '%'} OR lower(a.name) LIKE ${like} OR lower(a.name) LIKE ${'% ' + like}
+          ORDER BY (a.code ILIKE ${raw.trim().toUpperCase() + '%'}) DESC, length(a.code), a.code LIMIT 40`);
+        rows = rows.filter((r) => Number(r.count) > 0).slice(0, 12);
+        break;
+      case 'strength':
+        rows = await this.prisma.$queryRaw<Row[]>(Prisma.sql`
+          SELECT s.v AS value, s.v AS label, NULL AS secondary, count(DISTINCT s.mid) AS count FROM (
+            SELECT trim(trailing '.' FROM trim(trailing '0' FROM iq.amount::text)) || ' ' || iq.unit
+              || coalesce('/' || nullif(trim(trailing '.' FROM trim(trailing '0' FROM iq."perAmount"::text)), '1') || iq."perUnit", coalesce('/' || iq."perUnit", '')) AS v,
+              m.id AS mid
+            FROM ingredient_quantities iq JOIN medicines m ON m.id = iq."medicineId"
+            WHERE ${live} AND iq.amount IS NOT NULL AND iq.unit IS NOT NULL) s
+          WHERE lower(s.v) LIKE ${like} GROUP BY s.v ORDER BY count DESC, s.v LIMIT 12`);
+        break;
+      case 'packageSize':
+        rows = await this.prisma.$queryRaw<Row[]>(Prisma.sql`
+          SELECT trim(trailing '.' FROM trim(trailing '0' FROM pk.quantity::text)) AS value,
+            trim(trailing '.' FROM trim(trailing '0' FROM pk.quantity::text)) || ' ' || pk.unit AS label, NULL AS secondary, count(DISTINCT m.id) AS count
+          FROM medicine_packages pk JOIN medicines m ON m.id = pk."medicineId"
+          WHERE ${live} AND pk.quantity::text LIKE ${like}
+          GROUP BY 1, 2 ORDER BY count DESC, min(pk.quantity) LIMIT 12`);
+        break;
+      case 'registration':
+        rows = await this.prisma.$queryRaw<Row[]>(Prisma.sql`
+          SELECT r."registrationNumber" AS value, r."registrationNumber" AS label, r."countryCode" || ' · ' || m.name AS secondary, 1::bigint AS count
+          FROM product_registrations r JOIN medicines m ON m.id = r."medicineId"
+          WHERE ${live} AND r."registrationNumber" ILIKE ${raw.trim() + '%'}
+          ORDER BY r."registrationNumber" LIMIT 12`);
+        break;
+    }
+    return rows.map((r) => ({ value: r.value, label: r.label, secondary: r.secondary, count: Number(r.count) }));
   }
 }

@@ -164,3 +164,11 @@ export const photoTextSchema = z.object({
 export const ingredientSearchSchema = z.object({
   q: z.string().trim().min(2).max(80),
 });
+
+export const FILTER_OPTION_FIELDS = ['ingredient', 'manufacturer', 'atc', 'strength', 'packageSize', 'registration'] as const;
+export type FilterOptionField = (typeof FILTER_OPTION_FIELDS)[number];
+/** Type-ahead for the search filters: values that start with what was typed (empty = most common). */
+export const filterOptionsSchema = z.object({
+  field: z.enum(FILTER_OPTION_FIELDS),
+  q: z.string().trim().max(80).default(''),
+});

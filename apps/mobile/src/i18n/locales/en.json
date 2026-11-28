@@ -126,7 +126,10 @@
       "registrationNumber": "Registration number",
       "atc": "ATC code",
       "hasPrice": "Only with current prices",
-      "any": "Any"
+      "any": "Any",
+      "addMore": "Add another",
+      "typeToSee": "Type a letter to see options",
+      "noOptions": "Nothing starts with that"
     },
     "s": {
       "relevance": "Relevance",

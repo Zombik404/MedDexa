@@ -5,9 +5,13 @@ import { useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Keyboard, Pressable, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useIngredientSearch, useMedicineSearch, useMeta, useSearchHistory, useSignedIn, useSuggestions } from '@/api/hooks';
+import { useCategories, useIngredientSearch, useMedicineSearch, useMeta, useSearchHistory, useSignedIn, useSuggestions } from '@/api/hooks';
 import { MedicineCard } from '@/components/medicine/MedicineCard';
-import { Button, Chip, EmptyState, ErrorState, IconButton, ListSkeleton, SearchBar, Sheet, Text, TextField } from '@/components/ui';
+import { CategoryIcon } from '@/components/CategoryTile';
+import { CountryList, TypeaheadField } from '@/components/search/TypeaheadField';
+import { useDebounced } from '@/hooks/useDebounced';
+import { countryName, flag } from '@/lib/format';
+import { Button, Chip, EmptyState, ErrorState, IconButton, ListSkeleton, SearchBar, Sheet, Text } from '@/components/ui';
 import { ListRow } from '@/components/ui/ListRow';
 import { useLocal } from '@/store/local';
 import { usePreferences } from '@/store/preferences';
@@ -18,15 +22,6 @@ type Filters = Partial<Pick<MedicineSearchQuery, 'ingredients' | 'manufacturer' 
 type Sort = MedicineSearchQuery['sort'];
 
 const SUGGEST_ICON = { medicine: Pill, ingredient: FlaskConical, manufacturer: Building2, atc: Layers } as const;
-
-function useDebounced<T>(value: T, ms = 280) {
-  const [v, setV] = useState(value);
-  useEffect(() => {
-    const id = setTimeout(() => setV(value), ms);
-    return () => clearTimeout(id);
-  }, [value, ms]);
-  return v;
-}
 
 /** Big, explicit entry points for the two non-typing ways to search. */
 function ActionRow({ icon: Icon, title, body, onPress, testID }: { icon: LucideIcon; title: string; body: string; onPress: () => void; testID: string }) {
@@ -121,6 +116,10 @@ export default function SearchScreen() {
   }, [params.focus]);
 
   const debounced = useDebounced(text);
+  const countries = (meta.data?.countries ?? [])
+    .map((c) => ({ code: c.code, name: countryName(c.code), flag: flag(c.code) }))
+    .sort((x, y) => x.name.localeCompare(y.name));
+  const categories = useCategories();
   const typing = focused && debounced !== submitted ? debounced : '';
   const suggestions = useSuggestions(typing);
   const ingredientHits = useIngredientSearch(typing);
@@ -158,6 +157,7 @@ export default function SearchScreen() {
   const filterLabel = (k: string, v: unknown) => {
     if (k === 'hasPrice') return t('search.f.hasPrice');
     if (k === 'category') return t(`category.${v}`);
+    if (k === 'country') return `${flag(v as string)} ${countryName(v as string)}`;
     if (k === 'ingredients') return `${t('search.ingredientChip')}: ${(v as string[]).join(' + ')}`;
     if (k === 'prescription') return t(`rx.${v}`);
     if (k === 'route') return t(`route.${v}`, { defaultValue: String(v) });
@@ -248,6 +248,45 @@ export default function SearchScreen() {
             <View style={{ gap: spacing.md }}>
               <ActionRow testID="action-scan" icon={ScanBarcode} title={t('scan.title')} body={t('scan.subtitle')} onPress={() => router.push('/scan')} />
               <ActionRow testID="action-photo" icon={Camera} title={t('photo.title')} body={t('photo.subtitle')} onPress={() => router.push('/photo')} />
+              {categories.data?.length ? (
+                <View style={{ gap: spacing.md, marginTop: spacing.lg }}>
+                  <Text variant="h3">{t('home.categories')}</Text>
+                  <View style={{ borderRadius: radius.xl, borderWidth: 1, borderColor: colors.border, overflow: 'hidden', backgroundColor: colors.surface }}>
+                    {categories.data.map((c, i) => (
+                      <Pressable
+                        key={c.slug}
+                        testID={`search-category-${c.slug}`}
+                        accessibilityRole="button"
+                        accessibilityLabel={t(`category.${c.slug}`)}
+                        onPress={() => {
+                          setText('');
+                          setSubmitted('');
+                          setFilters({ category: c.slug });
+                        }}
+                        style={({ pressed }) => ({
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          gap: spacing.md,
+                          paddingVertical: spacing.md,
+                          paddingHorizontal: spacing.lg,
+                          backgroundColor: pressed ? colors.surfaceAlt : colors.surface,
+                          borderTopWidth: i ? 1 : 0,
+                          borderTopColor: colors.border,
+                        })}
+                      >
+                        <CategoryIcon icon={c.icon} size={36} />
+                        <Text variant="bodyStrong" style={{ flex: 1 }}>
+                          {t(`category.${c.slug}`)}
+                        </Text>
+                        <Text variant="small" color="textTertiary">
+                          {c.count}
+                        </Text>
+                        <ChevronRight size={18} color={colors.textTertiary} />
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+              ) : null}
               {recent.length ? (
                 <View style={{ gap: spacing.md, marginTop: spacing.lg }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -327,15 +366,28 @@ export default function SearchScreen() {
           </View>
         }
       >
-        <TextField
+        <TypeaheadField
+          testID="filter-ingredients"
+          field="ingredient"
+          multiple
           label={t('search.f.ingredients')}
-          hint={t('search.f.ingredientsHint')}
-          value={(draft.ingredients ?? []).join(', ')}
-          onChangeText={(v) => setDraft({ ...draft, ingredients: v ? v.split(',').map((s) => s.trim()).filter(Boolean) : undefined })}
-          autoCapitalize="none"
+          values={draft.ingredients ?? []}
+          onChange={(v) => setDraft({ ...draft, ingredients: v.length ? v : undefined })}
         />
-        <TextField label={t('search.f.strength')} hint={t('search.f.strengthHint')} value={draft.strength ?? ''} onChangeText={(v) => setDraft({ ...draft, strength: v || undefined })} autoCapitalize="none" />
-        <TextField label={t('search.f.manufacturer')} value={draft.manufacturer ?? ''} onChangeText={(v) => setDraft({ ...draft, manufacturer: v || undefined })} />
+        <TypeaheadField
+          testID="filter-strength"
+          field="strength"
+          label={t('search.f.strength')}
+          values={draft.strength ? [draft.strength] : []}
+          onChange={(v) => setDraft({ ...draft, strength: v[0] })}
+        />
+        <TypeaheadField
+          testID="filter-manufacturer"
+          field="manufacturer"
+          label={t('search.f.manufacturer')}
+          values={draft.manufacturer ? [draft.manufacturer] : []}
+          onChange={(v) => setDraft({ ...draft, manufacturer: v[0] })}
+        />
         <View style={{ gap: spacing.sm }}>
           <Text variant="small" color="textSecondary" style={{ fontFamily: 'Manrope_600SemiBold' }}>
             {t('search.f.prescription')}
@@ -370,15 +422,27 @@ export default function SearchScreen() {
           <Text variant="small" color="textSecondary" style={{ fontFamily: 'Manrope_600SemiBold' }}>
             {t('search.f.country')}
           </Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-            {(meta.data?.countries ?? []).map((c) => (
-              <Chip key={c.code} label={c.code} selected={draft.country === c.code} onPress={() => setDraft({ ...draft, country: draft.country === c.code ? undefined : c.code })} />
-            ))}
-          </View>
+          <CountryList countries={countries} value={draft.country} onChange={(c) => setDraft({ ...draft, country: c })} />
         </View>
-        <TextField label={t('search.f.atc')} value={draft.atc ?? ''} onChangeText={(v) => setDraft({ ...draft, atc: v ? v.toUpperCase() : undefined })} autoCapitalize="characters" />
-        <TextField label={t('search.f.packageSize')} value={draft.packageSize ? String(draft.packageSize) : ''} onChangeText={(v) => setDraft({ ...draft, packageSize: Number(v) || undefined })} keyboardType="numeric" />
-        <TextField label={t('search.f.registrationNumber')} value={draft.registrationNumber ?? ''} onChangeText={(v) => setDraft({ ...draft, registrationNumber: v || undefined })} autoCapitalize="characters" />
+        <TypeaheadField
+          field="atc"
+          label={t('search.f.atc')}
+          values={draft.atc ? [draft.atc] : []}
+          onChange={(v) => setDraft({ ...draft, atc: v[0] })}
+        />
+        <TypeaheadField
+          field="packageSize"
+          label={t('search.f.packageSize')}
+          keyboardType="numeric"
+          values={draft.packageSize ? [String(draft.packageSize)] : []}
+          onChange={(v) => setDraft({ ...draft, packageSize: v[0] ? Number(v[0]) : undefined })}
+        />
+        <TypeaheadField
+          field="registration"
+          label={t('search.f.registrationNumber')}
+          values={draft.registrationNumber ? [draft.registrationNumber] : []}
+          onChange={(v) => setDraft({ ...draft, registrationNumber: v[0] })}
+        />
         <ListRow title={t('search.f.hasPrice')} toggle={{ value: !!draft.hasPrice, onChange: (v) => setDraft({ ...draft, hasPrice: v || undefined }) }} last />
       </Sheet>
 

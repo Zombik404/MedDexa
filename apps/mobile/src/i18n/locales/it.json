@@ -126,7 +126,10 @@
       "registrationNumber": "Numero di autorizzazione",
       "atc": "Codice ATC",
       "hasPrice": "Solo con prezzo attuale",
-      "any": "Qualsiasi"
+      "any": "Qualsiasi",
+      "addMore": "Aggiungine un altro",
+      "typeToSee": "Digita una lettera per vedere le opzioni",
+      "noOptions": "Niente inizia così"
     },
     "s": {
       "relevance": "Pertinenza",

@@ -126,7 +126,10 @@
       "registrationNumber": "Zulassungsnummer",
       "atc": "ATC-Code",
       "hasPrice": "Nur mit aktuellen Preisen",
-      "any": "Beliebig"
+      "any": "Beliebig",
+      "addMore": "Weitere hinzufügen",
+      "typeToSee": "Buchstaben eingeben für Vorschläge",
+      "noOptions": "Nichts beginnt so"
     },
     "s": {
       "relevance": "Relevanz",

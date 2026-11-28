@@ -127,7 +127,10 @@
       "registrationNumber": "Număr de autorizare",
       "atc": "Cod ATC",
       "hasPrice": "Doar cu preț actual",
-      "any": "Oricare"
+      "any": "Oricare",
+      "addMore": "Adaugă încă unul",
+      "typeToSee": "Scrie o literă pentru a vedea opțiunile",
+      "noOptions": "Nimic nu începe așa"
     },
     "s": {
       "relevance": "Relevanță",

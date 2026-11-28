@@ -3,7 +3,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Throttle } from '@nestjs/throttler';
 import { ApiBody, ApiConsumes, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import {
+  filterOptionsSchema,
   ingredientSearchSchema,
+  type FilterOptionField,
   medicineSearchSchema,
   photoTextSchema,
   scanLookupSchema,
@@ -77,6 +79,14 @@ export class MedicinesController {
   @Get('categories')
   categories() {
     return this.medicines.categories();
+  }
+
+  @Get('filter-options')
+  @ApiOperation({ summary: 'Type-ahead values for a search filter (values starting with the typed text)' })
+  @ApiQuery({ name: 'field', enum: ['ingredient', 'manufacturer', 'atc', 'strength', 'packageSize', 'registration'] })
+  @ApiQuery({ name: 'q', required: false })
+  filterOptions(@Query(new ZodPipe(filterOptionsSchema)) query: { field: FilterOptionField; q: string }) {
+    return this.searchService.filterOptions(query.field, query.q);
   }
 
   @Get('scan')

@@ -126,7 +126,10 @@
       "registrationNumber": "Número de registo",
       "atc": "Código ATC",
       "hasPrice": "Apenas com preço atual",
-      "any": "Qualquer"
+      "any": "Qualquer",
+      "addMore": "Adicionar outro",
+      "typeToSee": "Escreva uma letra para ver opções",
+      "noOptions": "Nada começa assim"
     },
     "s": {
       "relevance": "Relevância",

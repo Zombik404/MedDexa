@@ -330,3 +330,13 @@ export interface PhotoSearchResponse {
   terms: string[];
   matches: MedicineSummary[];
 }
+
+export interface FilterOption {
+  /** Value to put into the filter. */
+  value: string;
+  label: string;
+  /** Extra line, e.g. an ATC name or a matching synonym. */
+  secondary: string | null;
+  /** Products in the catalogue with this value. */
+  count: number;
+}

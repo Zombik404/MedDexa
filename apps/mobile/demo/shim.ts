@@ -72,6 +72,15 @@ function searchMedicines(q: URLSearchParams): MedicineSummary[] {
     const v = q.get(key);
     if (v) list = list.filter((m) => (key === 'country' ? m.countryCode : m.prescription) === v.toUpperCase());
   }
+  const manufacturer = q.get('manufacturer');
+  if (manufacturer) list = list.filter((m) => normalizeText(m.manufacturer ?? '').includes(normalizeText(manufacturer)));
+  const strength = q.get('strength');
+  if (strength) list = list.filter((m) => m.ingredients.some((i) => normalizeText(i.display ?? '') === normalizeText(strength)));
+  const pack = q.get('packageSize');
+  if (pack) list = list.filter((m) => Number(m.packageSize?.quantity) === Number(pack));
+  const reg = q.get('registrationNumber');
+  if (reg) list = list.filter((m) => (bucket(q).details[m.id]?.registrations ?? []).some((r: any) => r.registrationNumber === reg));
+  if (q.get('route')) list = list.filter((m) => m.route === q.get('route'));
   if (q.get('form')) list = list.filter((m) => m.form?.code === q.get('form'));
   if (q.get('hasPrice') === 'true') list = list.filter((m) => !!m.lowestPrice);
   const barcode = q.get('barcode');
@@ -135,6 +144,54 @@ function searchPharmacies(q: URLSearchParams): PharmacySummary[] {
   return list;
 }
 
+/* ---- type-ahead filter values ---- */
+function countBy(values: (string | null | undefined)[]): Map<string, number> {
+  const m = new Map<string, number>();
+  for (const v of values) if (v) m.set(v, (m.get(v) ?? 0) + 1);
+  return m;
+}
+function filterOptions(field: string, raw: string, summaries: MedicineSummary[]) {
+  const q = normalizeText(hasCyrillic(raw) ? transliterateCyrillic(raw) : raw);
+  const starts = (s: string) => normalizeText(s).startsWith(q) || normalizeText(s).split(/\s+/).some((w) => w.startsWith(q));
+  const fromCounts = (m: Map<string, number>, secondary?: (v: string) => string | null, label?: (v: string) => string) =>
+    [...m.entries()]
+      .filter(([v]) => !q || starts(label ? label(v) : v) || (secondary && starts(secondary(v) ?? '')))
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, 12)
+      .map(([value, count]) => ({ value, label: label ? label(value) : value, secondary: secondary ? secondary(value) : null, count }));
+  switch (field) {
+    case 'ingredient':
+      return fromCounts(countBy(summaries.flatMap((m) => [...new Set(m.ingredients.map((i) => i.moietyName ?? i.substanceName))])));
+    case 'manufacturer':
+      return fromCounts(countBy(summaries.map((m) => m.manufacturer)));
+    case 'strength':
+      return fromCounts(countBy(summaries.flatMap((m) => m.ingredients.map((i) => i.display))));
+    case 'packageSize': {
+      const units = new Map(summaries.filter((m) => m.packageSize).map((m) => [String(Number(m.packageSize!.quantity)), m.packageSize!.unit]));
+      return fromCounts(countBy(summaries.map((m) => (m.packageSize ? String(Number(m.packageSize.quantity)) : null))), undefined, (v) => `${v} ${units.get(v) ?? ''}`.trim());
+    }
+    case 'atc': {
+      const names = new Map<string, string>((D.atc ?? []).map((a: any) => [a.code, a.name]));
+      const counts = new Map<string, number>();
+      for (const a of D.atc ?? []) {
+        const n = summaries.filter((m) => (m.atcCode ?? '').startsWith(a.code)).length;
+        if (n) counts.set(a.code, n);
+      }
+      return [...counts.entries()]
+        .filter(([c]) => !raw || c.startsWith(raw.trim().toUpperCase()) || starts(names.get(c) ?? ''))
+        .sort((a, b) => Number(b[0].startsWith(raw.trim().toUpperCase())) - Number(a[0].startsWith(raw.trim().toUpperCase())) || a[0].length - b[0].length || a[0].localeCompare(b[0]))
+        .slice(0, 12)
+        .map(([value, count]) => ({ value, label: value, secondary: names.get(value) ?? null, count }));
+    }
+    case 'registration': {
+      const regs = summaries.flatMap((m) => (D.currencies.EUR.details[m.id]?.registrations ?? []).map((r: any) => ({ value: r.registrationNumber, label: r.registrationNumber, secondary: `${r.countryCode} · ${m.name}`, count: 1 })));
+      return regs.filter((r: any) => r.value && r.value.toUpperCase().startsWith(raw.trim().toUpperCase())).slice(0, 12);
+    }
+    default:
+      return [];
+  }
+}
+
 /* ---- router ---- */
 async function handle(method: string, path: string, q: URLSearchParams, body: any): Promise<Response> {
   const b = bucket(q);
@@ -172,6 +229,7 @@ async function handle(method: string, path: string, q: URLSearchParams, body: an
       .slice(0, 8);
     return json(hits);
   }
+  if (path === '/medicines/filter-options') return json(filterOptions(q.get('field') ?? '', q.get('q') ?? '', b.summaries));
   if (path === '/medicines/scan') {
     const code = q.get('code') ?? '';
     const ids = scanIds(code);

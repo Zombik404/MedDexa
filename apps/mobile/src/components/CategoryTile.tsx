@@ -20,6 +20,18 @@ const ICONS: Record<string, LucideIcon> = {
   women: Venus,
 };
 
+/** Category icon in its tinted circle (static elements keep React from remounting icons). */
+export function CategoryIcon({ icon, size = 42 }: { icon: string; size?: number }) {
+  const { colors } = useTheme();
+  const p = { size: Math.round(size / 2), color: colors.primary, strokeWidth: 2 };
+  const Icon = ICONS[icon] ?? Pill;
+  return (
+    <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' }}>
+      {Icon === Zap ? <Zap {...p} /> : Icon === Thermometer ? <Thermometer {...p} /> : Icon === Flower2 ? <Flower2 {...p} /> : Icon === Soup ? <Soup {...p} /> : Icon === Sparkles ? <Sparkles {...p} /> : Icon === Citrus ? <Citrus {...p} /> : Icon === HeartPulse ? <HeartPulse {...p} /> : Icon === Moon ? <Moon {...p} /> : Icon === Eye ? <Eye {...p} /> : Icon === ShieldPlus ? <ShieldPlus {...p} /> : Icon === Droplet ? <Droplet {...p} /> : Icon === Venus ? <Venus {...p} /> : <Pill {...p} />}
+    </View>
+  );
+}
+
 export function CategoryTile({ slug, icon, onPress, width }: { slug: string; icon: string; onPress: () => void; width?: number }) {
   const { colors } = useTheme();
   const { t } = useTranslation();

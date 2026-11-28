@@ -126,7 +126,10 @@
       "registrationNumber": "Forgalombahozatali szám",
       "atc": "ATC-kód",
       "hasPrice": "Csak aktuális árral",
-      "any": "Bármely"
+      "any": "Bármely",
+      "addMore": "Még egy hozzáadása",
+      "typeToSee": "Írj be egy betűt a lehetőségekhez",
+      "noOptions": "Nincs ilyen kezdetű találat"
     },
     "s": {
       "relevance": "Relevancia",

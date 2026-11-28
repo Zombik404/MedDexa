@@ -1,5 +1,7 @@
 import type {
   CategoryView,
+  FilterOption,
+  FilterOptionField,
   IngredientHit,
   PhotoSearchResponse,
   ScanLookupResponse,
@@ -32,6 +34,7 @@ import type {
 import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { usePreferences } from '@/store/preferences';
 import { useSession } from '@/store/session';
+import { useDebounced } from '@/hooks/useDebounced';
 import { api, apiUploadImage } from './client';
 
 export const useCurrency = () => usePreferences((s) => s.currency);
@@ -294,5 +297,17 @@ export function usePhotoSearch() {
   const currency = useCurrency();
   return useMutation({
     mutationFn: (image: { uri: string; mimeType?: string | null }) => apiUploadImage<PhotoSearchResponse>('/medicines/photo', image, { currency }),
+  });
+}
+
+/** Type-ahead values for a search filter; runs while the field is focused. */
+export function useFilterOptions(field: FilterOptionField, q: string, enabled: boolean) {
+  const debounced = useDebounced(q, 150);
+  return useQuery({
+    queryKey: ['filter-options', field, debounced],
+    queryFn: ({ signal }) => api<FilterOption[]>('/medicines/filter-options', { query: { field, q: debounced }, signal }),
+    enabled,
+    staleTime: 5 * 60_000,
+    placeholderData: (prev) => prev,
   });
 }
