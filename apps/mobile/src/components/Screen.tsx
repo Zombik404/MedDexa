@@ -3,6 +3,7 @@ import { RefreshControl, ScrollView, View, type StyleProp, type ViewStyle } from
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { spacing } from '@/theme/tokens';
+import { FadeIn } from './FadeIn';
 import { Text } from './ui';
 
 interface Props {
@@ -40,8 +41,10 @@ export function Screen({ children, title, subtitle, right, scroll = true, topIns
   if (!scroll) {
     return (
       <View style={[{ flex: 1, backgroundColor: colors.background }, { paddingTop: padding.paddingTop }]}>
-        <View style={{ paddingHorizontal: spacing.xl }}>{header}</View>
-        {children}
+        <FadeIn style={{ flex: 1 }}>
+          <View style={{ paddingHorizontal: spacing.xl }}>{header}</View>
+          {children}
+        </FadeIn>
       </View>
     );
   }
@@ -53,8 +56,10 @@ export function Screen({ children, title, subtitle, right, scroll = true, topIns
       contentInsetAdjustmentBehavior="automatic"
       refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={colors.primary} /> : undefined}
     >
-      {header}
-      {children}
+      <FadeIn>
+        {header}
+        {children}
+      </FadeIn>
     </ScrollView>
   );
 }

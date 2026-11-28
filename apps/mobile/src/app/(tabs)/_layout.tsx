@@ -54,6 +54,9 @@ export default function TabsLayout() {
         tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 11 },
         tabBarStyle: { backgroundColor: colors.tabBar, borderTopColor: colors.border, height: Platform.OS === 'ios' ? 88 : 68, paddingTop: 6 },
         sceneStyle: { backgroundColor: colors.background },
+        // Tabs slide a little towards the chosen tab instead of cutting over.
+        animation: 'shift',
+        transitionSpec: { animation: 'timing', config: { duration: 220 } },
       }}
     >
       <Tabs.Screen name="index" options={{ title: t('tabs.home'), tabBarIcon: ({ color }) => <House size={22} color={color} strokeWidth={2} />, tabBarButtonTestID: 'tab-home' }} />

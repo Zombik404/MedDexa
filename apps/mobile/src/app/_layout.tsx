@@ -65,14 +65,19 @@ function Navigator() {
           headerTitleStyle: { fontFamily: fonts.bold, fontSize: 17 },
           headerBackButtonDisplayMode: 'minimal',
           contentStyle: { backgroundColor: colors.background },
+          // Native slide on both platforms (Android's default is an abrupt fade), swipe-back from anywhere on iOS.
+          animation: Platform.OS === 'android' ? 'slide_from_right' : 'default',
+          animationDuration: 280,
+          gestureEnabled: true,
+          fullScreenGestureEnabled: true,
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="medicine/[id]" options={{ title: '' }} />
         <Stack.Screen name="pharmacy/[id]" options={{ title: '' }} />
-        <Stack.Screen name="scan" options={{ presentation: 'fullScreenModal', headerShown: false }} />
-        <Stack.Screen name="photo" options={{ presentation: 'modal', title: t('photo.title') }} />
+        <Stack.Screen name="scan" options={{ presentation: 'fullScreenModal', headerShown: false, animation: 'fade_from_bottom' }} />
+        <Stack.Screen name="photo" options={{ presentation: 'modal', title: t('photo.title'), animation: 'slide_from_bottom' }} />
         <Stack.Screen name="review/new" options={{ presentation: 'modal', title: t('reviews.write') }} />
         <Stack.Screen name="auth/login" options={{ presentation: 'modal', title: '' }} />
         <Stack.Screen name="auth/register" options={{ presentation: 'modal', title: '' }} />
