@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import {
   categoryBySlug,
+  hasCyrillic,
+  transliterateCyrillic,
   normaliseQuantity,
   normalizeText,
   parseScannedCode,
@@ -44,8 +46,10 @@ export class SearchService {
     const where: Prisma.Sql[] = [Prisma.sql`m.status = 'ACTIVE'`, Prisma.sql`m."duplicateOfId" IS NULL`];
     if (!this.config.get('ALLOW_DEMO_DATA', { infer: true })) where.push(Prisma.sql`m."isDemo" = false`);
 
-    const q = params.q ? normalizeText(params.q) : null;
-    const tsq = params.q ? toPrefixTsQuery(params.q) : null;
+    // Cyrillic queries (ru/uk users) are matched through their Latin transliteration.
+    const rawQ = params.q && hasCyrillic(params.q) ? transliterateCyrillic(params.q) : params.q;
+    const q = rawQ ? normalizeText(rawQ) : null;
+    const tsq = rawQ ? toPrefixTsQuery(rawQ) : null;
     if (q && tsq) {
       where.push(
         Prisma.sql`(m."searchVector" @@ to_tsquery('simple', ${tsq}) OR word_similarity(${q}, m."searchText") > ${FUZZY_THRESHOLD})`,
@@ -152,7 +156,8 @@ export class SearchService {
     return { ids: rows.map((r) => r.id), total: rows.length ? Number(rows[0]!.total) : 0 };
   }
 
-  async suggest(raw: string): Promise<Suggestion[]> {
+  async suggest(input: string): Promise<Suggestion[]> {
+    const raw = hasCyrillic(input) ? transliterateCyrillic(input) : input;
     const q = normalizeText(raw);
     if (!q) return [];
     const demo = this.config.get('ALLOW_DEMO_DATA', { infer: true }) ? Prisma.empty : Prisma.sql`AND m."isDemo" = false`;
@@ -183,8 +188,8 @@ export class SearchService {
   }
 
   /** Active ingredients matching a name or translated synonym, with how many products contain them. */
-  async ingredients(raw: string): Promise<IngredientHit[]> {
-    const q = normalizeText(raw);
+  async ingredients(input: string): Promise<IngredientHit[]> {
+    const q = normalizeText(hasCyrillic(input) ? transliterateCyrillic(input) : input);
     if (q.length < 2) return [];
     const demo = this.config.get('ALLOW_DEMO_DATA', { infer: true }) ? Prisma.empty : Prisma.sql`AND m."isDemo" = false`;
     const rows = await this.prisma.$queryRaw<{ id: string; name: string; synonym: string | null; count: bigint }[]>(Prisma.sql`

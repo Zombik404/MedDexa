@@ -31,7 +31,8 @@ const config: ExpoConfig = {
   },
   web: { favicon: './assets/favicon.png', bundler: 'metro', output: 'single' },
   plugins: [
-    'expo-router',
+    // The offline web preview (scripts/build-demo.mjs) needs one bundle without lazy route chunks.
+    process.env.MEDDEXA_SINGLE_BUNDLE ? ['expo-router', { asyncRoutes: false }] : 'expo-router',
     'expo-localization',
     'expo-secure-store',
     [

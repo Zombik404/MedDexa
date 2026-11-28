@@ -20,7 +20,7 @@ const ICONS: Record<string, LucideIcon> = {
   women: Venus,
 };
 
-export function CategoryTile({ slug, icon, onPress }: { slug: string; icon: string; onPress: () => void }) {
+export function CategoryTile({ slug, icon, onPress, width }: { slug: string; icon: string; onPress: () => void; width?: number }) {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const Icon = ICONS[icon] ?? Pill;
@@ -32,7 +32,7 @@ export function CategoryTile({ slug, icon, onPress }: { slug: string; icon: stri
       accessibilityLabel={label}
       onPress={onPress}
       style={({ pressed }) => ({
-        width: '31%',
+        width: width ?? '31%',
         minHeight: 96,
         padding: spacing.md,
         borderRadius: radius.lg,
@@ -48,7 +48,7 @@ export function CategoryTile({ slug, icon, onPress }: { slug: string; icon: stri
       <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' }}>
         <Icon size={21} color={colors.primary} strokeWidth={2} />
       </View>
-      <Text variant="small" align="center" numberOfLines={2} style={{ fontFamily: 'Manrope_600SemiBold' }}>
+      <Text variant="small" align="center" numberOfLines={2} style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 12.5, lineHeight: 16 }}>
         {label}
       </Text>
     </Pressable>

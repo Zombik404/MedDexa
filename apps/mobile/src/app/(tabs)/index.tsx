@@ -1,6 +1,7 @@
 import type { PharmacySummary } from '@meddexa/shared';
 import { useRouter } from 'expo-router';
 import { Camera, ChevronRight, LocateFixed, MapPin, ScanBarcode, Search } from 'lucide-react-native';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 import { useCategories, usePharmacySearch } from '@/api/hooks';
@@ -110,6 +111,8 @@ export default function Home() {
     location.status === 'granted' && !!location.coords,
   );
   const nearbyItems = (nearby.data?.pages[0]?.items ?? []).slice(0, 3);
+  const [gridWidth, setGridWidth] = useState(0);
+  const tileWidth = gridWidth ? Math.floor((gridWidth - spacing.sm * 2) / 3) : undefined;
 
   return (
     <Screen
@@ -170,9 +173,9 @@ export default function Home() {
         ) : categories.error ? (
           <ErrorState error={categories.error} onRetry={() => categories.refetch()} compact />
         ) : (
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
+          <View onLayout={(e) => setGridWidth(e.nativeEvent.layout.width)} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
             {(categories.data ?? []).map((c) => (
-              <CategoryTile key={c.slug} slug={c.slug} icon={c.icon} onPress={() => router.push({ pathname: '/search', params: { category: c.slug } })} />
+              <CategoryTile key={c.slug} slug={c.slug} icon={c.icon} width={tileWidth} onPress={() => router.push({ pathname: '/search', params: { category: c.slug } })} />
             ))}
           </View>
         )}

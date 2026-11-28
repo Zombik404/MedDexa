@@ -65,7 +65,7 @@ export function Button({ label, onPress, variant = 'primary', size = 'md', icon:
       ) : (
         <View style={styles.row}>
           {Icon ? <Icon size={size === 'md' ? 18 : 16} color={p.fg} strokeWidth={2.2} /> : null}
-          <Text variant="button" style={{ color: p.fg, fontSize: size === 'md' ? 15 : 14 }}>
+          <Text variant="button" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={{ color: p.fg, fontSize: size === 'md' ? 15 : 14, flexShrink: 1 }}>
             {label}
           </Text>
         </View>

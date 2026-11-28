@@ -1,6 +1,6 @@
 import { Search, X } from 'lucide-react-native';
 import { forwardRef, type ComponentRef } from 'react';
-import { Pressable, TextInput, View, type TextInputProps } from 'react-native';
+import { Platform, Pressable, TextInput, View, type TextInputProps } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
 import { fonts, radius, shadow, spacing } from '@/theme/tokens';
 import { Text } from './Text';
@@ -39,7 +39,7 @@ export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, Props>(funct
   }
   return (
     <View style={container}>
-      <Search size={19} color={colors.primary} strokeWidth={2.2} />
+      <Search size={19} color={colors.primary} strokeWidth={2.2} style={{ flexShrink: 0 }} />
       <TextInput
         ref={ref}
         value={value}
@@ -50,7 +50,7 @@ export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, Props>(funct
         autoCapitalize="none"
         accessibilityRole="search"
         maxFontSizeMultiplier={1.5}
-        style={{ flex: 1, fontFamily: fonts.medium, fontSize: 16, color: colors.text, height: '100%' }}
+        style={[{ flex: 1, minWidth: 0, fontFamily: fonts.medium, fontSize: 16, color: colors.text, height: '100%' }, Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : null]}
         {...rest}
       />
       {value ? (

@@ -51,3 +51,13 @@ describe('text normalisation', () => {
     expect(tokenize('Paracetamol+Caffeine 500mg')).toEqual(['paracetamol', 'caffeine', '500mg']);
   });
 });
+
+import { transliterateCyrillic } from './text';
+describe('transliterateCyrillic', () => {
+  it('maps common INNs written in Cyrillic', () => {
+    expect(transliterateCyrillic('Ибупрофен')).toBe('ibuprofen');
+    expect(transliterateCyrillic('парацетамол')).toBe('paracetamol');
+    expect(transliterateCyrillic('амоксициллин')).toBe('amoxicillin');
+    expect(transliterateCyrillic('витамин')).toBe('vitamin');
+  });
+});
